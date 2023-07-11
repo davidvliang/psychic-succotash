@@ -1,0 +1,14 @@
+.table {
+    text-align: center;
+    vertical-align: middle;
+}
+
+td {
+    /* border:  1px solid aliceblue; */
+    /* border-bottom-width: 1; */
+}
+
+#LogOutputTextArea {
+    font-family:'Courier New', Courier, monospace;
+    font-size: 0.8rem;
+}
