@@ -6,23 +6,22 @@
 import { useEffect, useState } from "react";
 
 // interface LogProps {
-//   buttonData: string;
+//   logData: string;
 // };
 
 // const LogOutput: React.FunctionComponent<LogProps> = (props) => {
-// const LogOutput: React.FC<LogProps> = ({buttonData}) => {
-const LogOutput = ({ buttonData }: { buttonData: string }) => {
-
-  // const {buttonData} = props
+// const LogOutput: React.FC<LogProps> = ({logData}) => {
+const LogOutput = ({ logData }: { logData: string }) => {
+  // const {logData} = props
   const [logStorage, setLogStorage] = useState("");
   useEffect(() => {
-    setLogStorage(logStorage.concat(buttonData) + "\n");
-  }, [buttonData]);
+    setLogStorage(logStorage.concat(logData) + "\n");
+  }, [logData]);
 
   return (
     <>
-      <div className="my-4">
-        <h2>Log</h2>
+      <div className="my-4 px-md-0">
+        <h1>Log</h1>
         <div className="form-group">
           <textarea
             readOnly
@@ -30,21 +29,11 @@ const LogOutput = ({ buttonData }: { buttonData: string }) => {
             id="LogOutputTextArea"
             rows={20}
             value={logStorage}
-          >
-            {/* {(typeof backendData.users === 'undefined') ? (
-              <p>Loading...</p>
-            ) : (
-              backendData.users.map((user, i) => (
-                <p key={i}>{user}</p>
-              ))
-            )} */}
-          </textarea>
+          ></textarea>
         </div>
       </div>
     </>
   );
 };
-
-// $('#LogOutputArea').value("hello");
 
 export default LogOutput;

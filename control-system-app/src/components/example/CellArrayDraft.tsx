@@ -91,7 +91,7 @@ function CellArray() {
   //   };
 
   return (
-    <div className="" id="arrayContainer text-center">
+    <form className="" id="arrayContainer text-center">
       {/* {createTable(4)} */}
       <table className="table table-borderless">
         <thead>
@@ -108,7 +108,7 @@ function CellArray() {
           <tr>
             <th scope="row">0</th>
             <td>
-              <input type="checkbox" className="btn-check" id="0-0" />
+              <input type="checkbox" className="btn btn-check" id="0-0" />
               <label className="btn btn-outline-primary" htmlFor="0-0">
                 -
               </label>
@@ -215,7 +215,7 @@ function CellArray() {
           </tr>
         </tbody>
       </table>
-    </div>
+    </form>
   );
 }
 export default CellArray;

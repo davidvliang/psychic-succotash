@@ -7,6 +7,6 @@ export default defineConfig({
   server: {
     port: 3000,
     host: true,
-    proxy: {'/api': 'http://192.168.50.113:5001'}
+    // proxy: {'/api': 'http://192.168.50.113:5001'}
   },
 })
