@@ -3,7 +3,9 @@ const socketIo = require("socket.io", "net");
 const http = require("http");
 const { spawn } = require("child_process");
 
-// SocketIO needs HTTP server to work. You can’t do app.use(socketIo) here like you’d normally do with libraries such as CORS. Instead, create an HTTP server and wrap the express app inside it.
+// SocketIO needs HTTP server to work. 
+// You can’t do app.use(socketIo) here like you’d normally do with libraries such as CORS. 
+// Instead, create an HTTP server and wrap the express app inside it.
 const app = express();
 const server = http.createServer(app);
 const PORT = 5001;
@@ -13,9 +15,6 @@ const serverLog = "serverLog";
 const submit = "submit";
 const stopButton = "stopButton";
 const programRunning = "programRunning";
-// const pythonOutput = "pythonOutput";
-// const timeLog = "timeLog";
-// const pythonIO = "pythonIO";
 
 const io = socketIo(server, {
   cors: {
@@ -46,14 +45,13 @@ io.on("connection", (socket) => {
       python.stdin.write(data);
     });
 
-    // // in close event we are sure that the stream from child process is closed
+    // in close event we are sure that the stream from child process is closed
     python.on("close", (code) => {
       logPrint(`[Python Output] Return ${code}`);
       io.emit(programRunning, false);
     });
 
     console.log(`[${getTS()}]`, "[Client]\n", data);
-    // logPrint(JSON.stringify(data));
   });
 
   socket.on("disconnect", (reason) => {
@@ -65,11 +63,6 @@ server.listen(PORT, (err) => {
   if (err) console.log(err);
   console.log(`[${getTS()}] Server Started on PORT ${PORT}`);
 });
-
-// setInterval(() => {
-//   io.emit(timeLog, new Date());
-//   logPrint(`[Server] Test ServerLog`);
-// }, 10000);
 
 function getTS() {
   const timestamp = Date.now(); // This would be the timestamp you want to format
