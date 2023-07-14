@@ -11,9 +11,9 @@ def pretty_print_array(arr, dim):
             arr_string = arr_string+f"{en} "
         else:
             arr_string = arr_string+f"{en}\n\t\t     "
-    return arr_string
-    
-def process_json(json_path):
+    return arr_string   
+
+# def process_json_as_file(json_path):
     """_summary_
 
     Args:
@@ -61,17 +61,21 @@ def process_input_as_json(json_input):
 
     data = json.loads(json_input)
 
-    return data['timestamp'], float(data['negVoltage']), float(data['posVoltage']), int(data['frequency']), int(data['dutyCycle']), int(data['defaultDuration']), list(data['dmuxOutputNum'])
+    return (data['timestamp'],
+            float(data['negVoltage']), 
+            float(data['posVoltage']), 
+            int(data['frequency']), 
+            int(data['dutyCycle']), 
+            int(data['defaultDuration']), 
+            list(data['dmuxOutputNum']))
 
 
 if __name__ == "__main__":
-    
+    # [timestamp, pos_voltage, neg_voltage, frequency, duty_cycle,
+    #     dmux_output_num] = process_json_as_file("dummy.json")
     
     [timestamp, pos_voltage, neg_voltage, frequency, 
      duty_cycle, default_duration, dmux_output_num] = process_input_as_json(sys.argv[1])
-    
-    # [timestamp, pos_voltage, neg_voltage, frequency, duty_cycle,
-    #     dmux_output_num] = process_json("dummy.json")
 
     print(f"Reading JSON from '{timestamp}'")
     print(f"   Negative Voltage: {neg_voltage} V")
@@ -81,9 +85,10 @@ if __name__ == "__main__":
     print(f"   Default Duration: {default_duration} s")
     print(f"   Configuration:    {pretty_print_array(dmux_output_num,4)}")
 
-    while (1):
-        print("Waiting for SIGINT: ")
-        a = input()
-        if a == 'q':
-            print("Program Aborted!!", end="")
-            exit()
+
+    # while (1):
+    print("Waiting to end program: ")
+    a = input()
+    if a == 'q':
+        print("Program Aborted!!", end="")
+        exit()
