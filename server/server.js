@@ -30,7 +30,6 @@ io.on("connection", (socket) => {
     io.emit(programRunning, true);
 
     // spawn new child process to call python script
-    // const python = spawn("python", ["./scripts/test.py", JSON.stringify(data)]);
     const python = spawn("python", [
       "./scripts/dummy_script.py",
       JSON.stringify(data),

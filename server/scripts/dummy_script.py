@@ -72,6 +72,7 @@ if __name__ == "__main__":
     # [timestamp, pos_voltage, neg_voltage, frequency, duty_cycle,
     #     dmux_output_num] = process_json_as_file("dummy.json")
     
+    ## Process JSON Input
     [timestamp, pos_voltage, neg_voltage, frequency, 
      duty_cycle, default_duration, dmux_output_num] = process_input_as_json(sys.argv[1])
 
@@ -83,8 +84,7 @@ if __name__ == "__main__":
     print(f"   Default Duration: {default_duration} s")
     print(f"   Configuration:    {pretty_print_array(dmux_output_num,4)}")
 
-
-    # while (1):
+    ## Test Stop Button
     print("Waiting to end program: ")
     a = input()
     if a == 'q':
