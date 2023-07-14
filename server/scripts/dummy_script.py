@@ -1,7 +1,5 @@
 import sys
 import json
-import pprint as pp
-import numpy
 
 def pretty_print_array(arr, dim):
     int_arr = [1 if x else 0 for x in arr]
