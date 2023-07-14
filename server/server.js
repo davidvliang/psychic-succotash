@@ -11,10 +11,11 @@ const PORT = 5001;
 // SOCKET EVENTS
 const serverLog = "serverLog";
 const submit = "submit";
-const abortButton = "abortButton";
-const pythonOutput = "pythonOutput";
-const timeLog = "timeLog";
-const pythonIO = "pythonIO";
+const stopButton = "stopButton";
+const programRunning = "programRunning";
+// const pythonOutput = "pythonOutput";
+// const timeLog = "timeLog";
+// const pythonIO = "pythonIO";
 
 const io = socketIo(server, {
   cors: {
@@ -27,26 +28,31 @@ io.on("connection", (socket) => {
 
   // Listen for Client to Press Submit
   socket.on(submit, (data) => {
+    io.emit(programRunning, true);
+
     // spawn new child process to call python script
     // const python = spawn("python", ["./scripts/test.py", JSON.stringify(data)]);
-    const python = spawn("python", ["./scripts/dummy_script.py", JSON.stringify(data)]);
+    const python = spawn("python", [
+      "./scripts/dummy_script.py",
+      JSON.stringify(data),
+    ]);
     // collect data from script
     python.stdout.on("data", function (data) {
       dataToSend = data.toString();
       logPrint("[Python Output] ", dataToSend);
     });
 
-    socket.on(abortButton, (data) => {
+    socket.on(stopButton, (data) => {
       python.stdin.write(data);
-    })
-  
+    });
 
     // // in close event we are sure that the stream from child process is closed
     python.on("close", (code) => {
       logPrint(`[Python Output] Return ${code}`);
+      io.emit(programRunning, false);
     });
 
-    console.log(`[${getTS()}]`, "[Client]\n", data)
+    console.log(`[${getTS()}]`, "[Client]\n", data);
     // logPrint(JSON.stringify(data));
   });
 

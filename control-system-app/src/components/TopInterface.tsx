@@ -9,7 +9,8 @@ import getTS from "../utils/getTS";
 // SOCKET EVENTS
 const serverLog = "serverLog";
 const submit = "submit";
-const abortButton = "abortButton";
+const stopButton = "stopButton";
+const programRunning = "programRunning";
 
 // INIT Sockets
 const socket = io("http://192.168.50.113:5001");
@@ -20,6 +21,7 @@ function TopInterface() {
   );
   const [resetButton, setResetButton] = useState(false);
   const [configureData, setConfigureData] = useState([{}]);
+  const [formDisabled, setFormDisabled] = useState(false);
 
   const handleConfigureData = useCallback(
     (data: object) => {
@@ -27,6 +29,7 @@ function TopInterface() {
     },
     [configureData]
   );
+
   // socket.onAny((event, ...args) => {
   //   console.log("CLIENT SOCKET DEBUG", event, args);
   // });
@@ -42,11 +45,16 @@ function TopInterface() {
     setLogData(data);
   });
 
+  socket.on(programRunning, (data) => {
+    setFormDisabled(data);
+  });
+
   return (
     <div className="">
       <ConfigurationForm
         resetButton={resetButton}
         handleConfigureData={handleConfigureData}
+        formDisabled={formDisabled}
       />
 
       <div className="row mt-md-2">
@@ -54,17 +62,19 @@ function TopInterface() {
           <div className="btn-toolbar float-end" role="toolbar">
             <button
               className="btn btn-danger ms-2 my-2"
-              id="abortButton"
+              id="stopButton"
               type="button"
-              value="Abort"
+              value="Stop"
               onClick={() => {
-                setLogData(`[${getTS()}] [Client] Abort Button Pressed`);
-                socket.emit(abortButton, "q\n");
+                setLogData(`[${getTS()}] [Client] Stop Button Pressed`);
+                socket.emit(stopButton, "q\n");
+                // setFormDisabled(false);
 
-                // socket.emit(abortButton, "Abort Button Pressed.");
+                // socket.emit(stopButton, "Stop Button Pressed.");
               }}
+              disabled={!formDisabled}
             >
-              Stop Program (SIGINT)
+              Stop Program
             </button>
             <button
               className="btn btn-success ms-2 my-2"
@@ -74,7 +84,9 @@ function TopInterface() {
               value="Submit"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Submit Button Pressed.`);
+                // setFormDisabled(true);
               }}
+              disabled={formDisabled}
             >
               Submit
             </button>
@@ -88,6 +100,7 @@ function TopInterface() {
                 setLogData(`[${getTS()}] [Client] Reset Button Pressed`);
                 setResetButton(!resetButton);
               }}
+              disabled={formDisabled}
             >
               <FontAwesomeIcon icon={faRefresh} />
             </button>

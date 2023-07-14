@@ -3,15 +3,21 @@ import { useEffect } from "react";
 import DAQInputs from "../utils/DAQ";
 import getTS from "../utils/getTS";
 
-
 const ConfigurationForm = ({
   resetButton,
   handleConfigureData,
+  formDisabled,
 }: {
   resetButton: boolean;
   handleConfigureData: (data: object) => void;
+  formDisabled: boolean;
 }) => {
-  const { register, handleSubmit, reset } = useForm<DAQInputs>();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<DAQInputs>();
   const onSubmit: SubmitHandler<DAQInputs> = (data) => {
     let eafis = data; // eafis stands for eafis
     eafis["timestamp"] = getTS();
@@ -20,6 +26,14 @@ const ConfigurationForm = ({
   useEffect(() => {
     reset();
   }, [resetButton]);
+
+  const requiredError = { required: "Cannot be blank." };
+  const maxValueError = {
+    max: { value: 10, message: "Voltage must be below 10V." },
+  };
+  const minValueError = {
+    max: { value: -10, message: "Voltage must be above -10V." },
+  };
 
   return (
     <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)}>
@@ -46,6 +60,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="0"
                     {...register("dmuxOutputNum.0")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="0">
                     0
@@ -57,6 +72,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="1"
                     {...register("dmuxOutputNum.1")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="1">
                     1
@@ -68,6 +84,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="2"
                     {...register("dmuxOutputNum.2")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="2">
                     2
@@ -79,6 +96,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="3"
                     {...register("dmuxOutputNum.3")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="3">
                     3
@@ -93,6 +111,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="4"
                     {...register("dmuxOutputNum.4")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="4">
                     4
@@ -104,6 +123,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="5"
                     {...register("dmuxOutputNum.5")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="5">
                     5
@@ -115,6 +135,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="6"
                     {...register("dmuxOutputNum.6")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="6">
                     6
@@ -126,6 +147,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="7"
                     {...register("dmuxOutputNum.7")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="7">
                     7
@@ -140,6 +162,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="8"
                     {...register("dmuxOutputNum.8")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="8">
                     8
@@ -151,6 +174,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="9"
                     {...register("dmuxOutputNum.9")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="9">
                     9
@@ -162,6 +186,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="10"
                     {...register("dmuxOutputNum.10")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="10">
                     10
@@ -173,6 +198,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="11"
                     {...register("dmuxOutputNum.11")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="11">
                     11
@@ -187,6 +213,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="12"
                     {...register("dmuxOutputNum.12")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="12">
                     12
@@ -199,6 +226,7 @@ const ConfigurationForm = ({
                     // defaultValue={false}
                     id="13"
                     {...register("dmuxOutputNum.13")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="13">
                     13
@@ -210,6 +238,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="14"
                     {...register("dmuxOutputNum.14")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="14">
                     14
@@ -221,6 +250,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="15"
                     {...register("dmuxOutputNum.15")}
+                    disabled={formDisabled}
                   />
                   <label className="btn btn-outline-primary cell" htmlFor="15">
                     15
@@ -247,11 +277,15 @@ const ConfigurationForm = ({
                     step="any"
                     placeholder="-10"
                     defaultValue={-10}
-                    {...register("negVoltage")}
+                    {...register("negVoltage", requiredError)}
+                    disabled={formDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     V
                   </span>
+                  <div className="invalid-feedback">
+                    {errors.negVoltage?.message}
+                  </div>
                 </div>
               </div>
             </div>
@@ -270,6 +304,7 @@ const ConfigurationForm = ({
                     placeholder="10"
                     defaultValue={10}
                     {...register("posVoltage")}
+                    disabled={formDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     V
@@ -290,9 +325,12 @@ const ConfigurationForm = ({
                     className="form-control form-control-sm"
                     id="frequencyForm"
                     type="number"
+                    // inputmode="decimal"
+                    // pattern="[0-9]*"
                     placeholder="50"
                     defaultValue={50}
                     {...register("frequency")}
+                    disabled={formDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     Hz
@@ -313,6 +351,7 @@ const ConfigurationForm = ({
                     placeholder="50"
                     defaultValue={50}
                     {...register("dutyCycle")}
+                    disabled={formDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     %
@@ -338,6 +377,7 @@ const ConfigurationForm = ({
                   placeholder="60"
                   defaultValue={10}
                   {...register("defaultDuration")}
+                  disabled={formDisabled}
                 />
                 <span className="input-group-text" id="basic-addon1">
                   seconds
@@ -348,7 +388,8 @@ const ConfigurationForm = ({
           <p className="form-text">
             Voltages must be between -10 and 10. <br />
             Duty Cycle must be an integer percentage. <br />
-            Frequency and Duration must be integers.<br />
+            Frequency and Duration must be integers.
+            <br />
           </p>
         </div>
       </div>
