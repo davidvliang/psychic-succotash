@@ -68,8 +68,6 @@ function TopInterface() {
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Stop Button Pressed`);
                 socket.emit(stopButton, "q\n");
-                // setFormDisabled(false);
-
                 // socket.emit(stopButton, "Stop Button Pressed.");
               }}
               disabled={!formDisabled}

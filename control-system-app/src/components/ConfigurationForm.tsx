@@ -27,13 +27,23 @@ const ConfigurationForm = ({
     reset();
   }, [resetButton]);
 
-  const requiredError = { required: "Cannot be blank." };
-  const maxValueError = {
-    max: { value: 10, message: "Voltage must be below 10V." },
+  const voltageError = {
+    required: "Cannot be blank.",
+    max: { value: 10, message: "Must be below 10V." },
+    min: { value: -10, message: "Must be above -10V." },
   };
-  const minValueError = {
-    max: { value: -10, message: "Voltage must be above -10V." },
+  const dutyCycleError = {
+    required: "Cannot be blank.",
+    max: { value: 100, message: "Must be percentage." },
+    min: { value: 0, message: "Must be percentage." },
+    pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
   };
+  const defaultError = {
+    required: "Cannot be blank.",
+    min: { value: 0, message: "Cannot be negative." },
+    pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
+  };
+
 
   return (
     <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)}>
@@ -259,7 +269,7 @@ const ConfigurationForm = ({
               </tr>
             </tbody>
           </table>
-          <p className="form-text ps-3">Select cells to configure.</p>
+          <p className="form-text ps-3">Select cells to activate.</p>
         </div>
         <div className="col col-12 col-md-6 mt-3 offset-md-1 ps-6 pe-md-0">
           <h1>Parameters</h1>
@@ -269,20 +279,23 @@ const ConfigurationForm = ({
                 <label className="col-form-label-sm" htmlFor="negVoltageForm">
                   Negative Voltage:
                 </label>
-                <div className="input-group mb-3">
+                <div className="input-group has-validation mb-3">
                   <input
-                    className="form-control form-control-sm"
+                    className={`form-control form-control-sm ${
+                      errors.negVoltage ? "is-invalid" : ""
+                    }`}
                     id="negVoltageForm"
                     type="number"
                     step="any"
-                    placeholder="-10"
+                    // placeholder="-10"
                     defaultValue={-10}
-                    {...register("negVoltage", requiredError)}
+                    {...register("negVoltage", voltageError)}
                     disabled={formDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     V
                   </span>
+                  {/* <p>{errors.negVoltage?.message}</p> */}
                   <div className="invalid-feedback">
                     {errors.negVoltage?.message}
                   </div>
@@ -297,18 +310,23 @@ const ConfigurationForm = ({
                 </label>
                 <div className="input-group mb-3">
                   <input
-                    className="form-control form-control-sm"
+                    className={`form-control form-control-sm ${
+                      errors.posVoltage ? "is-invalid" : ""
+                    }`}
                     id="posVoltageForm"
                     type="number"
                     step="any"
-                    placeholder="10"
+                    // placeholder="10"
                     defaultValue={10}
-                    {...register("posVoltage")}
+                    {...register("posVoltage", voltageError)}
                     disabled={formDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     V
                   </span>
+                  <div className="invalid-feedback">
+                    {errors.posVoltage?.message}
+                  </div>
                 </div>
               </div>
             </div>
@@ -322,19 +340,25 @@ const ConfigurationForm = ({
                 </label>
                 <div className="input-group">
                   <input
-                    className="form-control form-control-sm"
+                    className={`form-control form-control-sm  ${
+                      errors.frequency ? "is-invalid" : ""
+                    }`}
                     id="frequencyForm"
                     type="number"
+                    step="any"
                     // inputmode="decimal"
                     // pattern="[0-9]*"
-                    placeholder="50"
+                    // placeholder="50"
                     defaultValue={50}
-                    {...register("frequency")}
+                    {...register("frequency", defaultError)}
                     disabled={formDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     Hz
                   </span>
+                  <div className="invalid-feedback">
+                    {errors.frequency?.message}
+                  </div>
                 </div>
               </div>
             </div>
@@ -345,17 +369,23 @@ const ConfigurationForm = ({
                 </label>
                 <div className="input-group mb-3">
                   <input
-                    className="form-control form-control-sm"
+                    className={`form-control form-control-sm  ${
+                      errors.dutyCycle ? "is-invalid" : ""
+                    }`}
                     id="dutyCycleForm"
                     type="number"
-                    placeholder="50"
+                    step="any"
+                    // placeholder="50"
                     defaultValue={50}
-                    {...register("dutyCycle")}
+                    {...register("dutyCycle", dutyCycleError)}
                     disabled={formDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     %
                   </span>
+                  <div className="invalid-feedback">
+                    {errors.dutyCycle?.message}
+                  </div>
                 </div>
               </div>
             </div>
@@ -371,17 +401,23 @@ const ConfigurationForm = ({
               </label>
               <div className="input-group mb-3">
                 <input
-                  className="form-control form-control-sm"
+                  className={`form-control form-control-sm ${
+                    errors.defaultDuration ? "is-invalid" : ""
+                  }`}
                   id="defaultDurationForm"
                   type="number"
-                  placeholder="60"
+                  step="any"
+                  // placeholder="60"
                   defaultValue={10}
-                  {...register("defaultDuration")}
+                  {...register("defaultDuration", defaultError)}
                   disabled={formDisabled}
                 />
                 <span className="input-group-text" id="basic-addon1">
                   seconds
                 </span>
+                <div className="invalid-feedback">
+                  {errors.defaultDuration?.message}
+                </div>
               </div>
             </div>
           </div>
