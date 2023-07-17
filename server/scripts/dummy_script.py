@@ -11,7 +11,7 @@ def pretty_print_array(arr, dim):
             arr_string = arr_string+f"{en}\n\t\t     "
     return arr_string   
 
-# def process_json_as_file(json_path):
+def process_json_as_file(json_path):
     """_summary_
 
     Args:
@@ -42,7 +42,7 @@ def pretty_print_array(arr, dim):
     return timestamp, pos_voltage, neg_voltage, frequency, duty_cycle, default_duration, dmux_output_num
 
 def process_input_as_json(json_input):
-    """_summary_
+    """this does that thing.
 
     Args:
         json_input (string): Stringified JSON from web app.
