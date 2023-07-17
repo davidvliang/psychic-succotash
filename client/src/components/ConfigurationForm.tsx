@@ -308,7 +308,7 @@ const ConfigurationForm = ({
                 <label className="col-form-label-sm" htmlFor="posVoltageForm">
                   Positive Voltage:
                 </label>
-                <div className="input-group mb-3">
+                <div className="input-group has-validation mb-3">
                   <input
                     className={`form-control form-control-sm ${
                       errors.posVoltage ? "is-invalid" : ""
@@ -321,7 +321,7 @@ const ConfigurationForm = ({
                     {...register("posVoltage", voltageError)}
                     disabled={formDisabled}
                   />
-                  <span className="input-group-text" id="basic-addon1">
+                  <span className="input-group-text" id="basic-addon2">
                     V
                   </span>
                   <div className="invalid-feedback">
@@ -338,7 +338,7 @@ const ConfigurationForm = ({
                 <label className="col-form-label-sm" htmlFor="frequencyForm">
                   Frequency:
                 </label>
-                <div className="input-group">
+                <div className="input-group has-validation">
                   <input
                     className={`form-control form-control-sm  ${
                       errors.frequency ? "is-invalid" : ""
@@ -353,7 +353,7 @@ const ConfigurationForm = ({
                     {...register("frequency", defaultError)}
                     disabled={formDisabled}
                   />
-                  <span className="input-group-text" id="basic-addon1">
+                  <span className="input-group-text" id="basic-addon2">
                     Hz
                   </span>
                   <div className="invalid-feedback">
@@ -367,7 +367,7 @@ const ConfigurationForm = ({
                 <label className="col-form-label-sm" htmlFor="dutyCycleForm">
                   Duty Cycle:
                 </label>
-                <div className="input-group mb-3">
+                <div className="input-group has-validation mb-3">
                   <input
                     className={`form-control form-control-sm  ${
                       errors.dutyCycle ? "is-invalid" : ""
@@ -399,7 +399,7 @@ const ConfigurationForm = ({
               >
                 Duration:
               </label>
-              <div className="input-group mb-3">
+              <div className="input-group has-validation mb-3">
                 <input
                   className={`form-control form-control-sm ${
                     errors.defaultDuration ? "is-invalid" : ""
