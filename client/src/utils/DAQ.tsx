@@ -1,4 +1,4 @@
-type DAQInputs = {
+export type DAQInputs = {
   timestamp: string; // generated on submit
   negVoltage: number;
   posVoltage: number;
@@ -24,4 +24,22 @@ type DAQInputs = {
     "15": boolean;
   }; // from cell array form
 };
-export default DAQInputs
+
+export const defaultActuatedCells = {
+  "0": false,
+  "1": false,
+  "2": false,
+  "3": false,
+  "4": false,
+  "5": false,
+  "6": false,
+  "7": false,
+  "8": false,
+  "9": false,
+  "10": false,
+  "11": false,
+  "12": false,
+  "13": false,
+  "14": false,
+  "15": false,
+};

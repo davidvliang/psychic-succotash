@@ -5,12 +5,14 @@ import { io } from "socket.io-client";
 import ConfigurationForm from "./ConfigurationForm";
 import LogOutput from "./LogOutput";
 import getTS from "../utils/getTS";
+import { defaultActuatedCells } from "../utils/DAQ";
 
 // SOCKET EVENTS
 const serverLog = "serverLog";
 const submit = "submit";
 const stopButton = "stopButton";
 const programRunning = "programRunning";
+const cellActuation = "cellActuation";
 
 // INIT Sockets
 const socket = io("http://192.168.50.113:5001");
@@ -22,6 +24,9 @@ function TopInterface() {
   const [resetButton, setResetButton] = useState(false);
   const [configureData, setConfigureData] = useState([{}]);
   const [formDisabled, setFormDisabled] = useState(false);
+  const [actuatedCells, setActuatedCells] = useState(
+    JSON.parse(JSON.stringify(defaultActuatedCells))
+  );
 
   const handleConfigureData = useCallback(
     (data: object) => {
@@ -30,9 +35,6 @@ function TopInterface() {
     [configureData]
   );
 
-  // socket.onAny((event, ...args) => {
-  //   console.log("CLIENT SOCKET DEBUG", event, args);
-  // });
   socket.on("connect_error", () => setTimeout(() => socket.connect(), 5000));
   socket.on("connect", () =>
     setLogData(`[${getTS()}] [Client] Connected to Server [ID: ${socket.id}]`)
@@ -44,9 +46,14 @@ function TopInterface() {
   socket.on(serverLog, (data) => {
     setLogData(data);
   });
-
   socket.on(programRunning, (data) => {
     setFormDisabled(data);
+  });
+  socket.on(cellActuation, (data) => {
+    const cellVal = data.split(" ").at(-1);
+    if (cellVal !== "" && cellVal !== undefined) {
+      actuatedCells[cellVal as keyof typeof actuatedCells] = true;
+    }
   });
 
   return (
@@ -55,6 +62,7 @@ function TopInterface() {
         resetButton={resetButton}
         handleConfigureData={handleConfigureData}
         formDisabled={formDisabled}
+        actuatedCells={actuatedCells}
       />
 
       <div className="row mt-md-2">
@@ -67,6 +75,9 @@ function TopInterface() {
               value="Stop"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Stop Button Pressed`);
+                setActuatedCells(
+                  JSON.parse(JSON.stringify(defaultActuatedCells))
+                );
                 socket.emit(stopButton, "q\n");
                 // socket.emit(stopButton, "Stop Button Pressed.");
               }}

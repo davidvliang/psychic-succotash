@@ -3,8 +3,8 @@ const socketIo = require("socket.io", "net");
 const http = require("http");
 const { spawn } = require("child_process");
 
-// SocketIO needs HTTP server to work. 
-// You can’t do app.use(socketIo) here like you’d normally do with libraries such as CORS. 
+// SocketIO needs HTTP server to work.
+// You can’t do app.use(socketIo) here like you’d normally do with libraries such as CORS.
 // Instead, create an HTTP server and wrap the express app inside it.
 const app = express();
 const server = http.createServer(app);
@@ -15,6 +15,7 @@ const serverLog = "serverLog";
 const submit = "submit";
 const stopButton = "stopButton";
 const programRunning = "programRunning";
+const cellActuation = "cellActuation";
 
 const io = socketIo(server, {
   cors: {
@@ -31,22 +32,33 @@ io.on("connection", (socket) => {
 
     // spawn new child process to call python script
     const python = spawn("python", [
+      "-u",
       "./scripts/dummy_script.py",
       JSON.stringify(data),
     ]);
-    // collect data from script
-    python.stdout.on("data", function (data) {
-      dataToSend = data.toString();
-      logPrint("[Python Output] ", dataToSend);
-    });
 
     socket.on(stopButton, (data) => {
       python.stdin.write(data);
+      // python.kill("SIGINT");
+    });
+
+    // collect data from script
+    python.stdout.on("data", function (data) {
+      dataToSend = data.toString();
+      logPrint("[Python STDOUT] ", dataToSend);
+      if (dataToSend.startsWith("actuated cell ")) {
+        io.emit(cellActuation, dataToSend);
+      }
+    });
+
+    python.stderr.on("data", function (data) {
+      dataToSend = data.toString();
+      logPrint("[Python STDERR] ", dataToSend);
     });
 
     // in close event we are sure that the stream from child process is closed
     python.on("close", (code) => {
-      logPrint(`[Python Output] Return ${code}`);
+      logPrint(`[Python STDOUT] Return ${code}`);
       io.emit(programRunning, false);
     });
 

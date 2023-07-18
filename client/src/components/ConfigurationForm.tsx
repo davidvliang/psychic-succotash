@@ -1,16 +1,18 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useEffect } from "react";
-import DAQInputs from "../utils/DAQ";
+import { DAQInputs } from "../utils/DAQ";
 import getTS from "../utils/getTS";
 
 const ConfigurationForm = ({
   resetButton,
   handleConfigureData,
   formDisabled,
+  actuatedCells,
 }: {
   resetButton: boolean;
   handleConfigureData: (data: object) => void;
   formDisabled: boolean;
+  actuatedCells: object;
 }) => {
   const {
     register,
@@ -44,7 +46,6 @@ const ConfigurationForm = ({
     pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
   };
 
-
   return (
     <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)}>
       <div className="row justify-content-start">
@@ -72,7 +73,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.0")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="0">
+                  <label
+                    className={
+                      actuatedCells["0" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="0"
+                  >
                     0
                   </label>
                 </td>
@@ -84,7 +92,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.1")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="1">
+                  <label
+                    className={
+                      actuatedCells["1" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="1"
+                  >
                     1
                   </label>
                 </td>
@@ -96,7 +111,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.2")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="2">
+                  <label
+                    className={
+                      actuatedCells["2" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="2"
+                  >
                     2
                   </label>
                 </td>
@@ -108,7 +130,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.3")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="3">
+                  <label
+                    className={
+                      actuatedCells["3" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="3"
+                  >
                     3
                   </label>
                 </td>
@@ -123,7 +152,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.4")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="4">
+                  <label
+                    className={
+                      actuatedCells["4" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="4"
+                  >
                     4
                   </label>
                 </td>
@@ -135,7 +171,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.5")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="5">
+                  <label
+                    className={
+                      actuatedCells["5" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="5"
+                  >
                     5
                   </label>
                 </td>
@@ -147,7 +190,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.6")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="6">
+                  <label
+                    className={
+                      actuatedCells["6" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="6"
+                  >
                     6
                   </label>
                 </td>
@@ -159,7 +209,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.7")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="7">
+                  <label
+                    className={
+                      actuatedCells["7" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="7"
+                  >
                     7
                   </label>
                 </td>
@@ -174,7 +231,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.8")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="8">
+                  <label
+                    className={
+                      actuatedCells["8" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="8"
+                  >
                     8
                   </label>
                 </td>
@@ -186,7 +250,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.9")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="9">
+                  <label
+                    className={
+                      actuatedCells["9" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="9"
+                  >
                     9
                   </label>
                 </td>
@@ -198,7 +269,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.10")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="10">
+                  <label
+                    className={
+                      actuatedCells["10" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="10"
+                  >
                     10
                   </label>
                 </td>
@@ -210,7 +288,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.11")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="11">
+                  <label
+                    className={
+                      actuatedCells["11" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="11"
+                  >
                     11
                   </label>
                 </td>
@@ -225,7 +310,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.12")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="12">
+                  <label
+                    className={
+                      actuatedCells["12" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="12"
+                  >
                     12
                   </label>
                 </td>
@@ -238,7 +330,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.13")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="13">
+                  <label
+                    className={
+                      actuatedCells["13" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="13"
+                  >
                     13
                   </label>
                 </td>
@@ -250,7 +349,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.14")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="14">
+                  <label
+                    className={
+                      actuatedCells["14" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="14"
+                  >
                     14
                   </label>
                 </td>
@@ -262,7 +368,14 @@ const ConfigurationForm = ({
                     {...register("dmuxOutputNum.15")}
                     disabled={formDisabled}
                   />
-                  <label className="btn btn-outline-primary cell" htmlFor="15">
+                  <label
+                    className={
+                      actuatedCells["15" as keyof typeof actuatedCells]
+                        ? "btn cell btn-outline-success"
+                        : "btn cell btn-outline-primary"
+                    }
+                    htmlFor="15"
+                  >
                     15
                   </label>
                 </td>
