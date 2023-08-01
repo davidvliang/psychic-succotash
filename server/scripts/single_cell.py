@@ -98,7 +98,7 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
         print("Demux enabled")
 
         ## Adjust demux select input
-        sel_task.write(2*(p_dmux_output_num-1)) 
+        sel_task.write(2*(p_dmux_output_num)) # no need -1, should already be 0 to 15 
         print(f"Selecting Output S: {p_dmux_output_num}")
 
 
