@@ -59,11 +59,18 @@ def actuate_cells(dmux_output_num):
     time.sleep(output_delay)
 
 class ControlSystem:
+    # def __init__(self, c_rate: int, c_samps_per_chan: int, sample_array: object) -> None:
     def __init__(self) -> None:
-        pass 
+        self.ac_task = nidaqmx.Task()
+        self.sel_task = nidaqmx.Task()
+        self.en_task = nidaqmx.Task()
     
-    def set_params():
-        pass
+    def set_params(p_rate, p_samps_per_chan, p_dmux_output_num):
+        """ Function for setting the parameters of a signal.
+            Channel Setup
+            Check to see if channels have already been added to the task.
+            If so, do not try to assign it again.
+        """
 
     def on():
         pass 
@@ -77,6 +84,33 @@ class ControlSystem:
 
 if __name__ == "__main__":
     
-    ControlSystem()
-    ControlSystem.user_interface()
+    ## Process JSON Input
+    [timestamp, pos_voltage, neg_voltage, frequency, 
+    duty_cycle, default_duration, dmux_output_num] = process_input_as_json(sys.argv[1])
+
+    ## Print Input to STDOUT 
+    print(f"Reading JSON from '{timestamp}'\n", 
+        f"   Negative Voltage: {neg_voltage} V\n",
+        f"   Positive Voltage: {pos_voltage} V\n",
+        f"   Frequency:        {frequency} Hz\n",
+        f"   Duty Cycle:       {duty_cycle} %\n",
+        f"   Default Duration: {default_duration} s\n",
+        f"   Configuration:    {pretty_print_array(dmux_output_num,4)}", end="")
+    
+    ## Define timing
+    samples = 100 # so in terms of percentages
+    rate = frequency * samples
+    samps_per_chan = default_duration * rate
+
+    ## Create and fill sample array
+    sample_array = np.arange(samples)
+    sample_array.fill(neg_voltage)
+    sample_array[0:duty_cycle] = pos_voltage
+    
+    ## Init Control System
+    AliasControlSystem = ControlSystem()
+    
+    ## Set up settings
+    AliasControlSystem.set_params(rate, samps_per_chan, dmux_output_num)
+    AliasControlSystem.user_interface()
 
