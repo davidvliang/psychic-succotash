@@ -15,7 +15,7 @@ const programRunning = "programRunning";
 const cellActuation = "cellActuation";
 
 // INIT Sockets
-const socket = io("http://192.168.50.113:5001");
+const socket = io("http://localhost:5001");
 
 function TopInterface() {
   const [logData, setLogData] = useState<string>(

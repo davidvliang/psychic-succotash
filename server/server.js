@@ -19,7 +19,7 @@ const cellActuation = "cellActuation";
 
 const io = socketIo(server, {
   cors: {
-    origin: "http://192.168.50.113:3000",
+    origin: "http://localhost:3000",
   },
 });
 
