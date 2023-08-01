@@ -1,5 +1,5 @@
 """
-Title: single_cell.py
+Title: multi_cell.py
 Originally By: Spring 2023 EE VIP Students 
 Modified By: david947
 Date Created: 2023-07-30
@@ -65,10 +65,9 @@ def actuate_cells(dmux_output_num, output_delay):
 with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en_task:
 
     def set_params(p_rate, p_samps_per_chan, p_dmux_output_num):
-        """ Function for setting the parameters of a signal.
-            Channel Setup
+        """ Channel Setup
             Check to see if channels have already been added to the task.
-            If so, do not try to assign it again.
+            If so, do not try to assign it again
         """
 
         ## Analog channel for actuation (pin ao0)
@@ -89,7 +88,7 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
             sel_channel = sel_task.do_channels.add_do_chan(
                 "Dev1/port0/line1:4",
                 line_grouping=LineGrouping.CHAN_FOR_ALL_LINES)
-
+        
         ## Square wave parameter setting
         ac_task.timing.cfg_samp_clk_timing(rate=p_rate, samps_per_chan=p_samps_per_chan)
 
@@ -98,7 +97,7 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
         print("Demux enabled")
 
         ## Adjust demux select input
-        sel_task.write(2*(p_dmux_output_num)) # no need -1, should already be 0 to 15 
+        sel_task.write(2*(p_dmux_output_num-1)) 
         print(f"Selecting Output S: {p_dmux_output_num}")
 
 
@@ -114,33 +113,38 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
         turn_off = False
         time.sleep(1)
 
-        ## Output signal continuously until told to turn off
-        try:
-            while (not turn_off):
-                ac_task.write(data=p_sample_array, auto_start=True)
-                start_time = time.time()
+        while (not turn_off):
+            ac_task.write(data=p_sample_array, auto_start=True)
+            start_time = time.time()
 
-                while (time.time() - start_time < max_duration):
-                    en_task.write(True)
-                    turn_off = False
-                    time.sleep(1)
-                
-                ac_task.wait_until_done(100)
-                ac_task.stop()
-        except KeyboardInterrupt:
-            print("Stop Button Pressed!!")
-        finally:            
-            ## Call off function to output voltage to 0V
-            off()
+            while (time.time() - start_time < max_duration):
+                en_task.write(True)
+                turn_off = False
+                time.sleep(1)
+            
+            ac_task.wait_until_done(100)
+            ac_task.stop()
+
+        ## Reset output voltage to 0V
+        ac_task.timing.cfg_samp_clk_timing(rate=2, samps_per_chan=2)
+        ac_task.write(data=[0,0],auto_start=True)
+        ac_task.wait_until_done(100)
+        ac_task.stop()
+        ac_task.timing.cfg_samp_clk_timing(rate=2, samps_per_chan=2)
+
+        ## Enable demux
+        en_task.write(True)
+        print("Signal generation complete.")
+
 
 
     def off():
         """Off function for the DAQ, resets everything to 0"""
+        print("Resetting..")
 
         ## Turn off square wave signal
-        print("Resetting..")
         ac_task.timing.cfg_samp_clk_timing(rate=2, samps_per_chan=2)
-        ac_task.write(data=[0,0], auto_start=True)
+        ac_task.write(data=[0,0],auto_start=True)
         ac_task.wait_until_done(100)
         ac_task.stop()
 
@@ -151,7 +155,6 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
 
 
     def user_interface():
-        """Basic User Prompt"""
 
         ## Process JSON Input
         [timestamp, pos_voltage, neg_voltage, frequency, 
@@ -167,13 +170,13 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
             f"   Configuration:    {pretty_print_array(dmux_output_num,4)}", end="")
         
 
-        ## Define timing
-        samples = 100 # so in terms of percentages
+        ## Define variables
+        samples = 100
         rate = frequency * samples
         samps_per_chan = default_duration * rate
 
         ## Create and fill sample array
-        sample_array = np.arange(samples)
+        sample_array = np.arange(100)
         sample_array.fill(neg_voltage)
         sample_array[0:duty_cycle] = pos_voltage
 

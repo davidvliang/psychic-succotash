@@ -78,7 +78,7 @@ function TopInterface() {
                 setActuatedCells(
                   JSON.parse(JSON.stringify(defaultActuatedCells))
                 );
-                socket.emit(stopButton, "q\n");
+                socket.emit(stopButton, "SIGINT\n");
                 // socket.emit(stopButton, "Stop Button Pressed.");
               }}
               disabled={!formDisabled}
