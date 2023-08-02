@@ -33,14 +33,16 @@ io.on("connection", (socket) => {
     // spawn new child process to call python script
     const python = spawn("python", [
       "-u",
-      "./scripts/dummy_script.py",
+      "./scripts/single_cell.py",
+      // "./scripts/dummy_script.py",
+      // "./scripts/sigint_demo.py",
       JSON.stringify(data),
     ]);
 
     socket.on(stopButton, (data) => {
       // python.stdin.write(data);
       python.kill("SIGINT");
-      logPrint("[Server] ", "Sending SIGINT");
+      logPrint("[Server]", "Sending SIGINT");
 
     });
 
@@ -59,8 +61,9 @@ io.on("connection", (socket) => {
     });
 
     // in close event we are sure that the stream from child process is closed
-    python.on("close", (code) => {
-      logPrint(`[Python STDOUT] Return ${code}`);
+    python.on("close", (code, signal) => {
+      logPrint(`[Server] Python process terminated with code ${code}`);
+      logPrint(`[Server] Python process terminated due to signal ${signal}`);
       io.emit(programRunning, false);
     });
 
