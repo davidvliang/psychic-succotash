@@ -64,7 +64,7 @@ def actuate_cells(dmux_output_num, output_delay):
 
 with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en_task:
 
-    def set_params(p_rate, p_samps_per_chan, p_dmux_output_num):
+    def set_params(p_rate, p_samps_per_chan):
         """ Function for setting the parameters of a signal.
             Channel Setup
             Check to see if channels have already been added to the task.
@@ -74,7 +74,7 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
         ## Analog channel for actuation (pin ao0)
         if ac_task.channel_names == []:
             print("assign analog channel")
-            ac_channel = ac_task.ao_channels.add_ao_voltage_chan("Dev1,ao0")
+            ac_channel = ac_task.ao_channels.add_ao_voltage_chan("Dev1/ao0")
 
         ## Digital channels for enable (pinp0.0)
         if en_task.channel_names == []:
@@ -97,38 +97,31 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
         en_task.write(True)
         print("Demux enabled")
 
-        ## Adjust demux select input
-        sel_task.write(2*(p_dmux_output_num)) # no need -1, should already be 0 to 15 
-        print(f"Selecting Output S: {p_dmux_output_num}")
 
 
-
-    def on(p_sample_array, p_rate, p_samps_per_chan):
+    def on(p_sample_array, p_rate, p_samps_per_chan, p_dmux_output_nums):
         """Starts signal generation for the DAQ"""
 
         ## Print default duration
         max_duration = p_samps_per_chan / p_rate
         print(f"Default duration (s): {max_duration}")
 
-        ## 
-        turn_off = False
-        time.sleep(1)
-
         ## Output signal continuously until told to turn off
         try:
-            while (not turn_off):
-                ac_task.write(data=p_sample_array, auto_start=True)
-                start_time = time.time()
+            start_time = time.time()
+            ac_task.write(data=p_sample_array, auto_start=True)
+            en_task.write(True)
 
-                while (time.time() - start_time < max_duration):
-                    en_task.write(True)
-                    turn_off = False
-                    time.sleep(1)
-                
-                ac_task.wait_until_done(100)
-                ac_task.stop()
+            print(f"Selecting Output S: {p_dmux_output_nums}")
+            while (time.time() - start_time < max_duration):
+                for num in p_dmux_output_nums:
+                    ## Adjust demux select input
+                    sel_task.write(2*num) # no need -1, should already be 0 to 15 
+
         except KeyboardInterrupt:
-            print("Stop Button Pressed!!")
+            # print("Stop Button Pressed!!")
+            off()
+
         finally:            
             ## Call off function to output voltage to 0V
             off()
@@ -139,23 +132,33 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
 
         ## Turn off square wave signal
         print("Resetting..")
-        ac_task.timing.cfg_samp_clk_timing(rate=2, samps_per_chan=2)
-        ac_task.write(data=[0,0], auto_start=True)
-        ac_task.wait_until_done(100)
+        # ac_task.wait_until_done(100)
+        # ac_task.stop()
+        # ac_task.timing.cfg_samp_clk_timing(rate=2, samps_per_chan=2)
+        # for num in p_dmux_output_nums:
+        # ac_task.write(data=[0,0], auto_start=True)
+        # sel_task.write(2*num) # no need -1, should already be 0 to 15 
+        # ac_task.wait_until_done(100)
         ac_task.stop()
 
         ## Turn off select and enable inputs
         en_task.write(False)
         sel_task.write(0)
         print("Reset complete.")
+        sys.exit()
 
 
     def user_interface():
         """Basic User Prompt"""
 
         ## Process JSON Input
-        [timestamp, pos_voltage, neg_voltage, frequency, 
-        duty_cycle, default_duration, dmux_output_num] = process_input_as_json(sys.argv[1])
+        # input_string = '{"dmuxOutputNum":[false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,true],"negVoltage":"-10","posVoltage":"10","frequency":"50","dutyCycle":"50","defaultDuration":"10","timestamp":"08/01/2023, 11:15:05 AM"}'
+        # input_string = '{"dmuxOutputNum":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true],"negVoltage":"-10","posVoltage":"10","frequency":"50","dutyCycle":"50","defaultDuration":"10","timestamp":"08/01/2023, 11:15:05 AM"}'
+        # input_string = '{"dmuxOutputNum":[false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false],"negVoltage":"-10","posVoltage":"10","frequency":"50","dutyCycle":"50","defaultDuration":"10","timestamp":"08/01/2023, 11:15:05 AM"}'
+        input_string = sys.argv[1]
+        
+        [timestamp, neg_voltage, pos_voltage, frequency, 
+        duty_cycle, default_duration, dmux_output_array] = process_input_as_json(input_string)
 
         ## Print Input to STDOUT 
         print(f"Reading JSON from '{timestamp}'\n", 
@@ -164,8 +167,8 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
             f"   Frequency:        {frequency} Hz\n",
             f"   Duty Cycle:       {duty_cycle} %\n",
             f"   Default Duration: {default_duration} s\n",
-            f"   Configuration:    {pretty_print_array(dmux_output_num,4)}", end="")
-        
+            f"   Configuration:    {pretty_print_array(dmux_output_array,4)}", end="")
+
 
         ## Define timing
         samples = 100 # so in terms of percentages
@@ -177,11 +180,14 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
         sample_array.fill(neg_voltage)
         sample_array[0:duty_cycle] = pos_voltage
 
+        ## Prepare Demux Output
+        dmux_output_nums = [i for i,num in enumerate(dmux_output_array) if num == True]
+
         ## Set up settings
-        set_params(rate, samps_per_chan, dmux_output_num)
+        set_params(rate, samps_per_chan)
 
         ## Toggle signal
-        on(sample_array, rate, samps_per_chan)
+        on(sample_array, rate, samps_per_chan, dmux_output_nums)
 
         ## Exit
         off()
