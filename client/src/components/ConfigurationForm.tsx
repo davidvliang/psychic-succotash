@@ -24,6 +24,7 @@ const ConfigurationForm = ({
     let eafis = data; // eafis stands for eafis
     eafis["timestamp"] = getTS();
     handleConfigureData(eafis);
+    console.log(eafis)
   };
   useEffect(() => {
     reset();
