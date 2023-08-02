@@ -40,9 +40,10 @@ io.on("connection", (socket) => {
     ]);
 
     socket.on(stopButton, (data) => {
-      // python.stdin.write(data);
-      python.kill("SIGINT");
-      logPrint("[Server]", "Sending SIGINT");
+      python.stdin.write(data);
+      // python.kill("SIGINT");
+      // python.kill();
+      logPrint("[Server]", "Sending SIGTERM");
 
     });
 

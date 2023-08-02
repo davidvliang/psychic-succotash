@@ -21,6 +21,8 @@ import json
 import time 
 import nidaqmx
 from nidaqmx.constants import LineGrouping
+# import keyboard as kb
+from threading import Thread, Event
 
 
 def pretty_print_array(arr, dim):
@@ -99,7 +101,7 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
 
 
 
-    def on(p_sample_array, p_rate, p_samps_per_chan, p_dmux_output_nums):
+    def on(p_sample_array, p_rate, p_samps_per_chan, p_dmux_output_nums, p_stop_button):
         """Starts signal generation for the DAQ"""
 
         ## Print default duration
@@ -114,10 +116,15 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
 
             print(f"Selecting Output S: {p_dmux_output_nums}")
             while (time.time() - start_time < max_duration):
+                # if kb.read_key() == "q":
+                #     print("hello")
+                #     off()
                 for num in p_dmux_output_nums:
                     ## Adjust demux select input
                     sel_task.write(2*num) # no need -1, should already be 0 to 15 
-
+                if p_stop_button.is_set():
+                    print("THREAD STOPPING")
+                    off()
         except KeyboardInterrupt:
             # print("Stop Button Pressed!!")
             off()
@@ -186,11 +193,20 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
         ## Set up settings
         set_params(rate, samps_per_chan)
 
+        stop_button = Event()
+
         ## Toggle signal
-        on(sample_array, rate, samps_per_chan, dmux_output_nums)
+        thread = Thread(target=on, args=(sample_array, rate, samps_per_chan, dmux_output_nums, stop_button))
+        thread.start()
+        # on(sample_array, rate, samps_per_chan, dmux_output_nums)
+        stop_request = input()
+        if stop_request:
+            stop_button.set()
+        thread.join()
 
         ## Exit
         off()
 
 
     user_interface()
+    off()
