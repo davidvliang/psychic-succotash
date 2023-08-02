@@ -44,9 +44,18 @@ def actuate_cells(dmux_output_num):
 
 if __name__ == "__main__":
 
+    # print(sys.argv[1])
+    test_string = '{"dmuxOutputNum":[true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],"negVoltage":"-10","posVoltage":"10","frequency":"50","dutyCycle":"50","defaultDuration":"10","timestamp":"08/01/2023, 11:15:05 AM"}'
+
     ## Process JSON Input
     [timestamp, pos_voltage, neg_voltage, frequency, 
-     duty_cycle, default_duration, dmux_output_num] = process_input_as_json(sys.argv[1])
+     duty_cycle, default_duration, dmux_output_num] = process_input_as_json(test_string)
+    # ## Process JSON Input
+    # [timestamp, pos_voltage, neg_voltage, frequency, 
+    #  duty_cycle, default_duration, dmux_output_num] = process_input_as_json(sys.argv[1])
+
+    dmux_output_nums = [i for i,num in enumerate(dmux_output_num) if num == True]
+    print("Hey there", dmux_output_nums, type(dmux_output_nums))
 
     ## Print Input to STDOUT 
     print(f"Reading JSON from '{timestamp}'\n", 
