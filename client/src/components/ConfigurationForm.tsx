@@ -1,6 +1,6 @@
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useEffect } from "react";
-import { DAQInputs } from "../utils/DAQ";
+import { useState, useEffect, useRef } from "react";
+import { DAQInputs, alphabet } from "../utils/DAQ";
 import getTS from "../utils/getTS";
 
 const ConfigurationForm = ({
@@ -20,12 +20,15 @@ const ConfigurationForm = ({
     reset,
     formState: { errors },
   } = useForm<DAQInputs>();
+
   const onSubmit: SubmitHandler<DAQInputs> = (data) => {
     let eafis = data; // eafis stands for eafis
     eafis["timestamp"] = getTS();
     handleConfigureData(eafis);
-    console.log(eafis)
+    // console.log("eafis");
+    // console.log(eafis);
   };
+
   useEffect(() => {
     reset();
   }, [resetButton]);
@@ -47,344 +50,96 @@ const ConfigurationForm = ({
     pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
   };
 
+  // let arrSize = 4;
+  const [arrSizeTemp, setArrSizeTemp] = useState(4);
+  const [arrSize, setArrSize] = useState(4);
+  const dmuxArr = [...Array(arrSize).keys()];
+
   return (
     <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)}>
       <div className="row justify-content-start">
         <div className="col col-12 col-md-5 mt-3 px-md-0">
           <h1>Cell Configuration</h1>
+          {/* placeholder put dropdown for selecting array size here */}
+          <div id="arrSizeForm" className="form-group">
+            <label className="col-form-label-sm" htmlFor="arrSizeForm">
+              Array Size
+            </label>
+            <div className="input-group has-validation mb-3">
+              <input
+                className={`form-control form-control-sm`}
+                id="arrSizeForm"
+                type="number"
+                step="any"
+                defaultValue={4}
+                {...register("arrSize")}
+                onChange={e => setArrSizeTemp(Number(e.target.value))}
+              />
+              <button
+                className="btn btn-primary"
+                id="submitButton"
+                type="submit"
+                form="arrSizeForm"
+                value="Submit"
+                onClick={() => {
+                  console.log("changing array size")
+                  setArrSize(arrSizeTemp)
+                  reset()
+                }}
+              >
+                Submit
+              </button>
+            </div>
+          </div>
           <table className="table table-borderless">
             <thead>
               <tr>
                 <th scope="col"></th>
-                <th scope="col">0</th>
-                <th scope="col">1</th>
-                <th scope="col">2</th>
-                <th scope="col">3</th>
+                {dmuxArr.map((val) => (
+                  <th scope="col">{val}</th>
+                ))}
               </tr>
             </thead>
-
             <tbody>
-              <tr>
-                <th scope="row">A</th>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="0"
-                    {...register("dmuxOutputNum.0")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["0" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="0"
-                  >
-                    0
-                  </label>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="1"
-                    {...register("dmuxOutputNum.1")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["1" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="1"
-                  >
-                    1
-                  </label>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="2"
-                    {...register("dmuxOutputNum.2")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["2" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="2"
-                  >
-                    2
-                  </label>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="3"
-                    {...register("dmuxOutputNum.3")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["3" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="3"
-                  >
-                    3
-                  </label>
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">B</th>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="4"
-                    {...register("dmuxOutputNum.4")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["4" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="4"
-                  >
-                    4
-                  </label>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="5"
-                    {...register("dmuxOutputNum.5")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["5" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="5"
-                  >
-                    5
-                  </label>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="6"
-                    {...register("dmuxOutputNum.6")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["6" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="6"
-                  >
-                    6
-                  </label>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="7"
-                    {...register("dmuxOutputNum.7")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["7" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="7"
-                  >
-                    7
-                  </label>
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">C</th>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="8"
-                    {...register("dmuxOutputNum.8")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["8" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="8"
-                  >
-                    8
-                  </label>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="9"
-                    {...register("dmuxOutputNum.9")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["9" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="9"
-                  >
-                    9
-                  </label>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="10"
-                    {...register("dmuxOutputNum.10")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["10" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="10"
-                  >
-                    10
-                  </label>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="11"
-                    {...register("dmuxOutputNum.11")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["11" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="11"
-                  >
-                    11
-                  </label>
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">D</th>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="12"
-                    {...register("dmuxOutputNum.12")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["12" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="12"
-                  >
-                    12
-                  </label>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    // defaultValue={false}
-                    id="13"
-                    {...register("dmuxOutputNum.13")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["13" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="13"
-                  >
-                    13
-                  </label>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="14"
-                    {...register("dmuxOutputNum.14")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["14" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="14"
-                  >
-                    14
-                  </label>
-                </td>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="btn btn-check"
-                    id="15"
-                    {...register("dmuxOutputNum.15")}
-                    disabled={formDisabled}
-                  />
-                  <label
-                    className={
-                      actuatedCells["15" as keyof typeof actuatedCells]
-                        ? "btn cell btn-outline-success"
-                        : "btn cell btn-outline-primary"
-                    }
-                    htmlFor="15"
-                  >
-                    15
-                  </label>
-                </td>
-              </tr>
+              {dmuxArr.map((rowVal) => (
+                <tr>
+                  <th scope="row">{alphabet[rowVal]}</th>
+                  {dmuxArr.map((colVal) => (
+                    <td>
+                      <input
+                        type="checkbox"
+                        className="btn btn-check"
+                        id={String(rowVal * arrSize + colVal)}
+                        // {...register("dmuxOutputNum.15")}
+                        {...register(
+                          ("dmuxOutputNum." +
+                            String(rowVal * arrSize + colVal)) as any
+                        )}
+                        disabled={formDisabled}
+                      />
+                      <label
+                        className={
+                          actuatedCells[
+                            String(
+                              rowVal * arrSize + colVal
+                            ) as keyof typeof actuatedCells
+                          ]
+                            ? "btn cell btn-outline-success"
+                            : "btn cell btn-outline-primary"
+                        }
+                        htmlFor={String(rowVal * arrSize + colVal)}
+                      >
+                        {rowVal * arrSize + colVal}
+                      </label>
+                    </td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
           <p className="form-text ps-3">Select cells to activate.</p>
         </div>
+
         <div className="col col-12 col-md-6 mt-3 offset-md-1 ps-6 pe-md-0">
           <h1>Parameters</h1>
           <div className="row">
