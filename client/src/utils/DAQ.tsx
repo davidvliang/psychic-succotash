@@ -5,6 +5,7 @@ export type DAQInputs = {
   frequency: number;
   dutyCycle: number;
   defaultDuration: number;
+  arrSize: number;
   dmuxOutputNum: {
     "0": boolean;
     "1": boolean;
@@ -43,3 +44,32 @@ export const defaultActuatedCells = {
   "14": false,
   "15": false,
 };
+
+export const alphabet = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+];
