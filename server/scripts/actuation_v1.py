@@ -6,7 +6,7 @@ Date Created: 2023-07-30
 Description:
     Modify '2023_05_01_User_Input_Toggle_Demux.py' to take input from JSON instead of keyboard. 
     Intentionally did not perform major refactor of original script.
-    Implement 'stop_button' thread function to stop program. 
+    Implement 'on()' in thread function. Trigger 'stop_button' event to stop program. 
     Only compatible with fixed 4x4 array. 
 
     "This is a program designed for use in the actuation control system of a 4x4 IRS
@@ -23,7 +23,6 @@ import json
 import time 
 import nidaqmx
 from nidaqmx.constants import LineGrouping
-# import keyboard as kb
 from threading import Thread, Event
 
 
@@ -45,7 +44,6 @@ def process_input_as_json(json_input):
         frequency: Frequency (Hz)
         duty_cycle: Duty cycle (whole %). Between 0 and 100.
         dmux_output_num: Python dict to configure cells 0 to 15  
-
     """
 
     data = json.loads(json_input)
@@ -166,7 +164,6 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
             f"   Default Duration: {default_duration} s\n",
             f"   Configuration:    {pretty_print_array(dmux_output_array,4)}", end="")
 
-
         ## Define timing
         samples = 100 # so in terms of percentages
         rate = frequency * samples
@@ -183,13 +180,12 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
         ## Set up settings
         set_params(rate, samps_per_chan)
 
-        ## Init Event Thread to stop program
+        ## Init event to stop program
         stop_button = Event()
 
-        ## Toggle signal
+        ## Toggle signal using threaded function
         thread = Thread(target=on, args=(sample_array, rate, samps_per_chan, dmux_output_nums, stop_button))
         thread.start()
-        # on(sample_array, rate, samps_per_chan, dmux_output_nums)
         stop_request = input()
         if stop_request:
             stop_button.set()
