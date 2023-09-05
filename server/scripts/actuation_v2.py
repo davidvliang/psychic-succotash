@@ -54,6 +54,7 @@ def process_input_as_json(json_input):
             int(data['frequency']), 
             int(data['dutyCycle']), 
             int(data['defaultDuration']), 
+            int(data['arrSize']),
             list(data['dmuxOutputNum']))
 
 def actuate_cells(dmux_output_num, output_delay):
@@ -144,7 +145,7 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
         input_string = sys.argv[1]
         
         [timestamp, neg_voltage, pos_voltage, frequency, 
-        duty_cycle, default_duration, dmux_output_array] = process_input_as_json(input_string)
+        duty_cycle, default_duration, arr_size, dmux_output_array] = process_input_as_json(input_string)
 
         ## Print Input to STDOUT 
         print(f"Reading JSON from '{timestamp}'\n", 
@@ -153,7 +154,8 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
             f"   Frequency:        {frequency} Hz\n",
             f"   Duty Cycle:       {duty_cycle} %\n",
             f"   Default Duration: {default_duration} s\n",
-            f"   Configuration:    {pretty_print_array(dmux_output_array,4)}", end="")
+            f"   Array Size:       {arr_size}x{arr_size}\n",
+            f"   Configuration:    {pretty_print_array(dmux_output_array, arr_size)}", end="")
 
         ## Define timing
         samples = 100 # so in terms of percentages
