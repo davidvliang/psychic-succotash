@@ -33,9 +33,9 @@ io.on("connection", (socket) => {
     // spawn new child process to call python script
     const python = spawn("python", [
       "-u",
-      "./scripts/single_cell.py",
-      // "./scripts/dummy_script.py",
-      // "./scripts/sigint_demo.py",
+      // "./scripts/actuation_v1.py",
+      // "./scripts/actuation_v2.py",
+      "./scripts/dummy_script.py",
       JSON.stringify(data),
     ]);
 
