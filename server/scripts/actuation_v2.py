@@ -27,9 +27,11 @@ from threading import Thread, Event
 
 
 def pretty_print_array(arr, dim):
-    int_arr = [1 if x else 0 for x in arr]
-    arr_string = [f"{en} " if ((i+1)%dim) else f"{en}\n\t\t      " for i, en in enumerate(int_arr)]
-    return ''.join(arr_string)   
+    int_arr = arr[0:dim*dim]
+    int_arr = [1 if x else 0 for x in int_arr]
+    arr_string = [f"{en} " if ((i+1) % dim) else f"{en}\n\t\t      " for i, en in enumerate(int_arr)]
+    return ''.join(arr_string)
+
 
 def process_input_as_json(json_input):
     """parses input string as JSON. Returns as list.
@@ -156,6 +158,10 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
             f"   Default Duration: {default_duration} s\n",
             f"   Array Size:       {arr_size}x{arr_size}\n",
             f"   Configuration:    {pretty_print_array(dmux_output_array, arr_size)}", end="")
+
+        ## Print Out of bounds warning.
+        if arr_size > 4:
+            print("WARNING: array size exceeds 4x4. Cell selection may be out of bounds.")
 
         ## Define timing
         samples = 100 # so in terms of percentages
