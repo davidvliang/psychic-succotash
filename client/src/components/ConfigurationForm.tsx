@@ -1,5 +1,5 @@
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { DAQInputs, alphabet } from "../utils/DAQ";
 import getTS from "../utils/getTS";
 
@@ -14,25 +14,30 @@ const ConfigurationForm = ({
   formDisabled: boolean;
   actuatedCells: object;
 }) => {
+
+  // Init form input using RHF
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<DAQInputs>();
 
+  // Collect form data as JSON string upon submit
   const onSubmit: SubmitHandler<DAQInputs> = (data) => {
-    let eafis = data; // eafis stands for eafis
-    eafis["timestamp"] = getTS();
-    handleConfigureData(eafis);
-    // console.log("eafis");
-    // console.log(eafis);
+    let form_data = data;
+    form_data["timestamp"] = getTS();
+    handleConfigureData(form_data);
+    // console.log("form_data", form_data);
   };
 
+  // Reset form values when reset button is pressed
   useEffect(() => {
     reset();
   }, [resetButton]);
 
+  // Input Validation 
   const voltageError = {
     required: "Cannot be blank.",
     max: { value: 10, message: "Must be below 10V." },
@@ -50,67 +55,53 @@ const ConfigurationForm = ({
     pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
   };
 
-  // let arrSize = 4;
-  const [arrSizeTemp, setArrSizeTemp] = useState(4);
-  const [arrSize, setArrSize] = useState(4);
-  const dmuxArr = [...Array(arrSize).keys()];
+  // Adjust size of array
+  const [arrSize, setArrSize] = useState(4); // set dimension for array
+  const dmuxDimArr = [...Array(arrSize).keys()]; // used to draw array
+  const dimOptions = Array.from({length:16}, (_,i) => i+1) // list of options for array dimension
+  const defaultArr = Array.from({length:arrSize*arrSize}, (_) => false) // reset array to default values when changing dimensions
 
   return (
     <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)}>
       <div className="row justify-content-start">
-        <div className="col col-12 col-md-5 mt-3 px-md-0">
+        <div className={arrSize < 6 ? "col col-12 col-md-5 mt-3 px-md-0" : "col col-12 mt-3"}>
           <h1>Cell Configuration</h1>
-          {/* placeholder put dropdown for selecting array size here */}
           <div id="arrSizeForm" className="form-group">
-            <label className="col-form-label-sm" htmlFor="arrSizeForm">
-              Array Size
-            </label>
-            <div className="input-group has-validation mb-3">
-              <input
-                className={`form-control form-control-sm`}
-                id="arrSizeForm"
-                type="number"
-                step="any"
-                defaultValue={4}
-                {...register("arrSize")}
-                onChange={e => setArrSizeTemp(Number(e.target.value))}
-              />
-              <button
-                className="btn btn-primary"
-                id="submitButton"
-                type="submit"
-                form="arrSizeForm"
-                value="Submit"
-                onClick={() => {
-                  console.log("changing array size")
-                  setArrSize(arrSizeTemp)
-                  reset()
-                }}
-              >
-                Submit
-              </button>
+            <div className="input-group has-validation">
+              <select 
+                  className="form-select my-3" 
+                  id="arrSizeForm" {...register("arrSize")} 
+                  onChange={e => {
+                    setArrSize(Number(e.target.value)); 
+                    setValue('dmuxOutputNum', defaultArr as any)
+                  }} 
+                  defaultValue={arrSize}
+                  disabled={formDisabled}>
+                {dimOptions.map((val) => (
+                  <option value={val}>{val}x{val}</option>
+                ))}
+              </select>
             </div>
           </div>
           <table className="table table-borderless">
             <thead>
               <tr>
                 <th scope="col"></th>
-                {dmuxArr.map((val) => (
+                {dmuxDimArr.map((val) => (
                   <th scope="col">{val}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {dmuxArr.map((rowVal) => (
+              {dmuxDimArr.map((rowVal) => (
                 <tr>
                   <th scope="row">{alphabet[rowVal]}</th>
-                  {dmuxArr.map((colVal) => (
+                  {dmuxDimArr.map((colVal) => (
                     <td>
                       <input
                         type="checkbox"
                         className="btn btn-check"
                         id={String(rowVal * arrSize + colVal)}
-                        // {...register("dmuxOutputNum.15")}
                         {...register(
                           ("dmuxOutputNum." +
                             String(rowVal * arrSize + colVal)) as any
@@ -140,7 +131,7 @@ const ConfigurationForm = ({
           <p className="form-text ps-3">Select cells to activate.</p>
         </div>
 
-        <div className="col col-12 col-md-6 mt-3 offset-md-1 ps-6 pe-md-0">
+        <div className={arrSize < 6 ? "col col-12 col-md-6 mt-3 offset-md-1 ps-6 pe-md-0" : "col col-12 mt-3 ps-6"}>
           <h1>Parameters</h1>
           <div className="row">
             <div className="col">
@@ -156,7 +147,6 @@ const ConfigurationForm = ({
                     id="negVoltageForm"
                     type="number"
                     step="any"
-                    // placeholder="-10"
                     defaultValue={-10}
                     {...register("negVoltage", voltageError)}
                     disabled={formDisabled}
@@ -185,7 +175,6 @@ const ConfigurationForm = ({
                     id="posVoltageForm"
                     type="number"
                     step="any"
-                    // placeholder="10"
                     defaultValue={10}
                     {...register("posVoltage", voltageError)}
                     disabled={formDisabled}
@@ -244,7 +233,6 @@ const ConfigurationForm = ({
                     id="dutyCycleForm"
                     type="number"
                     step="any"
-                    // placeholder="50"
                     defaultValue={50}
                     {...register("dutyCycle", dutyCycleError)}
                     disabled={formDisabled}
@@ -276,7 +264,6 @@ const ConfigurationForm = ({
                   id="defaultDurationForm"
                   type="number"
                   step="any"
-                  // placeholder="60"
                   defaultValue={10}
                   {...register("defaultDuration", defaultError)}
                   disabled={formDisabled}
