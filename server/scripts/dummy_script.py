@@ -7,9 +7,8 @@ output_delay = 0.7
 
 def pretty_print_array(arr, dim):
     int_arr = arr[0:dim*dim]
-    int_arr = [1 if x else 0 for x in arr]
-    arr_string = [f"{en} " if (
-        (i+1) % dim) else f"{en}\n\t\t      " for i, en in enumerate(int_arr)]
+    int_arr = [1 if x else 0 for x in int_arr]
+    arr_string = [f"{en} " if ((i+1) % dim) else f"{en}\n\t\t      " for i, en in enumerate(int_arr)]
     return ''.join(arr_string)
 
 
