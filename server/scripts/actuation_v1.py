@@ -1,11 +1,13 @@
 """
-Title: single_cell.py
+Title: actuation_v1.py
 Originally By: Spring 2023 EE VIP Students 
 Modified By: david947
 Date Created: 2023-07-30
 Description:
     Modify '2023_05_01_User_Input_Toggle_Demux.py' to take input from JSON instead of keyboard. 
-    Implement signal_handler() function to stop program
+    Intentionally did not perform major refactor of original script.
+    Implement 'stop_button' thread function to stop program. 
+    Only compatible with fixed 4x4 array. 
 
     "This is a program designed for use in the actuation control system of a 4x4 IRS
     design. The DAQ will be used for enabling the multiplexer, providing
@@ -31,7 +33,7 @@ def pretty_print_array(arr, dim):
     return ''.join(arr_string)   
 
 def process_input_as_json(json_input):
-    """this does that thing.
+    """parses input string as JSON. Returns as list.
 
     Args:
         json_input (string): Stringified JSON from web app.
@@ -116,9 +118,6 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
 
             print(f"Selecting Output S: {p_dmux_output_nums}")
             while (time.time() - start_time < max_duration):
-                # if kb.read_key() == "q":
-                #     print("hello")
-                #     off()
                 for num in p_dmux_output_nums:
                     ## Adjust demux select input
                     sel_task.write(2*num) # no need -1, should already be 0 to 15 
@@ -139,13 +138,6 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
 
         ## Turn off square wave signal
         print("Resetting..")
-        # ac_task.wait_until_done(100)
-        # ac_task.stop()
-        # ac_task.timing.cfg_samp_clk_timing(rate=2, samps_per_chan=2)
-        # for num in p_dmux_output_nums:
-        # ac_task.write(data=[0,0], auto_start=True)
-        # sel_task.write(2*num) # no need -1, should already be 0 to 15 
-        # ac_task.wait_until_done(100)
         ac_task.stop()
 
         ## Turn off select and enable inputs
@@ -160,8 +152,6 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
 
         ## Process JSON Input
         # input_string = '{"dmuxOutputNum":[false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,true],"negVoltage":"-10","posVoltage":"10","frequency":"50","dutyCycle":"50","defaultDuration":"10","timestamp":"08/01/2023, 11:15:05 AM"}'
-        # input_string = '{"dmuxOutputNum":[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true],"negVoltage":"-10","posVoltage":"10","frequency":"50","dutyCycle":"50","defaultDuration":"10","timestamp":"08/01/2023, 11:15:05 AM"}'
-        # input_string = '{"dmuxOutputNum":[false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false],"negVoltage":"-10","posVoltage":"10","frequency":"50","dutyCycle":"50","defaultDuration":"10","timestamp":"08/01/2023, 11:15:05 AM"}'
         input_string = sys.argv[1]
         
         [timestamp, neg_voltage, pos_voltage, frequency, 
@@ -193,6 +183,7 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
         ## Set up settings
         set_params(rate, samps_per_chan)
 
+        ## Init Event Thread to stop program
         stop_button = Event()
 
         ## Toggle signal
