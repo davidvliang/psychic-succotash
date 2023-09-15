@@ -35,6 +35,7 @@ const ConfigurationForm = ({
   // Reset form values when reset button is pressed
   useEffect(() => {
     reset();
+    setArrSize(4);
   }, [resetButton]);
 
   // Input Validation 
