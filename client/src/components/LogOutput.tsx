@@ -21,7 +21,7 @@ const LogOutput = ({ logData }: { logData: string }) => {
   return (
     <>
       <div className="my-4 px-md-0">
-        <h1>Log</h1>
+        <h2>Log</h2>
         <div className="form-group">
           <textarea
             readOnly
