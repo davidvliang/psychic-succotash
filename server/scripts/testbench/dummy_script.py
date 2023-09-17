@@ -1,13 +1,15 @@
 import sys
 import json
 import time
+from threading import Thread, Event
 
-output_delay = 0.7
+
+output_delay = 1
 
 
 def pretty_print_array(arr, dim):
     int_arr = arr[0:dim*dim]
-    int_arr = [1 if x else 0 for x in int_arr]
+    int_arr = [int(x) for x in int_arr]
     arr_string = [f"{en} " if ((i+1) % dim) else f"{en}\n\t\t      " for i, en in enumerate(int_arr)]
     return ''.join(arr_string)
 
@@ -40,12 +42,11 @@ def process_input_as_json(json_input):
             list(data['dmuxOutputNum']))
 
 
-def actuate_cells(dmux_output_num):
-    for i, en in enumerate(dmux_output_num):
-        if en:
+def actuate_cells(p_dmux_output_nums, p_stop_button):
+    for i, en in enumerate(p_dmux_output_nums):
+        if not p_stop_button.is_set() and en != "0":
+            print(f"actuated cell [{en}] {i}", end="")
             time.sleep(output_delay)
-            print(f"actuated cell {i}", end="")
-    time.sleep(output_delay)
 
 
 if __name__ == "__main__":
@@ -60,9 +61,17 @@ if __name__ == "__main__":
     [timestamp, neg_voltage, pos_voltage, frequency,
      duty_cycle, default_duration, arr_size, dmux_output_num] = process_input_as_json(sys.argv[1])
 
-    dmux_output_nums = [i for i, num in enumerate(
-        dmux_output_num) if num == True]
-    # print("Hey there", dmux_output_nums, type(dmux_output_nums))
+    print("Hey there first", dmux_output_num, type(dmux_output_num))
+    dmux_output_nums = []
+    for i, num in enumerate(dmux_output_num):
+        if isinstance(num, str):
+            dmux_output_nums.append(num)
+        elif isinstance(num, list):
+            dmux_output_nums.append("".join(num))
+        else:
+            dmux_output_nums.append("")
+
+    print("Hey there second", dmux_output_nums, type(dmux_output_nums))
 
     # Print Input to STDOUT
     print(f"Reading JSON from '{timestamp}'\n",
@@ -73,10 +82,24 @@ if __name__ == "__main__":
           f"   Default Duration: {default_duration} s\n",
           f"   Array Size:       {arr_size}x{arr_size}\n",
           f"   Configuration:    {dmux_output_nums}\n"
-          f"\t\t      {pretty_print_array(dmux_output_num, arr_size)}", end="")
+          f"\t\t      {pretty_print_array(dmux_output_nums, arr_size)}", end="")
+
+    ## Init event to stop program
+    stop_button = Event()
+
+    ## Toggle signal using threaded function
+    time.sleep(1)
+    thread = Thread(target=actuate_cells, args=(dmux_output_nums,stop_button))
+    thread.start()
+    stop_request = input()
+    if stop_request:
+        stop_button.set()
+    thread.join()
+    print("Program Aborted!!", end="")
+    exit()
 
     # Simulate Cell Actuation
-    actuate_cells(dmux_output_num)
+    # actuate_cells(dmux_output_nums)
 
     # Test Stop Button
     if input("Waiting to end program.. ") == "q":
