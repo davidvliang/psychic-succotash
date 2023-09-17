@@ -37,5 +37,5 @@ For server,
 1. In a terminal window, go to the ```server/``` directory 
 2. Run ```npm run dev```
 
-HINT: Run the client and server simultaneously in separate terminal windows. 
+Run the client and server simultaneously in separate terminal windows. 
 
