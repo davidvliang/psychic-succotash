@@ -10,16 +10,17 @@ const app = express();
 const server = http.createServer(app);
 const PORT = 5001;
 
-// SOCKET EVENTS
-const serverLog = "serverLog";
-const submit = "submit";
-const stopButton = "stopButton";
-const programRunning = "programRunning";
-const cellActuation = "cellActuation";
+// SOCKET EVENTS (see TopInterface.tsx)
+const submit = "submit"; // 'submit' signal (client to server)
+const stopButton = "stopButton"; // 'stop' signal (client to server)
+const serverLog = "serverLog"; // send logging information from (server to client)
+const programRunning = "programRunning"; // python script start (server to client)
+const cellActuation = "cellActuation"; // indicate specific cell is actuated (server to client)
 
+// Init socketIO
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "http://localhost:3000", // CLIENT ADDRESS
   },
 });
 
@@ -30,24 +31,22 @@ io.on("connection", (socket) => {
   socket.on(submit, (data) => {
     io.emit(programRunning, true);
 
-    // spawn new child process to call python script
+    // Spawn new child process to call python script
     const python = spawn("python", [
       "-u",
       // "./scripts/actuation_v1.py",
       // "./scripts/actuation_v2.py",
-      "./scripts/dummy_script.py",
+      "./scripts/testbench/dummy_script.py",
       JSON.stringify(data),
     ]);
 
+    // If stop button is pressed, send 'stop' to python script
     socket.on(stopButton, (data) => {
       python.stdin.write(data);
-      // python.kill("SIGINT");
-      // python.kill();
-      logPrint("[Server]", "Sending SIGTERM");
-
+      logPrint("[Server]", "Sending 'STOP' to Python process");
     });
 
-    // collect data from script
+    // Send STDOUT data from python script to client
     python.stdout.on("data", function (data) {
       dataToSend = data.toString();
       logPrint("[Python STDOUT] ", dataToSend);
@@ -56,6 +55,7 @@ io.on("connection", (socket) => {
       }
     });
 
+    // Send STDERR from python script to client log output
     python.stderr.on("data", function (data) {
       dataToSend = data.toString();
       logPrint("[Python STDERR] ", dataToSend);
@@ -63,12 +63,11 @@ io.on("connection", (socket) => {
 
     // in close event we are sure that the stream from child process is closed
     python.on("close", (code, signal) => {
-      logPrint(`[Server] Python process terminated with code ${code}`);
+      logPrint(`[Server] Python process terminated with return code ${code}`);
       logPrint(`[Server] Python process terminated due to signal ${signal}`);
       io.emit(programRunning, false);
     });
 
-    console.log(`[${getTS()}]`, "[Client]\n", data);
   });
 
   socket.on("disconnect", (reason) => {
@@ -81,6 +80,8 @@ server.listen(PORT, (err) => {
   console.log(`[${getTS()}] Server Started on PORT ${PORT}`);
 });
 
+
+// Timestamp string for labeling log output
 function getTS() {
   const timestamp = Date.now(); // This would be the timestamp you want to format
 
@@ -94,6 +95,7 @@ function getTS() {
   }).format(timestamp);
 }
 
+// Wrapper function for displaying log output
 function logPrint(domain, ...args) {
   io.emit(serverLog, `[${getTS()}] ${domain} ${args.toString()}`);
   console.log(`[${getTS()}] ${domain} ${args.toString()}`);
