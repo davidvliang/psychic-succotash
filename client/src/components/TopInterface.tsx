@@ -7,12 +7,12 @@ import LogOutput from "./LogOutput";
 import getTS from "../utils/getTS";
 import { defaultActuatedCells } from "../utils/DAQ";
 
-// SOCKET EVENTS
-const serverLog = "serverLog";
-const submit = "submit";
-const stopButton = "stopButton";
-const programRunning = "programRunning";
-const cellActuation = "cellActuation";
+// SOCKET EVENTS (see server.js)
+const submit = "submit"; // 'submit' signal (client to server)
+const stopButton = "stopButton"; // 'stop' signal (client to server)
+const serverLog = "serverLog"; // send logging information from (server to client)
+const programRunning = "programRunning"; // python script start (server to client)
+const cellActuation = "cellActuation"; // indicate specific cell is actuated (server to client)
 
 // INIT Sockets
 const socket = io("http://localhost:5001");
@@ -21,10 +21,10 @@ function TopInterface() {
   const [logData, setLogData] = useState<string>(
     `[${getTS()}] [Client] Init App..`
   );
-  const [resetButton, setResetButton] = useState(false);
-  const [configureData, setConfigureData] = useState([{}]);
-  const [formDisabled, setFormDisabled] = useState(false);
-  const [actuatedCells, setActuatedCells] = useState(
+  const [resetButton, setResetButton] = useState<boolean>(false);
+  const [configureData, setConfigureData] = useState<object>([{}]);
+  const [formDisabled, setFormDisabled] = useState<boolean>(false);
+  const [actuatedCells, setActuatedCells] = useState<object>(
     JSON.parse(JSON.stringify(defaultActuatedCells))
   );
 
@@ -49,15 +49,21 @@ function TopInterface() {
   socket.on(programRunning, (data) => {
     setFormDisabled(data);
   });
+
+  // Keep track of which individual cells have been actuated by the python script
+  // Used for demo purposes to highlight the actuated cells in green on the frontend 
   socket.on(cellActuation, (data) => {
-    const cellVal = data.split(" ").at(-1);
-    if (cellVal !== "" && cellVal !== undefined) {
-      actuatedCells[cellVal as keyof typeof actuatedCells] = true;
-    }
+    const cellVal = parseInt(data.split(" ").at(-1));
+    setActuatedCells(actuatedCells => ({
+      ...actuatedCells,
+      ...{[cellVal as keyof typeof actuatedCells]: true}
+    }));
   });
 
   return (
     <div className="">
+
+      {/* CONFIGURATION FORM COMPONENT */}
       <ConfigurationForm
         resetButton={resetButton}
         handleConfigureData={handleConfigureData}
@@ -65,9 +71,11 @@ function TopInterface() {
         actuatedCells={actuatedCells}
       />
 
-      <div className="row mt-md-2">
+      <div className="row mt-md-1">
         <div className="col ms-auto px-md-0">
           <div className="btn-toolbar float-end" role="toolbar">
+
+            {/* STOP BUTTON */}
             <button
               className="btn btn-danger ms-2 my-2"
               id="stopButton"
@@ -85,6 +93,8 @@ function TopInterface() {
             >
               Stop Program
             </button>
+
+            {/* SUBMIT BUTTON */}
             <button
               className="btn btn-success ms-2 my-2"
               id="submitButton"
@@ -100,6 +110,7 @@ function TopInterface() {
               Submit
             </button>
 
+            {/* RESET BUTTON */}
             <button
               className="btn btn-secondary ms-2 my-2"
               id="resetButton"
@@ -113,9 +124,13 @@ function TopInterface() {
             >
               <FontAwesomeIcon icon={faRefresh} />
             </button>
+
           </div>
         </div>
       </div>
+      <br />
+      <br />
+      {/* LOG OUTPUT COMPONENT */}
       <div className="row">
         <LogOutput logData={logData} />
       </div>
