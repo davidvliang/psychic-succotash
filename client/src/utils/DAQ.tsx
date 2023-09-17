@@ -7,22 +7,22 @@ export type DAQInputs = {
   defaultDuration: number;
   arrSize: number;
   dmuxOutputNum: {
-    "0": boolean;
-    "1": boolean;
-    "2": boolean;
-    "3": boolean;
-    "4": boolean;
-    "5": boolean;
-    "6": boolean;
-    "7": boolean;
-    "8": boolean;
-    "9": boolean;
-    "10": boolean;
-    "11": boolean;
-    "12": boolean;
-    "13": boolean;
-    "14": boolean;
-    "15": boolean;
+    "0": number;
+    "1": number;
+    "2": number;
+    "3": number;
+    "4": number;
+    "5": number;
+    "6": number;
+    "7": number;
+    "8": number;
+    "9": number;
+    "10": number;
+    "11": number;
+    "12": number;
+    "13": number;
+    "14": number;
+    "15": number;
   }; // from cell array form
 };
 
