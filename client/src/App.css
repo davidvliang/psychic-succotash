@@ -5,7 +5,14 @@
 
 .cell {
     width: 100%;
-    height: 3em;
+    height: 2em;
+    white-space: nowrap;
+    overflow: hidden;
+    padding-top: 0em;
+    padding-bottom: 0em;
+    padding-left: 0.5em;
+    padding-right: 0em;
+    min-width:50px;
 }
 
 #LogOutputTextArea {
@@ -73,7 +80,6 @@ input[type=number] {
 }
 
 .cyclestate label {
-    padding: 1em;
     text-align: center;
     display: inline-block;
     cursor: pointer;
@@ -81,7 +87,7 @@ input[type=number] {
 }
 
 .cyclestate label::before {
-    content: '← ';
+    /* content: '← '; */
 }
 
 .cyclestate label::after {
@@ -113,4 +119,39 @@ label::after {
 
 :visited {
     color: lime;
+}
+
+
+
+/* X-Small devices (portrait phones, less than 576px) */
+/* No media query for `xs` since this is the default in Bootstrap */
+
+/* #fileUploadSection {
+
+} */
+
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) { 
+
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) { 
+
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) { 
+
+}
+
+/* X-Large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) { 
+
+}
+
+/* XX-Large devices (larger desktops, 1400px and up) */
+@media (min-width: 1400px) { 
+
 }
