@@ -4,9 +4,6 @@ import time
 from threading import Thread, Event
 
 
-output_delay = 1
-
-
 def pretty_print_array(arr, dim):
     int_arr = arr[0:dim*dim]
     int_arr = [int(x) for x in int_arr]
@@ -43,6 +40,7 @@ def process_input_as_json(json_input):
 
 
 def actuate_cells(p_dmux_output_nums, p_stop_button):
+    output_delay = 0.25
     for i, en in enumerate(p_dmux_output_nums):
         if not p_stop_button.is_set() and en != "0":
             print(f"actuated cell [{en}] {i}", end="")
@@ -57,11 +55,11 @@ if __name__ == "__main__":
     # Process JSON Input
     # [timestamp, pos_voltage, neg_voltage, frequency,
     #  duty_cycle, default_duration, dmux_output_num] = process_input_as_json(test_string)
-    # ## Process JSON Input
+
+    ## Process JSON Input
     [timestamp, neg_voltage, pos_voltage, frequency,
      duty_cycle, default_duration, arr_size, dmux_output_num] = process_input_as_json(sys.argv[1])
 
-    print("Hey there first", dmux_output_num, type(dmux_output_num))
     dmux_output_nums = []
     for i, num in enumerate(dmux_output_num):
         if isinstance(num, str):
@@ -71,7 +69,6 @@ if __name__ == "__main__":
         else:
             dmux_output_nums.append("")
 
-    print("Hey there second", dmux_output_nums, type(dmux_output_nums))
 
     # Print Input to STDOUT
     print(f"Reading JSON from '{timestamp}'\n",
@@ -88,20 +85,12 @@ if __name__ == "__main__":
     stop_button = Event()
 
     ## Toggle signal using threaded function
-    time.sleep(1)
     thread = Thread(target=actuate_cells, args=(dmux_output_nums,stop_button))
     thread.start()
     stop_request = input()
     if stop_request:
         stop_button.set()
     thread.join()
+    
     print("Program Aborted!!", end="")
     exit()
-
-    # Simulate Cell Actuation
-    # actuate_cells(dmux_output_nums)
-
-    # Test Stop Button
-    if input("Waiting to end program.. ") == "q":
-        print("Program Aborted!!", end="", flush=True)
-        exit()
