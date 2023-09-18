@@ -130,6 +130,31 @@ function TopInterface() {
       </div>
       <br />
       <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
       {/* LOG OUTPUT COMPONENT */}
       <div className="row">
         <LogOutput logData={logData} />
