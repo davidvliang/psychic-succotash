@@ -56,13 +56,6 @@ def process_input_as_json(json_input):
             int(data['defaultDuration']), 
             list(data['dmuxOutputNum']))
 
-def actuate_cells(dmux_output_num, output_delay):
-    for i,en in enumerate(dmux_output_num):
-        if en:
-            time.sleep(output_delay)
-            print(f"actuated cell {i}",end="")
-    time.sleep(output_delay)
-
 
 with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en_task:
 
@@ -104,6 +97,8 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
     def on(p_sample_array, p_rate, p_samps_per_chan, p_dmux_output_nums, p_stop_button):
         """Starts signal generation for the DAQ"""
 
+        output_delay = 0.25
+
         ## Print default duration
         max_duration = p_samps_per_chan / p_rate
         print(f"Default duration (s): {max_duration}")
@@ -116,9 +111,13 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
 
             print(f"Selecting Output S: {p_dmux_output_nums}")
             while (time.time() - start_time < max_duration):
-                for num in p_dmux_output_nums:
+                for i, num in enumerate(p_dmux_output_nums):
                     ## Adjust demux select input
-                    sel_task.write(2*num) # no need -1, should already be 0 to 15 
+                    if not p_stop_button.is_set():
+                        sel_task.write(2*num) # no need -1, should already be 0 to 15 
+                        time.sleep(output_delay)
+                        print(f"actuated cell [{num}] {i}")
+                        
                 if p_stop_button.is_set():
                     print("THREAD STOPPING")
                     off()
