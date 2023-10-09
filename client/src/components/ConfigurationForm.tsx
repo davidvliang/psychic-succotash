@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { DAQInputs, alphabet } from "../utils/DAQ";
 import getTS from "../utils/getTS";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
+import lookupTable from "../utils/lookupTable.json"
 
 const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, actuatedCells }: { resetButton: boolean, handleConfigureData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
 
@@ -49,14 +50,14 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
 
   // Initialize parameters for adjusting array size
   const [arrSize, setArrSize] = useState<number>(4); // set dimension for array based on user input, default is 4x4
-  const [cellArrayKey, setCellArrayKey] = useState<number>(69420); // set dimension for array based on user input, default is 4x4
+  const [cellArrayKey, setCellArrayKey] = useState<number>(69420); // set arbitrary key for the array's HTML element. Changing the key will cause re-render
   const [dmuxDimArr, setDmuxDimArr] = useState([...Array(arrSize).keys()]);
   const dimOptions = Array.from({ length: 16 }, (_, i) => i + 1) // used with map() to draw the list of array dimension options for the user to select
 
   // When user changes the array size
   useEffect(() => {
     setDmuxDimArr([...Array(arrSize).keys()]); // update dmuxDimArr, which is used to draw the cell array 
-    setCellArrayKey(Math.random()) // cycle to a new key for #cellArrayDisplay, which rerenders the element
+    setCellArrayKey(Math.random()) // cycle to a new key for #cellArrayDisplay, which re-renders the element
   }, [arrSize]);
 
   // Set styling for cells based on actuation (highlight green) and FormDisabled (submit button pressed)
@@ -73,9 +74,9 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
     const arrSizeThresOne = 6  // 0-5
     const arrSizeThresTwo = 11 // 6-10
     const arrSizeThresThree = 12 // 11-11
-    if (sectionName === "File Upload") {
-      if (arrSize < arrSizeThresOne) return "col col-12 px-md-0 mt-3"
-      else if (arrSize > arrSizeThresOne && arrSize < arrSizeThresTwo) return "col col-12 mt-3 ps-6"
+    if (sectionName === "File Upload" || sectionName === "Lookup Table") {
+      if (arrSize < arrSizeThresOne) return "col col-12 col-lg-6 px-md-0 mt-3"
+      else if (arrSize > arrSizeThresOne && arrSize < arrSizeThresTwo) return "col col-12 col-lg-6 mt-3 ps-6"
     }
     if (sectionName === "Cell Configuration") {
       if (arrSize < arrSizeThresOne) return "col col-12 col-md-6 mt-3 px-md-0"
@@ -160,7 +161,9 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
   // Trigger update Form when file is valided.
   // This is required since, with useState, we can't update everything in the same function
   useEffect (() => {
-    updateFormWithFile()
+    if (validatedFileInput.length != 0) {
+      updateFormWithFile()
+    }
   }, [validatedFileInput])
 
   // Update form with file..
@@ -176,19 +179,95 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
   }
 
 
+  // Lookup Table Dropdown
+  const [lookupTableAngle, setLookupTableAngle] = useState<number>(0) // Define angles
+  const angleOptionsMaxLength = 45
+  const angleOptionsIncrement = 5
+  const arrayRange = (start: number, stop: number, step: number) =>
+    Array.from(
+    { length: (stop - start) / step + 1 },
+    (value, index) => start + index * step
+  );
+
+  const angleOptions = arrayRange(-angleOptionsMaxLength, angleOptionsMaxLength, angleOptionsIncrement)
+
+  // const angleOptions = Array.from({ length: 45 }, (_, i) => i + 5) // used with map() to draw the list of array dimension options for the user to select
+  const lookupTableJSON = lookupTable 
+
+  // Trigger update Form when lookupTable button is pressed.
+  // This is required since, with useState, we can't update everything in the same function
+  useEffect (() => {
+    if (validatedFileInput.length != 0) {
+      updateFormWithFile()
+    }
+  }, [lookupTableAngle])
+
+
 
   return (
 
     <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)}>
 
-      {/* IMPORT CONFIG FILE FORM */}
+      {/* INPUT DIRECTION LOOKUP TABLE FORM */}
       <div className="row justify-content-start">
+        <div className={styleSectionGrids("Lookup Table")}>
+          <div className="d-inline-flex gap-2">
+            <h2>Table Lookup</h2>
+            <button className="btn btn-secondary align-self-center pt-0 pb-1 px-1 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#lookupTableInfo" aria-expanded="false" aria-controls="lookupTableInfo">
+              <InfoIcon />
+            </button>
+          </div>
+          <div id="lookupTableInfo" className="collapse">
+            <div className="card card-body py-2 mb-2 mx-2">
+              <p className="form-text mb-1">Input angle direction.</p>
+              <p className="form-text mb-1">Click 'Render' to display cell configuration for the angle.</p>
+            </div>
+          </div>
+
+          <div id="lookupTableForm" className="form-group">
+            <div className="d-inline-flex gap-2" style={{minWidth: 300+"px"}}>
+              <div className="input-group has-validation">
+                <div className="mb-3">
+                  <select
+                    className="form-select mt-3 "
+                    style={{minWidth: 300+"px"}}
+                    id="lookupTableForm"
+                    onChange={e => {
+                      setLookupTableAngle(Number(e.target.value));
+                    }}
+                    defaultValue={lookupTableAngle}
+                    disabled={formDisabled}>
+                    {angleOptions.map((val) => (
+                      <option value={val}>{val}&deg;</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <button
+                className="btn btn-primary ms-1 my-1 py-1 align-self-center"
+                id="lookupTableButton"
+                type="submit"
+                form="lookupTableForm"
+                value="Render"
+                onClick={() => {
+                  console.log("here\n", lookupTableAngle)
+                  // setValidatedFileInput()
+                  console.log(lookupTableJSON[0])
+                  // validateReshapeFileInput()
+                }}>
+                Render
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* IMPORT CONFIG FILE FORM */}
         <div className={styleSectionGrids("File Upload")}>
           <div className="d-inline-flex gap-2">
             <h2>File Upload</h2>
-            <button className="btn btn-secondary align-self-center pt-0 pb-1 px-1 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#fileUploadInfo" aria-expanded="false" aria-controls="cellConfigurationInfo">
+            <button className="btn btn-secondary align-self-center pt-0 pb-1 px-1 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#fileUploadInfo" aria-expanded="false" aria-controls="fileUploadInfo">
               <InfoIcon />
-
             </button>
           </div>
           <div id="fileUploadInfo" className="collapse">
@@ -219,8 +298,8 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
           </div>
         </div>
       </div>
-
-      <hr className="my-8" />
+                
+      <hr className="my-12" />
 
       <div className="row justify-content-between">
 
