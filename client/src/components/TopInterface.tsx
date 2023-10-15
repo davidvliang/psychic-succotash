@@ -22,7 +22,7 @@ function TopInterface() {
     `[${getTS()}] [Client] Init App..`
   );
   const [resetButton, setResetButton] = useState<boolean>(false);
-  const [configureData, setConfigureData] = useState<object>([{}]);
+  const [configureData, _] = useState<object>([{}]);
   const [formDisabled, setFormDisabled] = useState<boolean>(false);
   const [actuatedCells, setActuatedCells] = useState<object>(
     JSON.parse(JSON.stringify(defaultActuatedCells))

@@ -1,5 +1,5 @@
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { DAQInputs, alphabet } from "../utils/DAQ";
 import getTS from "../utils/getTS";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
@@ -186,7 +186,7 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
   const arrayRange = (start: number, stop: number, step: number) =>
     Array.from(
     { length: (stop - start) / step + 1 },
-    (value, index) => start + index * step
+    (_, index) => start + index * step
   );
 
   const angleOptions = arrayRange(-angleOptionsMaxLength, angleOptionsMaxLength, angleOptionsIncrement)
