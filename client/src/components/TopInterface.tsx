@@ -3,6 +3,7 @@ import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { useCallback, useState } from "react";
 import { io } from "socket.io-client";
 import ConfigurationForm from "./ConfigurationForm";
+import LookupTableForm from "./TiledArrayForm";
 import LogOutput from "./LogOutput";
 import getTS from "../utils/getTS";
 import { defaultActuatedCells } from "../utils/DAQ";
@@ -64,7 +65,14 @@ function TopInterface() {
     <div className="">
 
       {/* CONFIGURATION FORM COMPONENT */}
-      <ConfigurationForm
+      {/* <ConfigurationForm
+        resetButton={resetButton}
+        handleConfigureData={handleConfigureData}
+        formDisabled={formDisabled}
+        actuatedCells={actuatedCells}
+      /> */}
+      {/* LOOKUP TABLE FORM COMPONENT */}
+      <LookupTableForm
         resetButton={resetButton}
         handleConfigureData={handleConfigureData}
         formDisabled={formDisabled}
