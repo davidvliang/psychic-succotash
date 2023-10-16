@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { useCallback, useState } from "react";
 import { io } from "socket.io-client";
-import ConfigurationForm from "./ConfigurationForm";
+// import ConfigurationForm from "./ConfigurationForm";
 import LookupTableForm from "./TiledArrayForm";
 import LogOutput from "./LogOutput";
 import getTS from "../utils/getTS";
@@ -57,31 +57,18 @@ function TopInterface() {
     const cellVal = parseInt(data.split(" ").at(-1));
     setActuatedCells(actuatedCells => ({
       ...actuatedCells,
-      ...{[cellVal as keyof typeof actuatedCells]: true}
+      ...{ [cellVal as keyof typeof actuatedCells]: true }
     }));
   });
 
   return (
     <div className="">
 
-      {/* CONFIGURATION FORM COMPONENT */}
-      {/* <ConfigurationForm
-        resetButton={resetButton}
-        handleConfigureData={handleConfigureData}
-        formDisabled={formDisabled}
-        actuatedCells={actuatedCells}
-      /> */}
-      {/* LOOKUP TABLE FORM COMPONENT */}
-      <LookupTableForm
-        resetButton={resetButton}
-        handleConfigureData={handleConfigureData}
-        formDisabled={formDisabled}
-        actuatedCells={actuatedCells}
-      />
+      <nav className="navbar sticky-top navbar-light bg-light mb-5 shadow-sm">
+        <div className="container-fluid">
+          <span className="navbar-brand pt-2 mx-auto my-auto mx-md-5 h1 text-align-center">Control System App</span>
 
-      <div className="row mt-md-1">
-        <div className="col ms-auto px-md-0">
-          <div className="btn-toolbar float-end" role="toolbar">
+          <div className="btn-toolbar float-end mx-md-5" role="toolbar">
 
             {/* STOP BUTTON */}
             <button
@@ -134,8 +121,28 @@ function TopInterface() {
             </button>
 
           </div>
+
         </div>
+      </nav>
+
+      {/* CONFIGURATION FORM COMPONENT */}
+      {/* <ConfigurationForm
+        resetButton={resetButton}
+        handleConfigureData={handleConfigureData}
+        formDisabled={formDisabled}
+        actuatedCells={actuatedCells}
+      /> */}
+      {/* LOOKUP TABLE FORM COMPONENT */}
+      <div className="container">
+
+        <LookupTableForm
+          resetButton={resetButton}
+          handleConfigureData={handleConfigureData}
+          formDisabled={formDisabled}
+          actuatedCells={actuatedCells}
+        />
       </div>
+
       <br />
       <br />
       <br />
@@ -163,8 +170,13 @@ function TopInterface() {
       <br />
       <br />
       <br />
+
+
+
+
+
       {/* LOG OUTPUT COMPONENT */}
-      <div className="row">
+      <div className="container">
         <LogOutput logData={logData} />
       </div>
     </div>
