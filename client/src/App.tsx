@@ -6,9 +6,9 @@ import TopInterface from "./components/TopInterface";
 function App() {
   return (
     <div>
-      <Navbar />
+      {/* <Navbar /> */}
+      <TopInterface />
       <div className="container">
-        <TopInterface />
         {/* <SocketExample /> */}
         {/* <History /> */}
       </div>
