@@ -1,6 +1,7 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { DAQInputs, alphabet } from "../utils/DAQ";
+import { LookupTableType } from "../utils/LookupTableUtil";
 import getTS from "../utils/getTS";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
 import lookupTable from "../utils/lookupTable.json"
@@ -14,10 +15,10 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
     reset,
     setValue,
     formState: { errors },
-  } = useForm<DAQInputs>();
+  } = useForm<LookupTableType>();
 
   // Collect form data as JSON string upon submit
-  const onSubmit: SubmitHandler<DAQInputs> = (data) => {
+  const onSubmit: SubmitHandler<LookupTableType> = (data) => {
     let form_data = data;
     form_data["timestamp"] = getTS();
     handleConfigureData(form_data);
@@ -160,7 +161,7 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
 
   // Trigger update Form when file is valided.
   // This is required since, with useState, we can't update everything in the same function
-  useEffect (() => {
+  useEffect(() => {
     if (validatedFileInput.length != 0) {
       updateFormWithFile()
     }
@@ -171,11 +172,11 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
     console.log(fileName, "\n", fileContent, validatedFileInput)
 
     setArrSize(Math.sqrt(validatedFileInput.length));
-    setValue("arrSize", Math.sqrt(validatedFileInput.length));
+    setValue("arrayDimension", Math.sqrt(validatedFileInput.length));
 
     // Delay is used to allow React-Hook-Form to properly register values and display values. I can't be bothered.
     // Maybe need to use another useEffect? 
-    setTimeout(() => setValue("dmuxOutputNum", validatedFileInput), 100)
+    setTimeout(() => setValue("configuration", validatedFileInput), 100)
   }
 
 
@@ -185,18 +186,18 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
   const angleOptionsIncrement = 5
   const arrayRange = (start: number, stop: number, step: number) =>
     Array.from(
-    { length: (stop - start) / step + 1 },
-    (_, index) => start + index * step
-  );
+      { length: (stop - start) / step + 1 },
+      (_, index) => start + index * step
+    );
 
   const angleOptions = arrayRange(-angleOptionsMaxLength, angleOptionsMaxLength, angleOptionsIncrement)
 
   // const angleOptions = Array.from({ length: 45 }, (_, i) => i + 5) // used with map() to draw the list of array dimension options for the user to select
-  const lookupTableJSON = lookupTable 
+  const lookupTableJSON = lookupTable
 
   // Trigger update Form when lookupTable button is pressed.
   // This is required since, with useState, we can't update everything in the same function
-  useEffect (() => {
+  useEffect(() => {
     if (validatedFileInput.length != 0) {
       updateFormWithFile()
     }
@@ -208,11 +209,11 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
 
     <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)}>
 
-      {/* INPUT DIRECTION LOOKUP TABLE FORM */}
       <div className="row justify-content-start">
+        {/* INPUT DIRECTION LOOKUP TABLE FORM */}
         <div className={styleSectionGrids("Lookup Table")}>
           <div className="d-inline-flex gap-2">
-            <h2>Table Lookup</h2>
+            <h3>Table Lookup</h3>
             <button className="btn btn-secondary align-self-center pt-0 pb-1 px-1 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#lookupTableInfo" aria-expanded="false" aria-controls="lookupTableInfo">
               <InfoIcon />
             </button>
@@ -225,39 +226,36 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
           </div>
 
           <div id="lookupTableForm" className="form-group">
-            <div className="d-inline-flex gap-2" style={{minWidth: 300+"px"}}>
-              <div className="input-group has-validation">
-                <div className="mb-3">
-                  <select
-                    className="form-select mt-3 "
-                    style={{minWidth: 300+"px"}}
-                    id="lookupTableForm"
-                    onChange={e => {
-                      setLookupTableAngle(Number(e.target.value));
-                    }}
-                    defaultValue={lookupTableAngle}
-                    disabled={formDisabled}>
-                    {angleOptions.map((val) => (
-                      <option value={val}>{val}&deg;</option>
-                    ))}
-                  </select>
-                </div>
+            <div className="d-inline-flex gap-2" style={{ minWidth: 300 + "px" }}>
+              <div className="input-group">
+                <select
+                  className="form-select"
+                  style={{ minWidth: 300 + "px" }}
+                  id="lookupTableForm"
+                  onChange={e => {
+                    setLookupTableAngle(Number(e.target.value));
+                  }}
+                  defaultValue={lookupTableAngle}
+                  disabled={formDisabled}>
+                  {angleOptions.map((val) => (
+                    <option value={val}>{val}&deg;</option>
+                  ))}
+                </select>
+                <button
+                  className="btn btn-primary align-self-center"
+                  id="lookupTableButton"
+                  type="submit"
+                  form="lookupTableForm"
+                  value="Render"
+                  onClick={() => {
+                    console.log("here\n", lookupTableAngle)
+                    // setValidatedFileInput()
+                    console.log(lookupTableJSON[0])
+                    // validateReshapeFileInput()
+                  }}>
+                  Render
+                </button>
               </div>
-
-              <button
-                className="btn btn-primary ms-1 my-1 py-1 align-self-center"
-                id="lookupTableButton"
-                type="submit"
-                form="lookupTableForm"
-                value="Render"
-                onClick={() => {
-                  console.log("here\n", lookupTableAngle)
-                  // setValidatedFileInput()
-                  console.log(lookupTableJSON[0])
-                  // validateReshapeFileInput()
-                }}>
-                Render
-              </button>
             </div>
           </div>
         </div>
@@ -265,7 +263,7 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
         {/* IMPORT CONFIG FILE FORM */}
         <div className={styleSectionGrids("File Upload")}>
           <div className="d-inline-flex gap-2">
-            <h2>File Upload</h2>
+            <h3>File Upload</h3>
             <button className="btn btn-secondary align-self-center pt-0 pb-1 px-1 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#fileUploadInfo" aria-expanded="false" aria-controls="fileUploadInfo">
               <InfoIcon />
             </button>
@@ -277,265 +275,168 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
           </div>
           <div id="fileImportForm" className="form-group">
             <div className="d-inline-flex gap-2">
-              <div className="input-group has-validation">
-                <div className="mb-3">
-                  <input className="form-control mt-3" type="file" id="formFile" accept="text/plain" onChange={handleFileUpload} />
-                </div>
+              <div className="input-group">
+                <input className="form-control" type="file" id="formFile" accept="text/plain" onChange={handleFileUpload} />
+                <button
+                  className="btn btn-primary align-self-center"
+                  id="importButton"
+                  type="submit"
+                  form="fileImportForm"
+                  value="Upload"
+                  onClick={() => {
+                    console.log("here\n", fileContent)
+                    validateReshapeFileInput()
+                  }}>
+                  Upload
+                </button>
               </div>
-              <button
-                className="btn btn-primary ms-1 my-1 py-1 align-self-center"
-                id="importButton"
-                type="submit"
-                form="fileImportForm"
-                value="Upload"
-                onClick={() => {
-                  console.log("here\n", fileContent)
-                  validateReshapeFileInput()
-                }}>
-                Upload
-              </button>
             </div>
           </div>
         </div>
       </div>
-                
-      <hr className="my-12" />
 
-      <div className="row justify-content-between">
+      <hr className="my-12" style={{ marginBottom: "3rem", marginTop: "3rem" }} />
 
-        {/* CELL CONFIGURATION INPUT FORM */}
-        <div className={styleSectionGrids("Cell Configuration")}>
-          <div className="d-inline-flex gap-2">
-            <h2>Cell Configuration</h2>
-            <button className="btn btn-secondary align-self-center pt-0 pb-1 px-1 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#cellConfigurationInfo">
-              <InfoIcon />
-            </button>
-          </div>
+      {/* SELECT ARRAY SIZE */}
+      <div id="arrSizeForm" className="form-group">
+        <div className="input-group mb-3">
+          <span className="input-group-text py-0"><b>Array Size</b></span>
+          <select
+            className="form-select"
+            id="arrSizeForm"
+            {...register("arrayDimension")}
+            onChange={e => {
+              setArrSize(Number(e.target.value));
+            }}
+            defaultValue={arrSize}
+            disabled={formDisabled}>
+            {dimOptions.map((val) => (
+              <option value={val}>{val}x{val}</option>
+            ))}
+          </select>
+          <button
+            className="btn btn-primary"
+            id="arrSizeFormButton"
+            type="button"
+            form="arrSizeForm"
+            value="Render"
+            onClick={() => {
+              console.log("here\n", arrSize)
+            }}>
+            Render
+          </button>
+        </div>
+      </div>
 
-          <div id="cellConfigurationInfo" className="collapse">
-            <div className="card card-body py-2 mb-2 mx-2">
-              <p className="form-text mb-1">1. Use dropdown to select array size.</p>
-              <p className="form-text mb-1">2. Select which array cells to actuate.</p>
-            </div>
-          </div>
-
-          {/* SELECT ARRAY SIZE */}
-          <div id="arrSizeForm" className="form-group">
-            <div className="input-group has-validation">
-              <select
-                className="form-select my-3"
-                id="arrSizeForm" {...register("arrSize")}
-                onChange={e => {
-                  setArrSize(Number(e.target.value));
-                }}
-                defaultValue={arrSize}
-                disabled={formDisabled}>
-                {dimOptions.map((val) => (
-                  <option value={val}>{val}x{val}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* DISPLAY CELL ARRAY */}
-          <table key={cellArrayKey} id="cellArrayDisplay" className="table table-borderless">
-            <thead>
+      {/* TILED ARRAY */}
+      <div>
+        <table key={cellArrayKey} id="cellArrayDisplay" className="table table-borderless">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              {dmuxDimArr.map((val) => (
+                <th scope="col">{val}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {dmuxDimArr.map((rowVal) => (
               <tr>
-                <th scope="col"></th>
-                {dmuxDimArr.map((val) => (
-                  <th scope="col">{val}</th>
+                <th scope="row">{alphabet[rowVal]}</th>
+                {dmuxDimArr.map((colVal) => (
+                  <td>
+                    <div className="col text-start">
+                      <div className="card border-dark" style={{ minWidth: 250 + "px" }}>
+                        <div className="card-header">
+                          <p className="float-start m-0"><b>#{String(rowVal * arrSize + colVal)} </b></p>
+                          <div className="form-check form-switch float-end m-0">
+                            <input
+                              id={"cell_" + String(rowVal * arrSize + colVal)}
+                              className="form-check-input"
+                              type="checkbox"
+                              role="switch"
+                              {...register(("configuration." + String(rowVal * arrSize + colVal) + ".state") as any)}
+                              disabled={formDisabled}
+                              style={{ "width": "3rem", "height": "1.25rem" }} />
+                            <label className="form-check-label" htmlFor={"cell_" + String(rowVal * arrSize + colVal)}></label>
+                          </div>
+                        </div>
+                        <div className="card-body pb-0">
+
+                          {/* VOLTAGE PEAK TO PEAK */}
+                          <div className="input-group has-validation mb-3">
+                            <span className="input-group-text py-0"><b>Vpp</b></span>
+                            <input
+                              className={`form-control form-control-sm ${errors.negVoltage ? "is-invalid" : ""}`}
+                              id="negVoltageForm"
+                              type="number"
+                              step="any"
+                              defaultValue={-10}
+                              {...register(("configuration." + String(rowVal * arrSize + colVal) + ".negVoltage") as any, voltageError)}
+                              disabled={formDisabled} />
+                            <span className="input-group-text py-0">to</span>
+
+                            <input
+                              className={`form-control form-control-sm ${errors.posVoltage ? "is-invalid" : ""}`}
+                              id="posVoltageForm"
+                              type="number"
+                              step="any"
+                              defaultValue={10}
+                              {...register(("configuration." + String(rowVal * arrSize + colVal) + ".posVoltage") as any, voltageError)}
+                              disabled={formDisabled} />
+                            <span className="input-group-text py-0">V</span>
+
+                          </div>
+                          <div className="invalid-feedback">
+                            {errors.negVoltage?.message}
+                          </div>
+                          <div className="invalid-feedback">
+                            {errors.posVoltage?.message}
+                          </div>
+                          {/* FREQUENCY */}
+                          <div className="input-group has-validation mb-3">
+                            <span className="input-group-text py-0"><b>Frequency</b></span>
+
+                            <input
+                              className={`form-control form-control-sm  ${errors.frequency ? "is-invalid" : ""}`}
+                              id="frequencyForm"
+                              type="number"
+                              step="any"
+                              defaultValue={50}
+                              {...register(("configuration." + String(rowVal * arrSize + colVal) + ".frequency") as any, defaultError)}
+                              disabled={formDisabled} />
+                            <span className="input-group-text py-0">Hz</span>
+                            <div className="invalid-feedback">
+                              {errors.frequency?.message}
+                            </div>
+                          </div>
+
+                          {/* DUTY CYCLE */}
+                          <div className="input-group has-validation mb-3">
+                            <span className="input-group-text py-0"><b>Duty Cycle</b></span>
+
+                            <input
+                              className={`form-control form-control-sm  ${errors.dutyCycle ? "is-invalid" : ""}`}
+                              id="dutyCycleForm"
+                              type="number"
+                              step="any"
+                              defaultValue={50}
+                              {...register(("configuration." + String(rowVal * arrSize + colVal) + ".dutyCycle") as any, dutyCycleError)}
+                              disabled={formDisabled} />
+                            <span className="input-group-text py-0">%</span>
+                            <div className="invalid-feedback">
+                              {errors.dutyCycle?.message}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
                 ))}
               </tr>
-            </thead>
-            <tbody>
-              {dmuxDimArr.map((rowVal) => (
-                <tr>
-                  <th scope="row">{alphabet[rowVal]}</th>
-                  {dmuxDimArr.map((colVal) => (
-                    <td>
-                      {/* CYCLESTATE (https://stackoverflow.com/questions/33455204/quad-state-checkbox) */}
-                      <fieldset className="cyclestate" id={"cell_" + String(rowVal * arrSize + colVal)}>
-                        <input id={"s0_cell_" + String(rowVal * arrSize + colVal)} className="form-check-input btn-check" type="radio" {...register(("dmuxOutputNum." + String(rowVal * arrSize + colVal)) as any)} value="0" disabled={formDisabled} defaultChecked />
-                        <label className={"form-check-label btn cell" + styleCell("s0_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)} htmlFor={"s0_cell_" + String(rowVal * arrSize + colVal)}>0&deg;</label>
-                        <input id={"s1_cell_" + String(rowVal * arrSize + colVal)} className="form-check-input btn-check" type="radio" {...register(("dmuxOutputNum." + String(rowVal * arrSize + colVal)) as any)} value="1" disabled={formDisabled} />
-                        <label className={"form-check-label btn btn-primary cell" + styleCell("s1_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)} htmlFor={"s1_cell_" + String(rowVal * arrSize + colVal)}>180&deg;</label>
-                        {/* <input id={"s2_cell_" + String(rowVal * arrSize + colVal)} className="form-check-input btn-check" type="radio" {...register(("dmuxOutputNum." + String(rowVal * arrSize + colVal)) as any)} value="2" disabled={formDisabled} />
-                        <label className={"form-check-label btn btn-primary cell" + styleCell("s2_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)} htmlFor={"s2_cell_" + String(rowVal * arrSize + colVal)}>s2</label>
-                        <input id={"s3_cell_" + String(rowVal * arrSize + colVal)} className="form-check-input btn-check" type="radio" {...register(("dmuxOutputNum." + String(rowVal * arrSize + colVal)) as any)} value="3" disabled={formDisabled} />
-                        <label className={"form-check-label btn btn-primary cell" + styleCell("s3_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)} htmlFor={"s3_cell_" + String(rowVal * arrSize + colVal)}>s3</label> */}
-                      </fieldset>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-
-        {/* PARAMETERS INPUT FORM */}
-        <div className={styleSectionGrids("Parameters")}>
-          <div className="d-inline-flex gap-2">
-            <h2>Parameters</h2>
-            <button className="btn btn-secondary align-self-center pt-0 pb-1 px-1 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#parametersInfo">
-              <InfoIcon />
-            </button>
-          </div>
-
-          <div className="row">
-            <div id="parametersInfo" className="collapse float-start">
-              <div className="card card-body py-2 mb-2 mx-2">
-                <p className="form-text mb-1">Voltages must be between -10 and 10.</p>
-                <p className="form-text mb-1">Duty Cycle must be an integer percentage.  </p>
-                <p className="form-text mb-1">Frequency and Duration must be integers.</p>
-              </div>
-            </div>
-
-            {/* NEGATIVE VOLTAGE */}
-            <div className={styleSectionGrids("ParameterFields")}>
-              <div className="form-group">
-                <label className="col-form-label-sm" htmlFor="negVoltageForm">
-                  Negative Voltage:
-                </label>
-                <div className="input-group has-validation mb-3">
-                  <input
-                    className={`form-control form-control-sm ${errors.negVoltage ? "is-invalid" : ""
-                      }`}
-                    id="negVoltageForm"
-                    type="number"
-                    step="any"
-                    defaultValue={-10}
-                    {...register("negVoltage", voltageError)}
-                    disabled={formDisabled}
-                  />
-                  <span className="input-group-text" id="basic-addon1">
-                    V
-                  </span>
-                  <div className="invalid-feedback">
-                    {errors.negVoltage?.message}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* POSITIVE VOLTAGE */}
-            <div className={styleSectionGrids("ParameterFields")}>
-              <div className="form-group">
-                <label className="col-form-label-sm" htmlFor="posVoltageForm">
-                  Positive Voltage:
-                </label>
-                <div className="input-group has-validation mb-3">
-                  <input
-                    className={`form-control form-control-sm ${errors.posVoltage ? "is-invalid" : ""
-                      }`}
-                    id="posVoltageForm"
-                    type="number"
-                    step="any"
-                    defaultValue={10}
-                    {...register("posVoltage", voltageError)}
-                    disabled={formDisabled}
-                  />
-                  <span className="input-group-text" id="basic-addon2">
-                    V
-                  </span>
-                  <div className="invalid-feedback">
-                    {errors.posVoltage?.message}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="row">
-
-            {/* FREQUENCY */}
-            <div className={styleSectionGrids("ParameterFields")}>
-              <div className="form-group">
-                <label className="col-form-label-sm" htmlFor="frequencyForm">
-                  Frequency:
-                </label>
-                <div className="input-group has-validation mb-3">
-                  <input
-                    className={`form-control form-control-sm  ${errors.frequency ? "is-invalid" : ""
-                      }`}
-                    id="frequencyForm"
-                    type="number"
-                    step="any"
-                    // inputmode="decimal"
-                    // pattern="[0-9]*"
-                    // placeholder="50"
-                    defaultValue={50}
-                    {...register("frequency", defaultError)}
-                    disabled={formDisabled}
-                  />
-                  <span className="input-group-text" id="basic-addon2">
-                    Hz
-                  </span>
-                  <div className="invalid-feedback">
-                    {errors.frequency?.message}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* DUTY CYCLE */}
-            <div className={styleSectionGrids("ParameterFields")}>
-              <div className="form-group">
-                <label className="col-form-label-sm" htmlFor="dutyCycleForm">
-                  Duty Cycle:
-                </label>
-                <div className="input-group has-validation mb-3">
-                  <input
-                    className={`form-control form-control-sm  ${errors.dutyCycle ? "is-invalid" : ""
-                      }`}
-                    id="dutyCycleForm"
-                    type="number"
-                    step="any"
-                    defaultValue={50}
-                    {...register("dutyCycle", dutyCycleError)}
-                    disabled={formDisabled}
-                  />
-                  <span className="input-group-text" id="basic-addon1">
-                    %
-                  </span>
-                  <div className="invalid-feedback">
-                    {errors.dutyCycle?.message}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* DURATION */}
-          <div className="row">
-            <div className="form-group">
-              <label
-                className="col-form-label-sm"
-                htmlFor="defaultDurationForm"
-              >
-                Duration:
-              </label>
-              <div className="input-group has-validation mb-3">
-                <input
-                  className={`form-control form-control-sm ${errors.defaultDuration ? "is-invalid" : ""
-                    }`}
-                  id="defaultDurationForm"
-                  type="number"
-                  step="any"
-                  defaultValue={10}
-                  {...register("defaultDuration", defaultError)}
-                  disabled={formDisabled}
-                />
-                <span className="input-group-text" id="basic-addon1">
-                  seconds
-                </span>
-                <div className="invalid-feedback">
-                  {errors.defaultDuration?.message}
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </form>
   );
