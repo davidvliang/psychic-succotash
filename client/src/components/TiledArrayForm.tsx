@@ -76,11 +76,11 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
     const arrSizeThresTwo = 11 // 6-10
     const arrSizeThresThree = 12 // 11-11
     if (sectionName === "File Upload" || sectionName === "Lookup Table") {
-      if (arrSize < arrSizeThresOne) return "col col-12 col-lg-6 px-md-0 mt-3"
+      if (arrSize < arrSizeThresOne) return "col col-12 col-lg-6 mt-3"
       else if (arrSize > arrSizeThresOne && arrSize < arrSizeThresTwo) return "col col-12 col-lg-6 mt-3 ps-6"
     }
     if (sectionName === "Cell Configuration") {
-      if (arrSize < arrSizeThresOne) return "col col-12 col-md-6 mt-3 px-md-0"
+      if (arrSize < arrSizeThresOne) return "col col-12 col-md-6 mt-3"
       else if (arrSize >= arrSizeThresOne && arrSize < arrSizeThresTwo) return "col col-12 col-lg-8 mt-3"
       else if (arrSize >= arrSizeThresTwo && arrSize < arrSizeThresThree) return "col col-12 col-xl-8 mt-3"
       else return "col col-12 mt-3"
@@ -209,98 +209,120 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
 
     <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)}>
 
-      <div className="row justify-content-start">
-        {/* INPUT DIRECTION LOOKUP TABLE FORM */}
-        <div className={styleSectionGrids("Lookup Table")}>
-          <div className="d-inline-flex gap-2">
-            <h3>Table Lookup</h3>
-            <button className="btn btn-secondary align-self-center pt-0 pb-1 px-1 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#lookupTableInfo" aria-expanded="false" aria-controls="lookupTableInfo">
-              <InfoIcon />
-            </button>
-          </div>
-          <div id="lookupTableInfo" className="collapse">
-            <div className="card card-body py-2 mb-2 mx-2">
-              <p className="form-text mb-1">Input angle direction.</p>
-              <p className="form-text mb-1">Click 'Render' to display cell configuration for the angle.</p>
+      <div className="container">
+        <div className="row flex">
+
+          {/* INPUT DIRECTION LOOKUP TABLE FORM */}
+          <div className={styleSectionGrids("Lookup Table")}>
+            <div id="lookupTableForm" className="form-group">
+              <div className="d-inline-flex gap-2 mb-3" style={{ minWidth: 300 + "px" }}>
+                <div className="input-group">
+                  <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#lookupTableInfo" aria-expanded="false" aria-controls="lookupTableInfo">
+                    <InfoIcon />
+                  </button>
+                  <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Table Lookup</b></span>
+                  <select
+                    className="form-select"
+                    style={{ minWidth: 300 + "px" }}
+                    id="lookupTableForm"
+                    onChange={e => {
+                      setLookupTableAngle(Number(e.target.value));
+                    }}
+                    defaultValue={lookupTableAngle}
+                    disabled={formDisabled}>
+                    {angleOptions.map((val) => (
+                      <option value={val}>{val}&deg;</option>
+                    ))}
+                  </select>
+                  <button
+                    className="btn btn-primary align-self-center"
+                    id="lookupTableButton"
+                    type="submit"
+                    form="lookupTableForm"
+                    value="Render"
+                    onClick={() => {
+                      console.log("here\n", lookupTableAngle)
+                      // setValidatedFileInput()
+                      console.log(lookupTableJSON[0])
+                      // validateReshapeFileInput()
+                    }}>
+                    Render
+                  </button>
+                </div>
+
+              </div>
+              <div id="lookupTableInfo" className="collapse">
+                <div className="card card-body py-2 mb-2 mx-2">
+                  <p className="form-text mb-1">Input angle direction.</p>
+                  <p className="form-text mb-1">Click 'Render' to display cell configuration for the angle.</p>
+                </div>
+              </div>
+
             </div>
+
           </div>
 
-          <div id="lookupTableForm" className="form-group">
-            <div className="d-inline-flex gap-2" style={{ minWidth: 300 + "px" }}>
-              <div className="input-group">
-                <select
-                  className="form-select"
-                  style={{ minWidth: 300 + "px" }}
-                  id="lookupTableForm"
-                  onChange={e => {
-                    setLookupTableAngle(Number(e.target.value));
-                  }}
-                  defaultValue={lookupTableAngle}
-                  disabled={formDisabled}>
-                  {angleOptions.map((val) => (
-                    <option value={val}>{val}&deg;</option>
-                  ))}
-                </select>
-                <button
-                  className="btn btn-primary align-self-center"
-                  id="lookupTableButton"
-                  type="submit"
-                  form="lookupTableForm"
-                  value="Render"
-                  onClick={() => {
-                    console.log("here\n", lookupTableAngle)
-                    // setValidatedFileInput()
-                    console.log(lookupTableJSON[0])
-                    // validateReshapeFileInput()
-                  }}>
-                  Render
-                </button>
+          {/* IMPORT CONFIG FILE FORM */}
+          <div className={styleSectionGrids("File Upload")}>
+            <div id="fileImportForm" className="form-group">
+              <div className="d-inline-flex gap-2 mb-3">
+                <div className="input-group">
+                  <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#fileUploadInfo" aria-expanded="false" aria-controls="lookupTableInfo">
+                    <InfoIcon />
+                  </button>
+                  <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>File Upload</b></span>
+                  <input className="form-control" type="file" id="formFile" accept="text/plain" onChange={handleFileUpload} />
+                  <button
+                    className="btn btn-primary align-self-center"
+                    id="importButton"
+                    type="submit"
+                    form="fileImportForm"
+                    value="Upload"
+                    onClick={() => {
+                      console.log("here\n", fileContent)
+                      validateReshapeFileInput()
+                    }}>
+                    Render
+                  </button>
+                </div>
+              </div>
+              <div id="fileUploadInfo" className="collapse">
+                <div className="card card-body py-2 mb-2 mx-2">
+                  <p className="form-text mb-1">Upload cell configuration file (.txt)</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
+        <hr className="my-12" style={{ marginBottom: "3rem", marginTop: "3rem" }} />
 
-        {/* IMPORT CONFIG FILE FORM */}
-        <div className={styleSectionGrids("File Upload")}>
-          <div className="d-inline-flex gap-2">
-            <h3>File Upload</h3>
-            <button className="btn btn-secondary align-self-center pt-0 pb-1 px-1 mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#fileUploadInfo" aria-expanded="false" aria-controls="fileUploadInfo">
-              <InfoIcon />
-            </button>
-          </div>
-          <div id="fileUploadInfo" className="collapse">
-            <div className="card card-body py-2 mb-2 mx-2">
-              <p className="form-text mb-1">Upload cell configuration file (.txt)</p>
-            </div>
-          </div>
-          <div id="fileImportForm" className="form-group">
-            <div className="d-inline-flex gap-2">
-              <div className="input-group">
-                <input className="form-control" type="file" id="formFile" accept="text/plain" onChange={handleFileUpload} />
-                <button
-                  className="btn btn-primary align-self-center"
-                  id="importButton"
-                  type="submit"
-                  form="fileImportForm"
-                  value="Upload"
-                  onClick={() => {
-                    console.log("here\n", fileContent)
-                    validateReshapeFileInput()
-                  }}>
-                  Upload
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
-      <hr className="my-12" style={{ marginBottom: "3rem", marginTop: "3rem" }} />
+
 
       {/* SELECT ARRAY SIZE */}
-      <div id="arrSizeForm" className="form-group">
+      <div id="arrSizeForm" className="container form-group ">
+
+        <div className="invalid-feedback">
+          {errors.negVoltage?.message}
+        </div>
+        <div className="invalid-feedback">
+          {errors.posVoltage?.message}
+        </div>
+        <div className="invalid-feedback">
+          {errors.frequency?.message}
+        </div>
+        <div className="invalid-feedback">
+          {errors.dutyCycle?.message}
+        </div>
+
+
+
         <div className="input-group mb-3">
-          <span className="input-group-text py-0"><b>Array Size</b></span>
+          <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#arraySizeInfo" aria-expanded="false" aria-controls="lookupTableInfo">
+            <InfoIcon />
+          </button>
+          <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Array Size</b></span>
           <select
             className="form-select"
             id="arrSizeForm"
@@ -326,16 +348,119 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
             Render
           </button>
         </div>
+        <div id="arraySizeInfo" className="collapse">
+          <div className="card card-body py-2 mb-2 mx-2">
+            <p className="form-text mb-1">Select dimension of cell array.</p>
+          </div>
+        </div>
       </div>
 
       {/* TILED ARRAY */}
-      <div>
-        <table key={cellArrayKey} id="cellArrayDisplay" className="table table-borderless">
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <table key={cellArrayKey} id="cellArrayDisplay" className="table table-borderless" style={{ width: "min-content" }}>
           <thead>
             <tr>
               <th scope="col"></th>
               {dmuxDimArr.map((val) => (
-                <th scope="col">{val}</th>
+                <th scope="col">
+                  <button className="btn btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#columnConfig" style={{ width: "-webkit-fill-available" }}>
+                    <b>{val}</b>
+                  </button>
+                  <div className="collapse card" id="columnConfig">
+                    <div className="card-header">
+                      <p className="float-start m-0">Column {val}</p>
+
+                      <div className="form-check form-switch float-end m-0">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          disabled={formDisabled}
+                          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            console.log("hello", e.target.checked)
+                            for (let i = 0; i < arrSize; i++) {
+                              setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
+                            }
+                          }}
+                          style={{ "width": "3rem", "height": "1.25rem" }} />
+                      </div>
+                    </div>
+                    <div className="card-body pb-0">
+
+                      {/* VOLTAGE PEAK TO PEAK */}
+                      <div className="input-group has-validation mb-3">
+                        <span className="input-group-text py-0"><b>Vpp</b></span>
+                        <input
+                          className={`form-control form-control-sm ${errors.negVoltage ? "is-invalid" : ""}`}
+                          id="negVoltageForm"
+                          type="number"
+                          step="any"
+                          defaultValue={""}
+                          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            for (let i = 0; i < arrSize; i++) {
+                              setValue(("configuration.cell_" + String(i * arrSize + val) + ".negVoltage") as any, e.target.value)
+                            }
+                          }}
+                          disabled={formDisabled} />
+                        <span className="input-group-text py-0">to</span>
+
+                        <input
+                          className={`form-control form-control-sm ${errors.posVoltage ? "is-invalid" : ""}`}
+                          id="posVoltageForm"
+                          type="number"
+                          step="any"
+                          defaultValue={""}
+                          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            for (let i = 0; i < arrSize; i++) {
+                              setValue(("configuration.cell_" + String(i * arrSize + val) + ".posVoltage") as any, e.target.value)
+                            }
+                          }}
+                          disabled={formDisabled} />
+                        <span className="input-group-text py-0">V</span>
+
+                      </div>
+
+                      {/* FREQUENCY */}
+                      <div className="input-group has-validation mb-3">
+                        <span className="input-group-text py-0"><b>Frequency</b></span>
+
+                        <input
+                          className={`form-control form-control-sm ${errors.frequency ? "is-invalid" : ""}`}
+                          id="frequencyForm"
+                          type="number"
+                          step="any"
+                          defaultValue={""}
+                          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            for (let i = 0; i < arrSize; i++) {
+                              setValue(("configuration.cell_" + String(i * arrSize + val) + ".frequency") as any, e.target.value)
+                            }
+                          }}
+                          disabled={formDisabled} />
+                        <span className="input-group-text py-0">Hz</span>
+                      </div>
+
+                      {/* DUTY CYCLE */}
+                      <div className="input-group has-validation mb-3">
+                        <span className="input-group-text py-0"><b>Duty Cycle</b></span>
+
+                        <input
+                          className={`form-control form-control-sm ${errors.dutyCycle ? "is-invalid" : ""}`}
+                          id="dutyCycleForm"
+                          type="number"
+                          step="any"
+                          defaultValue={""}
+                          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            for (let i = 0; i < arrSize; i++) {
+                              setValue(("configuration.cell_" + String(i * arrSize + val) + ".dutyCycle") as any, e.target.value)
+                            }
+                          }}
+                          disabled={formDisabled} />
+                        <span className="input-group-text py-0">%</span>
+                      </div>
+                    </div>
+                  </div>
+                </th>
+
               ))}
             </tr>
           </thead>
@@ -346,7 +471,7 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                 {dmuxDimArr.map((colVal) => (
                   <td>
                     <div className="col text-start">
-                      <div className="card border-dark" style={{ minWidth: 250 + "px" }}>
+                      <div className="card border-dark" style={{ minWidth: 250 + "px", maxWidth: 250 + "px" }}>
                         <div className="card-header">
                           <p className="float-start m-0"><b>#{String(rowVal * arrSize + colVal)} </b></p>
                           <div className="form-check form-switch float-end m-0">
@@ -355,7 +480,7 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                               className="form-check-input"
                               type="checkbox"
                               role="switch"
-                              {...register(("configuration." + String(rowVal * arrSize + colVal) + ".state") as any)}
+                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
                               disabled={formDisabled}
                               style={{ "width": "3rem", "height": "1.25rem" }} />
                             <label className="form-check-label" htmlFor={"cell_" + String(rowVal * arrSize + colVal)}></label>
@@ -372,7 +497,7 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                               type="number"
                               step="any"
                               defaultValue={-10}
-                              {...register(("configuration." + String(rowVal * arrSize + colVal) + ".negVoltage") as any, voltageError)}
+                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".negVoltage") as any, voltageError)}
                               disabled={formDisabled} />
                             <span className="input-group-text py-0">to</span>
 
@@ -382,17 +507,12 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                               type="number"
                               step="any"
                               defaultValue={10}
-                              {...register(("configuration." + String(rowVal * arrSize + colVal) + ".posVoltage") as any, voltageError)}
+                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".posVoltage") as any, voltageError)}
                               disabled={formDisabled} />
                             <span className="input-group-text py-0">V</span>
 
                           </div>
-                          <div className="invalid-feedback">
-                            {errors.negVoltage?.message}
-                          </div>
-                          <div className="invalid-feedback">
-                            {errors.posVoltage?.message}
-                          </div>
+
                           {/* FREQUENCY */}
                           <div className="input-group has-validation mb-3">
                             <span className="input-group-text py-0"><b>Frequency</b></span>
@@ -403,12 +523,10 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                               type="number"
                               step="any"
                               defaultValue={50}
-                              {...register(("configuration." + String(rowVal * arrSize + colVal) + ".frequency") as any, defaultError)}
+                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".frequency") as any, defaultError)}
                               disabled={formDisabled} />
                             <span className="input-group-text py-0">Hz</span>
-                            <div className="invalid-feedback">
-                              {errors.frequency?.message}
-                            </div>
+
                           </div>
 
                           {/* DUTY CYCLE */}
@@ -421,13 +539,12 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                               type="number"
                               step="any"
                               defaultValue={50}
-                              {...register(("configuration." + String(rowVal * arrSize + colVal) + ".dutyCycle") as any, dutyCycleError)}
+                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".dutyCycle") as any, dutyCycleError)}
                               disabled={formDisabled} />
                             <span className="input-group-text py-0">%</span>
-                            <div className="invalid-feedback">
-                              {errors.dutyCycle?.message}
-                            </div>
+
                           </div>
+
                         </div>
                       </div>
                     </div>
