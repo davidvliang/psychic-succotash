@@ -133,7 +133,7 @@ function TopInterface() {
         actuatedCells={actuatedCells}
       /> */}
       {/* LOOKUP TABLE FORM COMPONENT */}
-      <div className="container">
+      <div className="">
 
         <LookupTableForm
           resetButton={resetButton}
