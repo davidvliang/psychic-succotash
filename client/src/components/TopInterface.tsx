@@ -70,6 +70,25 @@ function TopInterface() {
 
           <div className="btn-toolbar float-end mx-md-5" role="toolbar">
 
+            {/* DOWNLOAD BUTTON */}
+            <button
+              className="btn btn-secondary ms-2 my-2"
+              id="stopButton"
+              type="button"
+              value="Download"
+              onClick={() => {
+                // setLogData(`[${getTS()}] [Client] Stop Button Pressed`);
+                // setActuatedCells(
+                //   JSON.parse(JSON.stringify(defaultActuatedCells))
+                // );
+                // socket.emit(stopButton, "SIGINT\n");
+                // // socket.emit(stopButton, "Stop Button Pressed.");
+              }}
+              disabled={formDisabled}
+            >
+              Download Configuration
+            </button>
+
             {/* STOP BUTTON */}
             <button
               className="btn btn-danger ms-2 my-2"
