@@ -23,17 +23,18 @@ function TopInterface() {
     `[${getTS()}] [Client] Init App..`
   );
   const [resetButton, setResetButton] = useState<boolean>(false);
-  const [configureData, _] = useState<object>([{}]);
+  const [downloadButton, setDownloadButton] = useState<number>(0);
+  const [submitData, _] = useState<object>([{}]);
   const [formDisabled, setFormDisabled] = useState<boolean>(false);
   const [actuatedCells, setActuatedCells] = useState<object>(
     JSON.parse(JSON.stringify(defaultActuatedCells))
   );
 
-  const handleConfigureData = useCallback(
+  const handleSubmitData = useCallback(
     (data: object) => {
       socket.emit(submit, data);
     },
-    [configureData]
+    [submitData]
   );
 
   socket.on("connect_error", () => setTimeout(() => socket.connect(), 5000));
@@ -77,12 +78,8 @@ function TopInterface() {
               type="button"
               value="Download"
               onClick={() => {
-                // setLogData(`[${getTS()}] [Client] Stop Button Pressed`);
-                // setActuatedCells(
-                //   JSON.parse(JSON.stringify(defaultActuatedCells))
-                // );
-                // socket.emit(stopButton, "SIGINT\n");
-                // // socket.emit(stopButton, "Stop Button Pressed.");
+                setLogData(`[${getTS()}] [Client] Download Button Pressed`);
+                setDownloadButton(downloadButton+1)
               }}
               disabled={formDisabled}
             >
@@ -147,7 +144,7 @@ function TopInterface() {
       {/* CONFIGURATION FORM COMPONENT */}
       {/* <ConfigurationForm
         resetButton={resetButton}
-        handleConfigureData={handleConfigureData}
+        handleSubmitData={handleSubmitData}
         formDisabled={formDisabled}
         actuatedCells={actuatedCells}
       /> */}
@@ -156,7 +153,8 @@ function TopInterface() {
 
         <LookupTableForm
           resetButton={resetButton}
-          handleConfigureData={handleConfigureData}
+          downloadButton={downloadButton}
+          handleSubmitData={handleSubmitData}
           formDisabled={formDisabled}
           actuatedCells={actuatedCells}
         />

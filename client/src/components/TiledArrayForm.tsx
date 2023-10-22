@@ -6,7 +6,7 @@ import getTS from "../utils/getTS";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
 import lookupTable from "../utils/lookupTable.json"
 
-const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, actuatedCells }: { resetButton: boolean, handleConfigureData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
+const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, formDisabled, actuatedCells }: { resetButton: boolean, downloadButton: number, handleSubmitData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
 
   // Initialize form input using React-Hook-Form
   const {
@@ -14,6 +14,7 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
     handleSubmit,
     reset,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<LookupTableType>();
 
@@ -21,15 +22,33 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
   const onSubmit: SubmitHandler<LookupTableType> = (data) => {
     let form_data = data;
     form_data["timestamp"] = getTS();
-    handleConfigureData(form_data);
+    handleSubmitData(form_data);
     console.log("form_data", form_data);
   };
+
+  // Handle download configuration
+  const handleDownloadConfiguration = (jsonData: object) => {
+    const fileData = JSON.stringify(jsonData);
+    const blob = new Blob([fileData], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `configuration_file.json`;
+    link.href = url;
+    link.click();
+  }
 
   // Reset form values when reset button is pressed
   useEffect(() => {
     reset();
     setArrSize(4);
   }, [resetButton]);
+
+  // Download form when download button is pressed
+  useEffect(() => {
+    if (downloadButton != 0) {
+      handleDownloadConfiguration(getValues())
+    }
+  }, [downloadButton]);
 
   // Input Validation for Parameters
   const voltageError = {
@@ -48,6 +67,9 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
     min: { value: 0, message: "Cannot be negative." },
     pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
   };
+
+  // Initialize parameters for adjusting bitness
+  const [bitness, setBitness] = useState<number>(1);
 
   // Initialize parameters for adjusting array size
   const [arrSize, setArrSize] = useState<number>(4); // set dimension for array based on user input, default is 4x4
@@ -215,7 +237,7 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
           {/* INPUT DIRECTION LOOKUP TABLE FORM */}
           <div className={styleSectionGrids("Lookup Table")}>
             <div id="lookupTableForm" className="form-group">
-              <div className="d-inline-flex gap-2 mb-3" style={{ minWidth: 300 + "px" }}>
+              <div className="d-inline-flex gap-2 mb-3" style={{ minWidth: 50 + "px" }}>
                 <div className="input-group">
                   <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#lookupTableInfo" aria-expanded="false" aria-controls="lookupTableInfo">
                     <InfoIcon />
@@ -223,7 +245,7 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                   <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Table Lookup</b></span>
                   <select
                     className="form-select"
-                    style={{ minWidth: 300 + "px" }}
+                    style={{ minWidth: 120 + "px" }}
                     id="lookupTableForm"
                     onChange={e => {
                       setLookupTableAngle(Number(e.target.value));
@@ -242,9 +264,7 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                     value="Render"
                     onClick={() => {
                       console.log("here\n", lookupTableAngle)
-                      // setValidatedFileInput()
                       console.log(lookupTableJSON[0])
-                      // validateReshapeFileInput()
                     }}>
                     Render
                   </button>
@@ -294,15 +314,12 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
             </div>
           </div>
         </div>
-        <hr className="my-12" style={{ marginBottom: "3rem", marginTop: "3rem" }} />
+        <hr className="my-12" style={{ marginBottom: "2rem", marginTop: "2rem", marginLeft: "8rem", marginRight: "8rem" }} />
 
       </div>
 
-
-
-      {/* SELECT ARRAY SIZE */}
-      <div id="arrSizeForm" className="container form-group ">
-
+      {/* ERROR MESSAGES */}
+      <div className="container">
         <div className="invalid-feedback">
           {errors.negVoltage?.message}
         </div>
@@ -315,42 +332,85 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
         <div className="invalid-feedback">
           {errors.dutyCycle?.message}
         </div>
+      </div>
 
+      <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 
-
-        <div className="input-group mb-3">
-          <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#arraySizeInfo" aria-expanded="false" aria-controls="lookupTableInfo">
-            <InfoIcon />
-          </button>
-          <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Array Size</b></span>
-          <select
-            className="form-select"
-            id="arrSizeForm"
-            {...register("arrayDimension")}
-            onChange={e => {
-              setArrSize(Number(e.target.value));
-            }}
-            defaultValue={arrSize}
-            disabled={formDisabled}>
-            {dimOptions.map((val) => (
-              <option value={val}>{val}x{val}</option>
-            ))}
-          </select>
-          <button
-            className="btn btn-primary"
-            id="arrSizeFormButton"
-            type="button"
-            form="arrSizeForm"
-            value="Render"
-            onClick={() => {
-              console.log("here\n", arrSize)
-            }}>
-            Render
-          </button>
+        {/* SELECT ARRAY SIZE */}
+        <div id="arrSizeForm" className="col-6 form-group ">
+          <div className="input-group mb-3">
+            <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#arraySizeInfo" aria-expanded="false" aria-controls="lookupTableInfo">
+              <InfoIcon />
+            </button>
+            <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Array Size</b></span>
+            <select
+              className="form-select"
+              id="arrSizeForm"
+              {...register("arrayDimension")}
+              onChange={e => {
+                setArrSize(Number(e.target.value));
+              }}
+              defaultValue={arrSize}
+              disabled={formDisabled}>
+              {dimOptions.map((val) => (
+                <option value={val}>{val}x{val}</option>
+              ))}
+            </select>
+            {/* <button
+              className="btn btn-primary"
+              id="arrSizeFormButton"
+              type="button"
+              form="arrSizeForm"
+              value="Render"
+              onClick={() => {
+                console.log("here\n", arrSize)
+              }}>
+              Render
+            </button> */}
+          </div>
+          <div id="arraySizeInfo" className="collapse">
+            <div className="card card-body py-2 mb-2 mx-2">
+              <p className="form-text mb-1">Select dimension of cell array.</p>
+            </div>
+          </div>
         </div>
-        <div id="arraySizeInfo" className="collapse">
-          <div className="card card-body py-2 mb-2 mx-2">
-            <p className="form-text mb-1">Select dimension of cell array.</p>
+
+        {/* SELECT BITNESS */}
+        <div id="bitnessForm" className="col-6 form-group ">
+          <div className="input-group mb-3">
+            <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#bitnessInfo">
+              <InfoIcon />
+            </button>
+            <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Bitness</b></span>
+            <select
+              className="form-select"
+              id="bitnessForm"
+              {...register("bitness")}
+              onChange={e => {
+                setBitness(Number(e.target.value));
+              }}
+              defaultValue={bitness}
+              disabled={formDisabled}>
+              <option value={1}>1-bit</option>
+              <option value={2}>2-bit</option>
+            </select>
+            {/* <button
+              className="btn btn-primary"
+              id="bitnessFormButton"
+              type="button"
+              form="bitnessForm"
+              value="Render"
+              onClick={() => {
+                console.log("here\n", bitness)
+                setBitness()
+              }}>
+              Render
+            </button> */}
+          </div>
+          <div id="bitnessInfo" className="collapse">
+            <div className="card card-body py-2 mb-2 mx-2">
+              <p className="form-text mb-1">Select 1-bit or 2-bit cell states.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -363,7 +423,7 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
               <th scope="col"></th>
               {dmuxDimArr.map((val) => (
                 <th scope="col">
-                  <button className="btn btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#columnConfig" style={{ width: "-webkit-fill-available" }}>
+                  <button className="btn btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#columnConfig" style={{ width: "100%" }}>
                     <b>{val}</b>
                   </button>
                   <div className="collapse card" id="columnConfig">
@@ -371,18 +431,121 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                       <p className="float-start m-0">Column {val}</p>
 
                       <div className="form-check form-switch float-end m-0">
-                        <input
-                          className="form-check-input"
-                          type="checkbox"
-                          role="switch"
-                          disabled={formDisabled}
-                          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            console.log("hello", e.target.checked)
-                            for (let i = 0; i < arrSize; i++) {
-                              setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
-                            }
-                          }}
-                          style={{ "width": "3rem", "height": "1.25rem" }} />
+
+                        {/* CYCLESTATE (https://stackoverflow.com/questions/33455204/quad-state-checkbox) */}
+                        {bitness === 1 &&
+                          <fieldset className="cyclestate" id={"col_" + String(val)}>
+                            <input
+                              id={"s0_col_" + String(val)}
+                              className="form-check-input btn-check"
+                              type="radio"
+                              {...register(("columns.col_" + String(val) + ".state") as any)}
+                              value="0"
+                              disabled={formDisabled}
+                              defaultChecked
+                              onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                console.log("hello", e.target.checked)
+                                for (let i = 0; i < arrSize; i++) {
+                                  setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
+                                }
+                              }} />
+                            <label
+                              className={"form-check-label btn cell"}
+                              htmlFor={"s0_col_" + String(val)}>s0
+                            </label>
+                            <input
+                              id={"s1_col_" + String(val)}
+                              className="form-check-input btn-check"
+                              type="radio"
+                              {...register(("columns.col_" + String(val) + ".state") as any)}
+                              value="1"
+                              disabled={formDisabled}
+                              onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                console.log("hello", e.target.checked)
+                                for (let i = 0; i < arrSize; i++) {
+                                  setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
+                                }
+                              }} />
+                            <label
+                              className={"form-check-label btn btn-primary cell"}
+                              htmlFor={"s1_col_" + String(val)}>s1
+                            </label>
+                          </fieldset>
+                        }
+                        {bitness === 2 &&
+                          <fieldset className="cyclestate" id={"col_" + String(val)}>
+                            <input
+                              id={"s0_col_" + String(val)}
+                              className="form-check-input btn-check"
+                              type="radio"
+                              {...register(("columns.col_" + String(val) + ".state") as any)}
+                              value="0"
+                              disabled={formDisabled}
+                              defaultChecked
+                              onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                console.log("hello", e.target.checked)
+                                for (let i = 0; i < arrSize; i++) {
+                                  setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
+                                }
+                              }} />
+                            <label
+                              className={"form-check-label btn cell"}
+                              htmlFor={"s0_col_" + String(val)}>s00
+                            </label>
+                            <input
+                              id={"s1_col_" + String(val)}
+                              className="form-check-input btn-check"
+                              type="radio"
+                              {...register(("columns.col_" + String(val) + ".state") as any)}
+                              value="1"
+                              disabled={formDisabled}
+                              onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                console.log("hello", e.target.checked)
+                                for (let i = 0; i < arrSize; i++) {
+                                  setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
+                                }
+                              }} />
+                            <label
+                              className={"form-check-label btn btn-primary cell"}
+                              htmlFor={"s1_col_" + String(val)}>s01
+                            </label>
+                            <input
+                              id={"s2_col_" + String(val)}
+                              className="form-check-input btn-check"
+                              type="radio"
+                              {...register(("columns.col_" + String(val) + ".state") as any)}
+                              value="2"
+                              disabled={formDisabled}
+                              onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                console.log("hello", e.target.checked)
+                                for (let i = 0; i < arrSize; i++) {
+                                  setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
+                                }
+                              }} />
+                            <label
+                              className={"form-check-label btn btn-primary cell"}
+                              htmlFor={"s2_col_" + String(val)}>s10
+                            </label>
+                            <input
+                              id={"s3_col_" + String(val)}
+                              className="form-check-input btn-check"
+                              type="radio"
+                              {...register(("columns.col_" + String(val) + ".state") as any)}
+                              value="3"
+                              disabled={formDisabled}
+                              onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                console.log("hello", e.target.checked)
+                                for (let i = 0; i < arrSize; i++) {
+                                  setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
+                                }
+                              }} />
+                            <label
+                              className={"form-check-label btn btn-primary cell"}
+                              htmlFor={"s3_col_" + String(val)}>s11
+                            </label>
+                          </fieldset>
+                        }
+
                       </div>
                     </div>
                     <div className="card-body pb-0">
@@ -403,7 +566,6 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                           }}
                           disabled={formDisabled} />
                         <span className="input-group-text py-0">to</span>
-
                         <input
                           className={`form-control form-control-sm ${errors.posVoltage ? "is-invalid" : ""}`}
                           id="posVoltageForm"
@@ -417,13 +579,11 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                           }}
                           disabled={formDisabled} />
                         <span className="input-group-text py-0">V</span>
-
                       </div>
 
                       {/* FREQUENCY */}
                       <div className="input-group has-validation mb-3">
                         <span className="input-group-text py-0"><b>Frequency</b></span>
-
                         <input
                           className={`form-control form-control-sm ${errors.frequency ? "is-invalid" : ""}`}
                           id="frequencyForm"
@@ -442,7 +602,6 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                       {/* DUTY CYCLE */}
                       <div className="input-group has-validation mb-3">
                         <span className="input-group-text py-0"><b>Duty Cycle</b></span>
-
                         <input
                           className={`form-control form-control-sm ${errors.dutyCycle ? "is-invalid" : ""}`}
                           id="dutyCycleForm"
@@ -460,7 +619,6 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                     </div>
                   </div>
                 </th>
-
               ))}
             </tr>
           </thead>
@@ -475,15 +633,84 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
                         <div className="card-header">
                           <p className="float-start m-0"><b>#{String(rowVal * arrSize + colVal)} </b></p>
                           <div className="form-check form-switch float-end m-0">
-                            <input
-                              id={"cell_" + String(rowVal * arrSize + colVal)}
-                              className="form-check-input"
-                              type="checkbox"
-                              role="switch"
-                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
-                              disabled={formDisabled}
-                              style={{ "width": "3rem", "height": "1.25rem" }} />
-                            <label className="form-check-label" htmlFor={"cell_" + String(rowVal * arrSize + colVal)}></label>
+
+                            {/* CYCLESTATE (https://stackoverflow.com/questions/33455204/quad-state-checkbox) */}
+                            {bitness === 1 &&
+                              <fieldset className="cyclestate" id={"cell_" + String(rowVal * arrSize + colVal)}>
+                                <input
+                                  id={"s0_cell_" + String(rowVal * arrSize + colVal)}
+                                  className="form-check-input btn-check"
+                                  type="radio"
+                                  {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
+                                  value="0"
+                                  disabled={formDisabled}
+                                  defaultChecked />
+                                <label
+                                  className={"form-check-label btn cell" + styleCell("s0_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
+                                  htmlFor={"s0_cell_" + String(rowVal * arrSize + colVal)}>s0
+                                </label>
+                                <input
+                                  id={"s1_cell_" + String(rowVal * arrSize + colVal)}
+                                  className="form-check-input btn-check"
+                                  type="radio"
+                                  {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
+                                  value="1"
+                                  disabled={formDisabled} />
+                                <label
+                                  className={"form-check-label btn btn-primary cell" + styleCell("s1_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
+                                  htmlFor={"s1_cell_" + String(rowVal * arrSize + colVal)}>s1
+                                </label>
+                              </fieldset>
+                            }
+                            {bitness === 2 &&
+                              <fieldset className="cyclestate" id={"cell_" + String(rowVal * arrSize + colVal)}>
+                                <input
+                                  id={"s0_cell_" + String(rowVal * arrSize + colVal)}
+                                  className="form-check-input btn-check"
+                                  type="radio"
+                                  {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
+                                  value="0"
+                                  disabled={formDisabled}
+                                  defaultChecked />
+                                <label
+                                  className={"form-check-label btn cell" + styleCell("s0_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
+                                  htmlFor={"s0_cell_" + String(rowVal * arrSize + colVal)}>s00
+                                </label>
+                                <input
+                                  id={"s1_cell_" + String(rowVal * arrSize + colVal)}
+                                  className="form-check-input btn-check"
+                                  type="radio"
+                                  {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
+                                  value="1"
+                                  disabled={formDisabled} />
+                                <label
+                                  className={"form-check-label btn btn-primary cell" + styleCell("s1_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
+                                  htmlFor={"s1_cell_" + String(rowVal * arrSize + colVal)}>s01
+                                </label>
+                                <input
+                                  id={"s2_cell_" + String(rowVal * arrSize + colVal)}
+                                  className="form-check-input btn-check"
+                                  type="radio"
+                                  {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
+                                  value="2"
+                                  disabled={formDisabled} />
+                                <label
+                                  className={"form-check-label btn btn-primary cell" + styleCell("s2_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
+                                  htmlFor={"s2_cell_" + String(rowVal * arrSize + colVal)}>s10
+                                </label>
+                                <input
+                                  id={"s3_cell_" + String(rowVal * arrSize + colVal)}
+                                  className="form-check-input btn-check"
+                                  type="radio"
+                                  {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
+                                  value="3"
+                                  disabled={formDisabled} />
+                                <label
+                                  className={"form-check-label btn btn-primary cell" + styleCell("s3_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
+                                  htmlFor={"s3_cell_" + String(rowVal * arrSize + colVal)}>s11
+                                </label>
+                              </fieldset>
+                            }
                           </div>
                         </div>
                         <div className="card-body pb-0">
