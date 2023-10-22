@@ -5,12 +5,12 @@ import getTS from "../utils/getTS";
 
 const ConfigurationForm = ({
   resetButton,
-  handleConfigureData,
+  handleSubmitData,
   formDisabled,
   actuatedCells,
 }: {
   resetButton: boolean;
-  handleConfigureData: (data: object) => void;
+  handleSubmitData: (data: object) => void;
   formDisabled: boolean;
   actuatedCells: object;
 }) => {
@@ -23,7 +23,7 @@ const ConfigurationForm = ({
   const onSubmit: SubmitHandler<DAQInputs> = (data) => {
     let eafis = data; // eafis stands for eafis
     eafis["timestamp"] = getTS();
-    handleConfigureData(eafis);
+    handleSubmitData(eafis);
     console.log(eafis)
   };
   useEffect(() => {

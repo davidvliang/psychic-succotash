@@ -5,7 +5,7 @@ import getTS from "../utils/getTS";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
 import lookupTable from "../utils/lookupTable.json"
 
-const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, actuatedCells }: { resetButton: boolean, handleConfigureData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
+const ConfigurationForm = ({ resetButton, handleSubmitData, formDisabled, actuatedCells }: { resetButton: boolean, handleSubmitData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
 
   // Initialize form input using React-Hook-Form
   const {
@@ -20,7 +20,7 @@ const ConfigurationForm = ({ resetButton, handleConfigureData, formDisabled, act
   const onSubmit: SubmitHandler<DAQInputs> = (data) => {
     let form_data = data;
     form_data["timestamp"] = getTS();
-    handleConfigureData(form_data);
+    handleSubmitData(form_data);
     console.log("form_data", form_data);
   };
 

@@ -7,12 +7,12 @@ import { text } from "@fortawesome/fontawesome-svg-core";
 
 const ConfigurationForm = ({
   resetButton,
-  handleConfigureData,
+  handleSubmitData,
   formDisabled,
   actuatedCells,
 }: {
   resetButton: boolean;
-  handleConfigureData: (data: object) => void;
+  handleSubmitData: (data: object) => void;
   formDisabled: boolean;
   actuatedCells: object;
 }) => {
@@ -30,7 +30,7 @@ const ConfigurationForm = ({
   const onSubmit: SubmitHandler<DAQInputs> = (data) => {
     let form_data = data;
     form_data["timestamp"] = getTS();
-    handleConfigureData(form_data);
+    handleSubmitData(form_data);
     // console.log("form_data", form_data);
   };
 
