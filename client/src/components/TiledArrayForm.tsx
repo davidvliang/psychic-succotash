@@ -91,45 +91,14 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
     return " " + formDisabledClassName + " " + actuateClassName + " " // return these conditional classNames
   }
 
-  // Set styling for sections based on array size 
-  const styleSectionGrids = (sectionName: string) => {
-
-    const arrSizeThresOne = 6  // 0-5
-    const arrSizeThresTwo = 11 // 6-10
-    const arrSizeThresThree = 12 // 11-11
-    if (sectionName === "File Upload" || sectionName === "Lookup Table") {
-      if (arrSize < arrSizeThresOne) return "col col-12 col-lg-6 mt-3"
-      else if (arrSize > arrSizeThresOne && arrSize < arrSizeThresTwo) return "col col-12 col-lg-6 mt-3 ps-6"
-    }
-    if (sectionName === "Cell Configuration") {
-      if (arrSize < arrSizeThresOne) return "col col-12 col-md-6 mt-3"
-      else if (arrSize >= arrSizeThresOne && arrSize < arrSizeThresTwo) return "col col-12 col-lg-8 mt-3"
-      else if (arrSize >= arrSizeThresTwo && arrSize < arrSizeThresThree) return "col col-12 col-xl-8 mt-3"
-      else return "col col-12 mt-3"
-    }
-    if (sectionName === "Parameters") {
-      if (arrSize < arrSizeThresOne) return "col col-12 col-md-5 mt-3 ps-6 pe-md-0"
-      else if (arrSize >= arrSizeThresOne && arrSize < arrSizeThresTwo) return "col col-12 col-lg-3 mt-3 ps-6"
-      else if (arrSize >= arrSizeThresTwo && arrSize < arrSizeThresThree) return "col col-12 col-xl-3 mt-3 ps-6"
-      else return "col col-12 mt-3 ps-6"
-    }
-    if (sectionName === "ParameterFields") {
-      if (arrSize < arrSizeThresOne) return "col"
-      else if (arrSize >= arrSizeThresOne && arrSize < arrSizeThresTwo) return "col col-lg-12"
-      else if (arrSize >= arrSizeThresTwo && arrSize < arrSizeThresThree) return "col col-xl-12"
-      else return "col"
-    }
-  }
-
   // Read File
   const [fileName, setFileName] = useState<string>("") // The name of the file
-  const [fileContent, setFileContent] = useState<string | ArrayBuffer | null>("") // The contents of the file
+  const [fileContent, setFileContent] = useState<LookupTableType>() // The contents of the file
   const [validatedFileInput, setValidatedFileInput] = useState<string[]>([]) // the file contents as array
 
   // Process the file into the fileName and fileContent states
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-
-    if (e.target.files && e.target.files[0].type == "text/plain") {
+    if (e.target.files && e.target.files[0].type == "application/json") {
 
       const file = e.target.files[0];
       const reader = new FileReader();
@@ -137,47 +106,60 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
       setTimeout(() => reader.readAsText(file, 'UTF-8'), 100)
       reader.onload = () => {
         setFileName(file.name)
-        setFileContent(reader.result)
+        setFileContent(JSON.parse(reader.result as string))
       };
 
       reader.onerror = () => {
         console.log('[ERROR]', reader.error)
       }
     } else {
-      console.log("[ERROR] File is not plaintext.")
+      console.log("[ERROR] Invalid File Type (not .json).")
       return;
     }
   }
 
   // Validate the file and show a form error message if improper. 
-  const validateReshapeFileInput = () => {
-    if (fileContent != null) {
+  // const handleFileValidation = () => {
+  //   if (fileContent != null) {
 
-      if (typeof (fileContent) == "string" && fileContent.length > 0) {
-        console.log("4", fileContent)
-        const preValInput = fileContent.split(/\s+/)
-        console.log("preValInput", preValInput)
+  //     if (typeof (fileContent) == "string" && fileContent.length > 0) {
+  //       console.log("4", fileContent)
+  //       const preValInput = fileContent.split(/\s+/)
+  //       console.log("preValInput", preValInput)
 
-        if (preValInput.length > 0 && Math.sqrt(preValInput.length) % 1 === 0) {
+  //       if (preValInput.length > 0 && Math.sqrt(preValInput.length) % 1 === 0) {
 
-          if (preValInput.find((num) => parseInt(num) < 4)) {
-            setValidatedFileInput(preValInput)
+  //         if (preValInput.find((num) => parseInt(num) < 4)) {
+  //           setValidatedFileInput(preValInput)
 
-          } else {
-            console.log("[ERROR] Contains invalid state. Only supports 1-bit and 2-bit cell configurations.")
-            return;
-          }
-        } else {
-          console.log("[ERROR] Array is not a perfect square. (length:" + preValInput.length + ").")
-          return;
-        }
-      } else {
-        console.log("[ERROR] File Contents are invalid string.")
-        return;
-      }
-    } else {
-      console.log("[ERROR] File Contents are null.")
-      return;
+  //         } else {
+  //           console.log("[ERROR] Contains invalid state. Only supports 1-bit and 2-bit cell configurations.")
+  //           return;
+  //         }
+  //       } else {
+  //         console.log("[ERROR] Array is not a perfect square. (length:" + preValInput.length + ").")
+  //         return;
+  //       }
+  //     } else {
+  //       console.log("[ERROR] File Contents are invalid string.")
+  //       return;
+  //     }
+  //   } else {
+  //     console.log("[ERROR] File Contents are null.")
+  //     return;
+  //   }
+  // }
+
+  const handleFileRender = (configData: LookupTableType | undefined) => {
+    if (configData) {
+      setArrSize(Number(configData.arrayDimension))
+      setValue("arrayDimension", configData.arrayDimension)
+
+      setBitness(Number(configData.bitness))
+      setValue("bitness", configData.bitness)
+
+      setTimeout(() => setValue("columns", configData.columns), 100)
+      setTimeout(() => setValue("configuration", configData.configuration), 100)
     }
   }
 
@@ -231,92 +213,85 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
 
     <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)}>
 
-      <div className="container">
-        <div className="row flex">
+      <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 
-          {/* INPUT DIRECTION LOOKUP TABLE FORM */}
-          <div className={styleSectionGrids("Lookup Table")}>
-            <div id="lookupTableForm" className="form-group">
-              <div className="d-inline-flex gap-2 mb-3" style={{ minWidth: 50 + "px" }}>
-                <div className="input-group">
-                  <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#lookupTableInfo" aria-expanded="false" aria-controls="lookupTableInfo">
-                    <InfoIcon />
-                  </button>
-                  <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Table Lookup</b></span>
-                  <select
-                    className="form-select"
-                    style={{ minWidth: 120 + "px" }}
-                    id="lookupTableForm"
-                    onChange={e => {
-                      setLookupTableAngle(Number(e.target.value));
-                    }}
-                    defaultValue={lookupTableAngle}
-                    disabled={formDisabled}>
-                    {angleOptions.map((val) => (
-                      <option value={val}>{val}&deg;</option>
-                    ))}
-                  </select>
-                  <button
-                    className="btn btn-primary align-self-center"
-                    id="lookupTableButton"
-                    type="submit"
-                    form="lookupTableForm"
-                    value="Render"
-                    onClick={() => {
-                      console.log("here\n", lookupTableAngle)
-                      console.log(lookupTableJSON[0])
-                    }}>
-                    Render
-                  </button>
-                </div>
-
-              </div>
-              <div id="lookupTableInfo" className="collapse">
-                <div className="card card-body py-2 mb-2 mx-2">
-                  <p className="form-text mb-1">Input angle direction.</p>
-                  <p className="form-text mb-1">Click 'Render' to display cell configuration for the angle.</p>
-                </div>
-              </div>
-
+        {/* INPUT DIRECTION LOOKUP TABLE FORM */}
+        <div className="col-6 form-group">
+          <div id="lookupTableForm" className="form-group">
+            <div className="input-group">
+              <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#lookupTableInfo">
+                <InfoIcon />
+              </button>
+              <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Table Lookup</b></span>
+              <select
+                className="form-select"
+                id="lookupTableForm"
+                onChange={e => {
+                  setLookupTableAngle(Number(e.target.value));
+                }}
+                defaultValue={lookupTableAngle}
+                disabled={formDisabled}>
+                {angleOptions.map((val) => (
+                  <option value={val}>{val}&deg;</option>
+                ))}
+              </select>
+              <button
+                className="btn btn-primary align-self-center"
+                id="lookupTableButton"
+                type="submit"
+                form="lookupTableForm"
+                value="Render"
+                onClick={() => {
+                  // console.log("check", getValues())
+                  // console.log("here\n", lookupTableAngle)
+                  // console.log(lookupTableJSON[0])
+                }}>
+                Render
+              </button>
             </div>
-
-          </div>
-
-          {/* IMPORT CONFIG FILE FORM */}
-          <div className={styleSectionGrids("File Upload")}>
-            <div id="fileImportForm" className="form-group">
-              <div className="d-inline-flex gap-2 mb-3">
-                <div className="input-group">
-                  <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#fileUploadInfo" aria-expanded="false" aria-controls="lookupTableInfo">
-                    <InfoIcon />
-                  </button>
-                  <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>File Upload</b></span>
-                  <input className="form-control" type="file" id="formFile" accept="text/plain" onChange={handleFileUpload} />
-                  <button
-                    className="btn btn-primary align-self-center"
-                    id="importButton"
-                    type="submit"
-                    form="fileImportForm"
-                    value="Upload"
-                    onClick={() => {
-                      console.log("here\n", fileContent)
-                      validateReshapeFileInput()
-                    }}>
-                    Render
-                  </button>
-                </div>
-              </div>
-              <div id="fileUploadInfo" className="collapse">
-                <div className="card card-body py-2 mb-2 mx-2">
-                  <p className="form-text mb-1">Upload cell configuration file (.txt)</p>
-                </div>
+            <div id="lookupTableInfo" className="collapse">
+              <div className="card card-body py-2 mb-2 mx-2">
+                <p className="form-text mb-1">Input angle direction.</p>
+                <p className="form-text mb-1">Click 'Render' to display cell configuration for the angle.</p>
               </div>
             </div>
           </div>
         </div>
-        <hr className="my-12" style={{ marginBottom: "2rem", marginTop: "2rem", marginLeft: "8rem", marginRight: "8rem" }} />
+
+        {/* IMPORT CONFIG FILE FORM */}
+        <div className="col-6 form-group">
+          <div id="fileImportForm" className="form-group">
+            <div className="input-group">
+              <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#fileUploadInfo">
+                <InfoIcon />
+              </button>
+              <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>File Upload</b></span>
+              <input className="form-control" type="file" id="formFile" accept="application/json" onChange={handleFileUpload} />
+              <button
+                className="btn btn-primary align-self-center"
+                id="importButton"
+                type="submit"
+                form="fileImportForm"
+                value="Render"
+                onClick={() => {
+                  console.log("here\n", fileContent)
+                  // handleFileValidation()
+                  handleFileRender(fileContent)
+                }}>
+                Render
+              </button>
+            </div>
+            <div id="fileUploadInfo" className="collapse">
+              <div className="card card-body py-2 mb-2 mx-2">
+                <p className="form-text mb-1">Upload cell configuration file (.json)</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
       </div>
+
+      <hr className="my-12" style={{ marginBottom: "2rem", marginTop: "2rem", marginLeft: "8rem", marginRight: "8rem" }} />
 
       {/* ERROR MESSAGES */}
       <div className="container">
@@ -337,7 +312,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
       <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 
         {/* SELECT ARRAY SIZE */}
-        <div id="arrSizeForm" className="col-6 form-group ">
+        <div id="arrSizeForm" className="col-6 form-group">
           <div className="input-group mb-3">
             <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#arraySizeInfo" aria-expanded="false" aria-controls="lookupTableInfo">
               <InfoIcon />
@@ -356,17 +331,6 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                 <option value={val}>{val}x{val}</option>
               ))}
             </select>
-            {/* <button
-              className="btn btn-primary"
-              id="arrSizeFormButton"
-              type="button"
-              form="arrSizeForm"
-              value="Render"
-              onClick={() => {
-                console.log("here\n", arrSize)
-              }}>
-              Render
-            </button> */}
           </div>
           <div id="arraySizeInfo" className="collapse">
             <div className="card card-body py-2 mb-2 mx-2">
@@ -376,7 +340,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
         </div>
 
         {/* SELECT BITNESS */}
-        <div id="bitnessForm" className="col-6 form-group ">
+        <div id="bitnessForm" className="col-6 form-group">
           <div className="input-group mb-3">
             <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#bitnessInfo">
               <InfoIcon />
@@ -394,18 +358,6 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
               <option value={1}>1-bit</option>
               <option value={2}>2-bit</option>
             </select>
-            {/* <button
-              className="btn btn-primary"
-              id="bitnessFormButton"
-              type="button"
-              form="bitnessForm"
-              value="Render"
-              onClick={() => {
-                console.log("here\n", bitness)
-                setBitness()
-              }}>
-              Render
-            </button> */}
           </div>
           <div id="bitnessInfo" className="collapse">
             <div className="card card-body py-2 mb-2 mx-2">
@@ -450,7 +402,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                 }
                               }} />
                             <label
-                              className={"form-check-label btn cell"}
+                              className={"form-check-label btn cell" + styleCell("s0_col_" + String(val), 0, val)}
                               htmlFor={"s0_col_" + String(val)}>s0
                             </label>
                             <input
@@ -467,7 +419,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                 }
                               }} />
                             <label
-                              className={"form-check-label btn btn-primary cell"}
+                              className={"form-check-label btn btn-primary cell" + styleCell("s1_col_" + String(val), 0, val)}
                               htmlFor={"s1_col_" + String(val)}>s1
                             </label>
                           </fieldset>
@@ -489,7 +441,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                 }
                               }} />
                             <label
-                              className={"form-check-label btn cell"}
+                              className={"form-check-label btn cell"  + styleCell("s0_col_" + String(val), 0, val)}
                               htmlFor={"s0_col_" + String(val)}>s00
                             </label>
                             <input
@@ -506,7 +458,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                 }
                               }} />
                             <label
-                              className={"form-check-label btn btn-primary cell"}
+                              className={"form-check-label btn btn-primary cell" + styleCell("s1_col_" + String(val), 0, val)}
                               htmlFor={"s1_col_" + String(val)}>s01
                             </label>
                             <input
@@ -523,7 +475,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                 }
                               }} />
                             <label
-                              className={"form-check-label btn btn-primary cell"}
+                              className={"form-check-label btn btn-primary cell" + styleCell("s2_col_" + String(val), 0, val)}
                               htmlFor={"s2_col_" + String(val)}>s10
                             </label>
                             <input
@@ -540,7 +492,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                 }
                               }} />
                             <label
-                              className={"form-check-label btn btn-primary cell"}
+                              className={"form-check-label btn btn-primary cell" + styleCell("s3_col_" + String(val), 0, val)}
                               htmlFor={"s3_col_" + String(val)}>s11
                             </label>
                           </fieldset>
