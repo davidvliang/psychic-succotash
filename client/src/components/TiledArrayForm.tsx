@@ -84,11 +84,23 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
   }, [arrSize]);
 
   // Set styling for cells based on actuation (highlight green) and FormDisabled (submit button pressed)
-  const styleCell = (elementID: string, _rowVal: number, _colVal: number) => {
+  const styleCyclestateCell = (elementID: string, _rowVal: number, _colVal: number) => {
     let cellElement = document.getElementById(elementID) as HTMLInputElement // grab input element by ID
-    let actuateClassName = actuatedCells[String(_rowVal * arrSize + _colVal) as keyof typeof actuatedCells] ? "btn-success" : "" // highlight green when cell is actuated by python script
+    // let actuateClassName = actuatedCells[String(_rowVal * arrSize + _colVal) as keyof typeof actuatedCells] ? "btn-success" : "" // highlight green when cell is actuated by python script
     let formDisabledClassName = formDisabled && !cellElement.checked ? "opacity-0" : "" // when form is disabled (when submit button pressed), hide the states that aren't checked
-    return " " + formDisabledClassName + " " + actuateClassName + " " // return these conditional classNames
+    // return " " + formDisabledClassName + " " + actuateClassName + " " // return these conditional classNames
+    return " " + formDisabledClassName + " " // return these conditional classNames
+  }
+
+  // Set styling for cards when cell is actuated (highlight green)
+  const styleActuatedCellCard = (elementType: string, _rowVal: number, _colVal: number) => {
+    if (elementType == "card-header" && actuatedCells[String(_rowVal * arrSize + _colVal) as keyof typeof actuatedCells]) {
+      return {backgroundColor: "seagreen"}
+    }
+    if (elementType == "card-body" && actuatedCells[String(_rowVal * arrSize + _colVal) as keyof typeof actuatedCells]) {
+      return {backgroundColor: "mediumseagreen"}
+    }
+    return {} // return these conditional classNames
   }
 
   // Read File
@@ -402,7 +414,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                 }
                               }} />
                             <label
-                              className={"form-check-label btn cell" + styleCell("s0_col_" + String(val), 0, val)}
+                              className={"form-check-label btn cell" + styleCyclestateCell("s0_col_" + String(val), 0, val)}
                               htmlFor={"s0_col_" + String(val)}>s0
                             </label>
                             <input
@@ -419,7 +431,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                 }
                               }} />
                             <label
-                              className={"form-check-label btn btn-primary cell" + styleCell("s1_col_" + String(val), 0, val)}
+                              className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s1_col_" + String(val), 0, val)}
                               htmlFor={"s1_col_" + String(val)}>s1
                             </label>
                           </fieldset>
@@ -441,7 +453,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                 }
                               }} />
                             <label
-                              className={"form-check-label btn cell"  + styleCell("s0_col_" + String(val), 0, val)}
+                              className={"form-check-label btn cell"  + styleCyclestateCell("s0_col_" + String(val), 0, val)}
                               htmlFor={"s0_col_" + String(val)}>s00
                             </label>
                             <input
@@ -458,7 +470,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                 }
                               }} />
                             <label
-                              className={"form-check-label btn btn-primary cell" + styleCell("s1_col_" + String(val), 0, val)}
+                              className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s1_col_" + String(val), 0, val)}
                               htmlFor={"s1_col_" + String(val)}>s01
                             </label>
                             <input
@@ -475,7 +487,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                 }
                               }} />
                             <label
-                              className={"form-check-label btn btn-primary cell" + styleCell("s2_col_" + String(val), 0, val)}
+                              className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s2_col_" + String(val), 0, val)}
                               htmlFor={"s2_col_" + String(val)}>s10
                             </label>
                             <input
@@ -492,7 +504,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                 }
                               }} />
                             <label
-                              className={"form-check-label btn btn-primary cell" + styleCell("s3_col_" + String(val), 0, val)}
+                              className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s3_col_" + String(val), 0, val)}
                               htmlFor={"s3_col_" + String(val)}>s11
                             </label>
                           </fieldset>
@@ -582,7 +594,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                   <td>
                     <div className="col text-start">
                       <div className="card border-dark" style={{ minWidth: 250 + "px", maxWidth: 250 + "px" }}>
-                        <div className="card-header">
+                        <div className="card-header" style={styleActuatedCellCard("card-header", rowVal, colVal)}>
                           <p className="float-start m-0"><b>#{String(rowVal * arrSize + colVal)} </b></p>
                           <div className="form-check form-switch float-end m-0">
 
@@ -598,7 +610,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                   disabled={formDisabled}
                                   defaultChecked />
                                 <label
-                                  className={"form-check-label btn cell" + styleCell("s0_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
+                                  className={"form-check-label btn cell" + styleCyclestateCell("s0_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
                                   htmlFor={"s0_cell_" + String(rowVal * arrSize + colVal)}>s0
                                 </label>
                                 <input
@@ -609,7 +621,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                   value="1"
                                   disabled={formDisabled} />
                                 <label
-                                  className={"form-check-label btn btn-primary cell" + styleCell("s1_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
+                                  className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s1_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
                                   htmlFor={"s1_cell_" + String(rowVal * arrSize + colVal)}>s1
                                 </label>
                               </fieldset>
@@ -625,7 +637,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                   disabled={formDisabled}
                                   defaultChecked />
                                 <label
-                                  className={"form-check-label btn cell" + styleCell("s0_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
+                                  className={"form-check-label btn cell" + styleCyclestateCell("s0_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
                                   htmlFor={"s0_cell_" + String(rowVal * arrSize + colVal)}>s00
                                 </label>
                                 <input
@@ -636,7 +648,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                   value="1"
                                   disabled={formDisabled} />
                                 <label
-                                  className={"form-check-label btn btn-primary cell" + styleCell("s1_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
+                                  className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s1_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
                                   htmlFor={"s1_cell_" + String(rowVal * arrSize + colVal)}>s01
                                 </label>
                                 <input
@@ -647,7 +659,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                   value="2"
                                   disabled={formDisabled} />
                                 <label
-                                  className={"form-check-label btn btn-primary cell" + styleCell("s2_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
+                                  className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s2_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
                                   htmlFor={"s2_cell_" + String(rowVal * arrSize + colVal)}>s10
                                 </label>
                                 <input
@@ -658,14 +670,14 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                   value="3"
                                   disabled={formDisabled} />
                                 <label
-                                  className={"form-check-label btn btn-primary cell" + styleCell("s3_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
+                                  className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s3_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
                                   htmlFor={"s3_cell_" + String(rowVal * arrSize + colVal)}>s11
                                 </label>
                               </fieldset>
                             }
                           </div>
                         </div>
-                        <div className="card-body pb-0">
+                        <div className="card-body pb-0" style={styleActuatedCellCard("card-body", rowVal, colVal)}>
 
                           {/* VOLTAGE PEAK TO PEAK */}
                           <div className="input-group has-validation mb-3">
