@@ -26,7 +26,7 @@ def process_input_as_json(json_input):
             data['configuration'])
 
 def actuate_cells(p_arr_size, p_configuration, p_stop_button):
-    output_delay = 0.25
+    output_delay = 0.75
     for i in range(p_arr_size*p_arr_size):
         if not p_stop_button.is_set():
             if (en := p_configuration[f"cell_{i}"]["state"]) != "0":
