@@ -1,8 +1,8 @@
 """
-Title: actuation_v2.py
+Title: actuation_v3.py
 Originally By: Spring 2023 EE VIP Students 
 Modified By: david947
-Date Created: 2023-09-01
+Date Created: 2023-10-22
 Description:
     Modify '2023_05_01_User_Input_Toggle_Demux.py' to take input from JSON instead of keyboard. 
     Intentionally did not perform major refactor of original script.
@@ -26,47 +26,34 @@ from nidaqmx.constants import LineGrouping
 from threading import Thread, Event
 
 
-def pretty_print_array(arr, dim):
-    int_arr = arr[0:dim*dim]
-    int_arr = [1 if x else 0 for x in int_arr]
-    arr_string = [f"{en} " if ((i+1) % dim) else f"{en}\n\t\t      " for i, en in enumerate(int_arr)]
-    return ''.join(arr_string)
+def pretty_print_array(p_arr_size, p_configuration):
+    for i in range(p_arr_size*p_arr_size):
+        state = p_configuration[f"cell_{i}"]["state"]
+        negVoltage = p_configuration[f"cell_{i}"]["negVoltage"]
+        posVoltage = p_configuration[f"cell_{i}"]["posVoltage"]
+        dutyCycle = p_configuration[f"cell_{i}"]["dutyCycle"]
+        frequency = p_configuration[f"cell_{i}"]["frequency"]
+        
+        if (en := p_configuration[f"cell_{i}"]["state"]) != "0":
+            print(f"actuated cell [{en}] {i}", end="")
 
 
 def process_input_as_json(json_input):
-    """parses input string as JSON. Returns as list.
-
-    Args:
-        json_input (string): Stringified JSON from web app.
-
-    Returns:
-        timestamp: Time the command was called on the web interface Used as identifier.
-        neg_voltage: Negative voltage (V). Between -10 and 10.
-        pos_voltage: User-specified positive voltage (V). Between -10 and 10.
-        frequency: Frequency (Hz)
-        duty_cycle: Duty cycle (whole %). Between 0 and 100.
-        dmux_output_num: Python dict to configure cells 0 to 15  
-    """
+    """this does that thing."""
 
     data = json.loads(json_input)
-
     return (data['timestamp'],
             int(data['arrayDimension']),
             int(data['bitness']),
-            dict(data['configuration']))
-            # float(data['negVoltage']), 
-            # float(data['posVoltage']), 
-            # int(data['frequency']), 
-            # int(data['dutyCycle']), 
-            # int(data['defaultDuration']), 
-            # list(data['dmuxOutputNum']))
+            data['configuration'])
 
-def actuate_cells(dmux_output_num, output_delay):
-    for i,en in enumerate(dmux_output_num):
-        if en:
-            time.sleep(output_delay)
-            print(f"actuated cell {i}",end="")
-    time.sleep(output_delay)
+def actuate_cells(p_arr_size, p_configuration, p_stop_button):
+    output_delay = 0.25
+    for i in range(p_arr_size*p_arr_size):
+        if not p_stop_button.is_set():
+            if (en := p_configuration[f"cell_{i}"]["state"]) != "0":
+                print(f"actuated cell [{en}] {i}", end="")
+                time.sleep(output_delay)
 
 
 with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en_task:
@@ -145,24 +132,15 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
         """Basic User Prompt"""
 
         ## Process JSON Input
-        # input_string = '{"dmuxOutputNum":[false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,true],"negVoltage":"-10","posVoltage":"10","frequency":"50","dutyCycle":"50","defaultDuration":"10","timestamp":"08/01/2023, 11:15:05 AM"}'
         input_string = sys.argv[1]
-        
         [timestamp, arr_size, bitness, configuration] = process_input_as_json(input_string)
-        # [timestamp, neg_voltage, pos_voltage, frequency, 
-        # duty_cycle, default_duration, arr_size, dmux_output_array] = process_input_as_json(input_string)
+        default_duration = 500
 
         ## Print Input to STDOUT 
         print(f"Reading JSON from '{timestamp}'\n", 
-            # f"   Negative Voltage: {neg_voltage} V\n",
-            # f"   Positive Voltage: {pos_voltage} V\n",
-            # f"   Frequency:        {frequency} Hz\n",
-            # f"   Duty Cycle:       {duty_cycle} %\n",
-            # f"   Default Duration: {default_duration} s\n",
             f"   Array Size:       {arr_size}x{arr_size}\n",
             f"   Bitness:          {bitness}\n",
             f"   Configuration:    {configuration}",
-            # f"   Configuration:    {pretty_print_array(dmux_output_array, arr_size)}", end=""
             )
 
         ## Print Out of bounds warning.
