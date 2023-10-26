@@ -47,6 +47,7 @@ def process_input_as_json(json_input):
             int(data['bitness']),
             data['configuration'])
 
+
 def actuate_cells(p_arr_size, p_configuration, p_stop_button):
     output_delay = 0.25
     for i in range(p_arr_size*p_arr_size):
@@ -114,6 +115,49 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
                 print("THREAD STOPPING")
                 off()
 
+
+    def new_on(p_arr_size, p_configuration, p_stop_button):
+        output_delay = 0.25
+        default_duration = 500
+
+        ## Output signal continuously until told to turn off
+        start_time = time.time()
+
+        while (time.time() - start_time < max_duration):
+
+            for i in range(p_arr_size*p_arr_size):
+
+                if (en := p_configuration[f"cell_{i}"]) != "0":
+                    time.sleep(output_delay)
+                    print(f"actuated cell [{en}] {i}", end="")
+
+                    ## Get Signal Parameters for Cell "i"
+                    neg_voltage = en["negVoltage"]
+                    pos_voltage = en["posVoltage"]
+                    duty_cycle = en["dutyCycle"]
+                    frequency = en["frequency"]
+
+                    ## Define timing
+                    samples = 100 # so in terms of percentages
+                    rate = frequency * samples
+                    samps_per_chan = default_duration * rate
+
+                    ## Create and fill sample array
+                    sample_array = np.arange(samples)
+                    sample_array.fill(neg_voltage)
+                    sample_array[0:duty_cycle] = pos_voltage
+
+                    ## Actuate Signal
+                    ac_task.write(data=p_sample_array, auto_start=True)
+                    en_task.write(True)
+                    sel_task.write(2*num) # no need -1, should already be 0 to 15 
+
+
+                if p_stop_button.is_set():
+                    print("THREAD STOPPING")
+                    off()
+
+
     def off():
         """Off function for the DAQ, resets everything to 0"""
 
@@ -134,7 +178,6 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
         ## Process JSON Input
         input_string = sys.argv[1]
         [timestamp, arr_size, bitness, configuration] = process_input_as_json(input_string)
-        default_duration = 500
 
         ## Print Input to STDOUT 
         print(f"Reading JSON from '{timestamp}'\n", 
@@ -143,23 +186,9 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
             f"   Configuration:    {configuration}",
             )
 
-        ## Print Out of bounds warning.
+        ## Print Out of Bounds warning.
         if arr_size > 4:
             print("WARNING: array size exceeds 4x4. Cell selection may be out of bounds.")
-        exit()
-
-        ## Define timing
-        samples = 100 # so in terms of percentages
-        rate = frequency * samples
-        samps_per_chan = default_duration * rate
-
-        ## Create and fill sample array
-        sample_array = np.arange(samples)
-        sample_array.fill(neg_voltage)
-        sample_array[0:duty_cycle] = pos_voltage
-
-        ## Prepare Demux Output
-        dmux_output_nums = [i for i,num in enumerate(dmux_output_array) if num == True]
 
         ## Set up settings
         set_params(rate, samps_per_chan)
@@ -168,7 +197,7 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
         stop_button = Event()
 
         ## Toggle signal using threaded function
-        thread = Thread(target=on, args=(sample_array, rate, samps_per_chan, dmux_output_nums, stop_button))
+        thread = Thread(target=new_on, args=(arr_size, configuration, stop_button))
         thread.start()
         stop_request = input()
         if stop_request:
