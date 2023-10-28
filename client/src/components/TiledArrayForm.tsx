@@ -324,7 +324,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
       <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 
         {/* SELECT ARRAY SIZE */}
-        <div id="arrSizeForm" className="col-6 form-group">
+        <div id="arrSizeForm" className="col-4 form-group">
           <div className="input-group mb-3">
             <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#arraySizeInfo" aria-expanded="false" aria-controls="lookupTableInfo">
               <InfoIcon />
@@ -352,7 +352,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
         </div>
 
         {/* SELECT BITNESS */}
-        <div id="bitnessForm" className="col-6 form-group">
+        <div id="bitnessForm" className="col-4 form-group">
           <div className="input-group mb-3">
             <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#bitnessInfo">
               <InfoIcon />
@@ -372,6 +372,32 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
             </select>
           </div>
           <div id="bitnessInfo" className="collapse">
+            <div className="card card-body py-2 mb-2 mx-2">
+              <p className="form-text mb-1">Select 1-bit or 2-bit cell states.</p>
+            </div>
+          </div>
+        </div>
+        {/* SELECT FREQUENCY */}
+        <div id="frequencyForm" className="col-4 form-group">
+          <div className="input-group mb-3">
+            <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#frequencyInfo">
+              <InfoIcon />
+            </button>
+            <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Frequency</b></span>
+            <input
+              className={`form-control ${errors.frequency ? "is-invalid" : ""}`}
+              id="frequencyForm"
+              type="number"
+              step="any"
+              {...register("frequency")}
+              defaultValue={50}
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setValue(("frequency") as any, e.target.value)
+              }}
+              disabled={formDisabled} />
+            <span className="input-group-text py-0">Hz</span>
+          </div>
+          <div id="frequencyInfo" className="collapse">
             <div className="card card-body py-2 mb-2 mx-2">
               <p className="form-text mb-1">Select 1-bit or 2-bit cell states.</p>
             </div>
@@ -545,24 +571,6 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                         <span className="input-group-text py-0">V</span>
                       </div>
 
-                      {/* FREQUENCY */}
-                      <div className="input-group has-validation mb-3">
-                        <span className="input-group-text py-0"><b>Frequency</b></span>
-                        <input
-                          className={`form-control form-control-sm ${errors.frequency ? "is-invalid" : ""}`}
-                          id="frequencyForm"
-                          type="number"
-                          step="any"
-                          defaultValue={""}
-                          onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            for (let i = 0; i < arrSize; i++) {
-                              setValue(("configuration.cell_" + String(i * arrSize + val) + ".frequency") as any, e.target.value)
-                            }
-                          }}
-                          disabled={formDisabled} />
-                        <span className="input-group-text py-0">Hz</span>
-                      </div>
-
                       {/* DUTY CYCLE */}
                       <div className="input-group has-validation mb-3">
                         <span className="input-group-text py-0"><b>Duty Cycle</b></span>
@@ -691,7 +699,6 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                               {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".negVoltage") as any, voltageError)}
                               disabled={formDisabled} />
                             <span className="input-group-text py-0">to</span>
-
                             <input
                               className={`form-control form-control-sm ${errors.posVoltage ? "is-invalid" : ""}`}
                               id="posVoltageForm"
@@ -701,29 +708,11 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                               {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".posVoltage") as any, voltageError)}
                               disabled={formDisabled} />
                             <span className="input-group-text py-0">V</span>
-
-                          </div>
-
-                          {/* FREQUENCY */}
-                          <div className="input-group has-validation mb-3">
-                            <span className="input-group-text py-0"><b>Frequency</b></span>
-
-                            <input
-                              className={`form-control form-control-sm  ${errors.frequency ? "is-invalid" : ""}`}
-                              id="frequencyForm"
-                              type="number"
-                              step="any"
-                              defaultValue={50}
-                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".frequency") as any, defaultError)}
-                              disabled={formDisabled} />
-                            <span className="input-group-text py-0">Hz</span>
-
                           </div>
 
                           {/* DUTY CYCLE */}
                           <div className="input-group has-validation mb-3">
                             <span className="input-group-text py-0"><b>Duty Cycle</b></span>
-
                             <input
                               className={`form-control form-control-sm  ${errors.dutyCycle ? "is-invalid" : ""}`}
                               id="dutyCycleForm"
@@ -733,7 +722,6 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                               {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".dutyCycle") as any, dutyCycleError)}
                               disabled={formDisabled} />
                             <span className="input-group-text py-0">%</span>
-
                           </div>
 
                         </div>

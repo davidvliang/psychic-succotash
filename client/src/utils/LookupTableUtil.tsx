@@ -4,5 +4,6 @@ export type LookupTableType = {
     arrayDimension: number;
     bitness: number;
     configuration: object;
-    columns: object
+    columns: object;
+    frequency: number;
 }
