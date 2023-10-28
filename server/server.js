@@ -36,9 +36,9 @@ io.on("connection", (socket) => {
       "-u",
       // "./scripts/actuation_v1.py",
       // "./scripts/actuation_v2.py",
-      // "./scripts/actuation_v3.py",
+      "./scripts/actuation_v3.py",
       // "./scripts/testbench/dummy_script.py",
-      "./scripts/testbench/dummy_script_2.py",
+      // "./scripts/testbench/dummy_script_2.py",
       JSON.stringify(data),
     ]);
 
