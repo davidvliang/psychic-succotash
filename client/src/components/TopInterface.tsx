@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRefresh } from "@fortawesome/free-solid-svg-icons";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { io } from "socket.io-client";
 // import ConfigurationForm from "./ConfigurationForm";
 import LookupTableForm from "./TiledArrayForm";
@@ -30,12 +30,20 @@ function TopInterface() {
     JSON.parse(JSON.stringify(defaultActuatedCells))
   );
 
+  // Send data to backend
   const handleSubmitData = useCallback(
     (data: object) => {
       socket.emit(submit, data);
     },
     [submitData]
   );
+
+  // Reset Actuated Cells when Stop Button is pressed.
+  useEffect(() => {
+    if (!formDisabled) {
+      setActuatedCells(JSON.parse(JSON.stringify(defaultActuatedCells)))
+    }
+  }, [formDisabled]);
 
   socket.on("connect_error", () => setTimeout(() => socket.connect(), 5000));
   socket.on("connect", () =>
@@ -61,7 +69,7 @@ function TopInterface() {
       ...{ [cellVal as keyof typeof actuatedCells]: true }
     }));
   });
-
+  
   return (
     <div className="">
 
@@ -94,11 +102,7 @@ function TopInterface() {
               value="Stop"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Stop Button Pressed`);
-                setActuatedCells(
-                  JSON.parse(JSON.stringify(defaultActuatedCells))
-                );
                 socket.emit(stopButton, "SIGINT\n");
-                // socket.emit(stopButton, "Stop Button Pressed.");
               }}
               disabled={!formDisabled}
             >
