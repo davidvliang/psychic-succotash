@@ -3,7 +3,8 @@ import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { useCallback, useState, useEffect } from "react";
 import { io } from "socket.io-client";
 // import ConfigurationForm from "./ConfigurationForm";
-import LookupTableForm from "./TiledArrayForm";
+import TiledArrayForm from "./TiledArrayForm";
+import MultiArrayForm from "./MultiArrayForm";
 import LogOutput from "./LogOutput";
 import getTS from "../utils/getTS";
 import { defaultActuatedCells } from "../utils/DAQ";
@@ -69,13 +70,24 @@ function TopInterface() {
       ...{ [cellVal as keyof typeof actuatedCells]: true }
     }));
   });
-  
+
+  const [arrayPage, setArrayPage] = useState<number>(0);
+
   return (
     <div className="">
 
-      <nav className="navbar sticky-top navbar-light bg-light mb-5 shadow-sm">
+      <nav className="navbar sticky-top navbar-light bg-light mb-5 shadow-sm navbar-expand-lg">
         <div className="container-fluid">
           <span className="navbar-brand pt-2 mx-auto my-auto mx-md-5 h1 text-align-center">Control System App</span>
+          <ul className="navbar-nav nav-underline me-auto mb-2 mb-lg-0">
+            <li className="nav-item">
+              <a className={`nav-link ${(arrayPage == 0) ? "active" : ""}`} aria-current="page" href="#" onClick={() => setArrayPage(0)}>Arrays</a>
+            </li>
+            <li className="nav-item">
+              <a className={`nav-link ${(arrayPage == 1) ? "active" : ""}`} aria-current="page" href="#" onClick={() => setArrayPage(1)}>Cells</a>
+            </li>
+          </ul>
+
 
           <div className="btn-toolbar float-end mx-md-5" role="toolbar">
 
@@ -87,7 +99,7 @@ function TopInterface() {
               value="Download"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Download Button Pressed`);
-                setDownloadButton(downloadButton+1)
+                setDownloadButton(downloadButton + 1)
               }}
               disabled={formDisabled}
             >
@@ -152,10 +164,11 @@ function TopInterface() {
         formDisabled={formDisabled}
         actuatedCells={actuatedCells}
       /> */}
-      {/* LOOKUP TABLE FORM COMPONENT */}
-      <div className="">
 
-        <LookupTableForm
+      {/* MULTI ARRAY FORM COMPONENT */}
+      <div style={arrayPage == 1 ? { contentVisibility: "hidden" } : {}}>
+
+        <MultiArrayForm
           resetButton={resetButton}
           downloadButton={downloadButton}
           handleSubmitData={handleSubmitData}
@@ -163,6 +176,18 @@ function TopInterface() {
           actuatedCells={actuatedCells}
         />
       </div>
+
+      {/* TILED ARRAY FORM COMPONENT */}
+      <div style={arrayPage == 0 ? { contentVisibility: "hidden" } : {}}>
+        <TiledArrayForm
+          resetButton={resetButton}
+          downloadButton={downloadButton}
+          handleSubmitData={handleSubmitData}
+          formDisabled={formDisabled}
+          actuatedCells={actuatedCells}
+        />
+      </div>
+
 
       <br />
       <br />
