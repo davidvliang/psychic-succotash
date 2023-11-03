@@ -11,11 +11,11 @@ const server = http.createServer(app);
 const PORT = 5001;
 
 // SOCKET EVENTS (see TopInterface.tsx)
-const submit = "submit"; // 'submit' signal (client to server)
-const stopButton = "stopButton"; // 'stop' signal (client to server)
-const serverLog = "serverLog"; // send logging information from (server to client)
-const programRunning = "programRunning"; // python script start (server to client)
-const cellActuation = "cellActuation"; // indicate specific cell is actuated (server to client)
+const submitEvent = "submitEvent"; // 'submit' signal (client to server)
+const stopButtonEvent = "stopButtonEvent"; // 'stop' signal (client to server)
+const serverLogEvent = "serverLogEvent"; // send logging information from (server to client)
+const programRunningEvent = "programRunningEvent"; // python script start (server to client)
+const cellActuationEvent = "cellActuationEvent"; // indicate specific cell is actuated (server to client)
 
 // Init socketIO
 const io = socketIo(server, {
@@ -28,22 +28,20 @@ io.on("connection", (socket) => {
   console.log("client connected:", socket.id);
 
   // Listen for Client to Press Submit
-  socket.on(submit, (data) => {
-    io.emit(programRunning, true);
+  socket.on(submitEvent, (data) => {
+    io.emit(programRunningEvent, true);
 
     // Spawn new child process to call python script
     const python = spawn("python", [
       "-u",
-      // "./scripts/actuation_v1.py",
-      // "./scripts/actuation_v2.py",
-      "./scripts/actuation_v3.py",
-      // "./scripts/testbench/dummy_script.py",
       // "./scripts/testbench/dummy_script_2.py",
+      "./scripts/actuation_v3.py",
+      // "./scripts/demux_redux.py",
       JSON.stringify(data),
     ]);
 
     // If stop button is pressed, send 'stop' to python script
-    socket.on(stopButton, (data) => {
+    socket.on(stopButtonEvent, (data) => {
       python.stdin.write(data);
       logPrint("[Server]", "Sending 'STOP' to Python process");
     });
@@ -53,7 +51,7 @@ io.on("connection", (socket) => {
       dataToSend = data.toString();
       logPrint("[Python STDOUT] ", dataToSend);
       if (dataToSend.startsWith("actuated cell ")) {
-        io.emit(cellActuation, dataToSend);
+        io.emit(cellActuationEvent, dataToSend);
       }
     });
 
@@ -67,7 +65,7 @@ io.on("connection", (socket) => {
     python.on("close", (code, signal) => {
       logPrint(`[Server] Python process terminated with return code ${code}`);
       logPrint(`[Server] Python process terminated due to signal ${signal}`);
-      io.emit(programRunning, false);
+      io.emit(programRunningEvent, false);
     });
 
   });
@@ -99,6 +97,6 @@ function getTS() {
 
 // Wrapper function for displaying log output
 function logPrint(domain, ...args) {
-  io.emit(serverLog, `[${getTS()}] ${domain} ${args.toString()}`);
+  io.emit(serverLogEvent, `[${getTS()}] ${domain} ${args.toString()}`);
   console.log(`[${getTS()}] ${domain} ${args.toString()}`);
 }
