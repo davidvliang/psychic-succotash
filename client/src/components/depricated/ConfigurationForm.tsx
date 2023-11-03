@@ -1,9 +1,9 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState, useEffect } from "react";
-import { DAQInputs, alphabet } from "../utils/DAQ";
-import getTS from "../utils/getTS";
+import { DAQInputs, alphabet } from "../../utils/DAQ";
+import getTS from "../../utils/getTS";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
-import lookupTable from "../utils/lookupTable.json"
+import lookupTable from "../../utils/lookupTable.json"
 
 const ConfigurationForm = ({ resetButton, handleSubmitData, formDisabled, actuatedCells }: { resetButton: boolean, handleSubmitData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
 

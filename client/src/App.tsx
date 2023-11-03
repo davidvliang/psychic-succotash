@@ -1,4 +1,4 @@
-import Navbar from "./components/Navbar";
+// import Navbar from "./components/depricated/Navbar";
 import TopInterface from "./components/TopInterface";
 // import History from "./components/History";
 // import SocketExample from "./components/example/SocketExample";
