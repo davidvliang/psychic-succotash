@@ -39,3 +39,4 @@ For server,
 
 Run the client and server simultaneously in separate terminal windows. 
 
+Open browser and visit [localhost:3000](http://localhost:3000/)
