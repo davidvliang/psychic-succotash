@@ -1,12 +1,12 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState, useEffect } from "react";
-import { DAQInputs, alphabet } from "../utils/DAQ";
+import { alphabet } from "../utils/DAQ";
 import { LookupTableType } from "../utils/LookupTableUtil";
 import getTS from "../utils/getTS";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
 import lookupTable from "../utils/lookupTable.json"
 
-const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, formDisabled, actuatedCells }: { resetButton: boolean, downloadButton: number, handleSubmitData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
+const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSubmitData, formDisabled, actuatedCells }: { resetButtonPressed: boolean, downloadButtonPressed: number, handleSubmitData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
 
   // Initialize form input using React-Hook-Form
   const {
@@ -14,6 +14,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
     handleSubmit,
     reset,
     setValue,
+    getFieldState,
     getValues,
     formState: { errors },
   } = useForm<LookupTableType>();
@@ -26,29 +27,12 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
     console.log("form_data", form_data);
   };
 
-  // Handle download configuration
-  const handleDownloadConfiguration = (jsonData: object) => {
-    const fileData = JSON.stringify(jsonData);
-    const blob = new Blob([fileData], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.download = `configuration_file.json`;
-    link.href = url;
-    link.click();
-  }
-
   // Reset form values when reset button is pressed
   useEffect(() => {
     reset();
     setArrSize(4);
-  }, [resetButton]);
+  }, [resetButtonPressed]);
 
-  // Download form when download button is pressed
-  useEffect(() => {
-    if (downloadButton != 0) {
-      handleDownloadConfiguration(getValues())
-    }
-  }, [downloadButton]);
 
   // Input Validation for Parameters
   const voltageError = {
@@ -83,25 +67,27 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
     setCellArrayKey(Math.random()) // cycle to a new key for #cellArrayDisplay, which re-renders the element
   }, [arrSize]);
 
+
+
   // Set styling for cells based on actuation (highlight green) and FormDisabled (submit button pressed)
   const styleCyclestateCell = (elementID: string, _rowVal: number, _colVal: number) => {
     let cellElement = document.getElementById(elementID) as HTMLInputElement // grab input element by ID
-    // let actuateClassName = actuatedCells[String(_rowVal * arrSize + _colVal) as keyof typeof actuatedCells] ? "btn-success" : "" // highlight green when cell is actuated by python script
     let formDisabledClassName = formDisabled && !cellElement.checked ? "opacity-0" : "" // when form is disabled (when submit button pressed), hide the states that aren't checked
-    // return " " + formDisabledClassName + " " + actuateClassName + " " // return these conditional classNames
     return " " + formDisabledClassName + " " // return these conditional classNames
   }
 
   // Set styling for cards when cell is actuated (highlight green)
   const styleActuatedCellCard = (elementType: string, _rowVal: number, _colVal: number) => {
     if (elementType == "card-header" && actuatedCells[String(_rowVal * arrSize + _colVal) as keyof typeof actuatedCells]) {
-      return {backgroundColor: "seagreen"}
+      return { backgroundColor: "seagreen" }
     }
     if (elementType == "card-body" && actuatedCells[String(_rowVal * arrSize + _colVal) as keyof typeof actuatedCells]) {
-      return {backgroundColor: "mediumseagreen"}
+      return { backgroundColor: "mediumseagreen" }
     }
-    return {} // return these conditional classNames
+    return {}
   }
+
+
 
   // Read File
   const [fileName, setFileName] = useState<string>("") // The name of the file
@@ -162,18 +148,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
   //   }
   // }
 
-  const handleFileRender = (configData: LookupTableType | undefined) => {
-    if (configData) {
-      setArrSize(Number(configData.arrayDimension))
-      setValue("arrayDimension", configData.arrayDimension)
 
-      setBitness(Number(configData.bitness))
-      setValue("bitness", configData.bitness)
-
-      setTimeout(() => setValue("columns", configData.columns), 100)
-      setTimeout(() => setValue("configuration", configData.configuration), 100)
-    }
-  }
 
   // Trigger update Form when file is valided.
   // This is required since, with useState, we can't update everything in the same function
@@ -194,6 +169,25 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
     // Maybe need to use another useEffect? 
     setTimeout(() => setValue("configuration", validatedFileInput), 100)
   }
+
+
+  // Handle download configuration
+  const handleDownloadConfiguration = (jsonData: object) => {
+    const fileData = JSON.stringify(jsonData);
+    const blob = new Blob([fileData], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `configuration_file.json`;
+    link.href = url;
+    link.click();
+  }
+
+  // Download form when download button is pressed
+  useEffect(() => {
+    if (downloadButtonPressed != 0) {
+      handleDownloadConfiguration(getValues())
+    }
+  }, [downloadButtonPressed]);
 
 
   // Lookup Table Dropdown
@@ -220,10 +214,26 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
   }, [lookupTableAngle])
 
 
+  const getDataFromAngle = (lookupTableAngle: number) => {
+    return lookupTableJSON[0]
+  }
+
+  const handleFileRender = (configData: LookupTableType | undefined) => {
+    if (configData) {
+      setArrSize(Number(configData.arrayDimension))
+      setValue("arrayDimension", configData.arrayDimension)
+
+      setBitness(Number(configData.bitness))
+      setValue("bitness", configData.bitness)
+
+      setTimeout(() => setValue("columns", configData.columns), 100)
+      setTimeout(() => setValue("configuration", configData.configuration), 100)
+    }
+  }
 
   return (
 
-    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)}>
+    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation">
 
       <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 
@@ -254,6 +264,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                 form="lookupTableForm"
                 value="Render"
                 onClick={() => {
+                  // handleFileRender(getDataFromAngle(lookupTableAngle))
                   // console.log("check", getValues())
                   // console.log("here\n", lookupTableAngle)
                   // console.log(lookupTableJSON[0])
@@ -306,7 +317,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
       <hr className="my-12" style={{ marginBottom: "2rem", marginTop: "2rem", marginLeft: "8rem", marginRight: "8rem" }} />
 
       {/* ERROR MESSAGES */}
-      <div className="container">
+      {/* <div className="container">
         <div className="invalid-feedback">
           {errors.negVoltage?.message}
         </div>
@@ -319,7 +330,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
         <div className="invalid-feedback">
           {errors.dutyCycle?.message}
         </div>
-      </div>
+      </div> */}
 
       <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 
@@ -389,10 +400,12 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
               id="frequencyForm"
               type="number"
               step="any"
+              min={0}
+              required
               {...register("frequency")}
               defaultValue={50}
               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setValue(("frequency") as any, e.target.value)
+                setValue(("frequency") as any, e.target.value)
               }}
               disabled={formDisabled} />
             <span className="input-group-text py-0">Hz</span>
@@ -406,8 +419,8 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
       </div>
 
       {/* TILED ARRAY */}
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <table key={cellArrayKey} id="cellArrayDisplay" className="table table-borderless" style={{ width: "min-content" }}>
+      <div style={{ display: "flex", alignItems: "center", overflowX: "auto", whiteSpace:"nowrap"}}>
+        <table key={cellArrayKey} id="cellArrayDisplay" className="table table-borderless mx-auto" style={{ width: "min-content" }}>
           <thead>
             <tr>
               <th scope="col"></th>
@@ -479,7 +492,7 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                                 }
                               }} />
                             <label
-                              className={"form-check-label btn cell"  + styleCyclestateCell("s0_col_" + String(val), 0, val)}
+                              className={"form-check-label btn cell" + styleCyclestateCell("s0_col_" + String(val), 0, val)}
                               htmlFor={"s0_col_" + String(val)}>s00
                             </label>
                             <input
@@ -544,10 +557,12 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                       <div className="input-group has-validation mb-3">
                         <span className="input-group-text py-0"><b>Vpp</b></span>
                         <input
-                          className={`form-control form-control-sm ${errors.negVoltage ? "is-invalid" : ""}`}
+                          className={`form-control form-control-sm`}
                           id="negVoltageForm"
                           type="number"
                           step="any"
+                          min={-10}
+                          max={10}
                           defaultValue={""}
                           onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                             for (let i = 0; i < arrSize; i++) {
@@ -557,10 +572,12 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                           disabled={formDisabled} />
                         <span className="input-group-text py-0">to</span>
                         <input
-                          className={`form-control form-control-sm ${errors.posVoltage ? "is-invalid" : ""}`}
+                          className={`form-control form-control-sm `}
                           id="posVoltageForm"
                           type="number"
                           step="any"
+                          min={-10}
+                          max={10}
                           defaultValue={""}
                           onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                             for (let i = 0; i < arrSize; i++) {
@@ -575,10 +592,12 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                       <div className="input-group has-validation mb-3">
                         <span className="input-group-text py-0"><b>Duty Cycle</b></span>
                         <input
-                          className={`form-control form-control-sm ${errors.dutyCycle ? "is-invalid" : ""}`}
+                          className={`form-control form-control-sm`}
                           id="dutyCycleForm"
                           type="number"
                           step="any"
+                          min={0}
+                          max={100}
                           defaultValue={""}
                           onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                             for (let i = 0; i < arrSize; i++) {
@@ -691,21 +710,27 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                           <div className="input-group has-validation mb-3">
                             <span className="input-group-text py-0"><b>Vpp</b></span>
                             <input
-                              className={`form-control form-control-sm ${errors.negVoltage ? "is-invalid" : ""}`}
+                              className={`form-control form-control-sm`}
                               id="negVoltageForm"
                               type="number"
                               step="any"
+                              required
+                              min={-10}
+                              max={10}
                               defaultValue={-10}
-                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".negVoltage") as any, voltageError)}
+                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".negVoltage") as any)}
                               disabled={formDisabled} />
                             <span className="input-group-text py-0">to</span>
                             <input
-                              className={`form-control form-control-sm ${errors.posVoltage ? "is-invalid" : ""}`}
+                              className={`form-control form-control-sm`}
                               id="posVoltageForm"
                               type="number"
                               step="any"
+                              required
+                              min={-10}
+                              max={10}
                               defaultValue={10}
-                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".posVoltage") as any, voltageError)}
+                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".posVoltage") as any)}
                               disabled={formDisabled} />
                             <span className="input-group-text py-0">V</span>
                           </div>
@@ -714,12 +739,17 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
                           <div className="input-group has-validation mb-3">
                             <span className="input-group-text py-0"><b>Duty Cycle</b></span>
                             <input
-                              className={`form-control form-control-sm  ${errors.dutyCycle ? "is-invalid" : ""}`}
+                              // className={`form-control form-control-sm  ${errors.configuration.cell_String(rowVal * arrSize + colVal).dutyCycle ? "is-invalid" : ""}`}
+                              // className={`form-control form-control-sm has-validation ${getFieldState("configuration.cell_" + String(rowVal * arrSize + colVal) + ".dutyCycle" as any).error ? "is-invalid" : ""}`}
+                              className={`form-control form-control-sm has-validation`}
                               id="dutyCycleForm"
                               type="number"
                               step="any"
                               defaultValue={50}
-                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".dutyCycle") as any, dutyCycleError)}
+                              required
+                              min={0}
+                              max={100}
+                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".dutyCycle") as any)}
                               disabled={formDisabled} />
                             <span className="input-group-text py-0">%</span>
                           </div>
