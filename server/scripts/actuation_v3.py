@@ -103,7 +103,7 @@ with nidaqmx.Task() as ac_task, nidaqmx.Task() as sel_task, nidaqmx.Task() as en
             for num in range(p_arr_size*p_arr_size):
                 en = p_configuration[f"cell_{num}"]
                 if en["state"] != "0":
-                    print(f"actuated cell [{en["state"]}] {num}", end="")
+                    print(f'actuated cell [{en["state"]}] {num}', end="")
 
                     ## Get Signal Parameters for Cell "num"
                     neg_voltage = int(en["negVoltage"])
