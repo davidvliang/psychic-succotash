@@ -6,7 +6,7 @@ import getTS from "../utils/getTS";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
 import lookupTable from "../utils/lookupTable.json"
 
-const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, formDisabled, actuatedCells }: { resetButton: boolean, downloadButton: number, handleSubmitData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
+const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSubmitData, formDisabled, actuatedCells }: { resetButtonPressed: boolean, downloadButtonPressed: number, handleSubmitData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
 
   // Initialize form input using React-Hook-Form
   const {
@@ -41,14 +41,14 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
   useEffect(() => {
     reset();
     setArrSize(4);
-  }, [resetButton]);
+  }, [resetButtonPressed]);
 
   // Download form when download button is pressed
   useEffect(() => {
-    if (downloadButton != 0) {
+    if (downloadButtonPressed != 0) {
       handleDownloadConfiguration(getValues())
     }
-  }, [downloadButton]);
+  }, [downloadButtonPressed]);
 
   // Input Validation for Parameters
   const voltageError = {
@@ -138,38 +138,6 @@ const ConfigurationForm = ({ resetButton, downloadButton, handleSubmitData, form
       return;
     }
   }
-
-  // Validate the file and show a form error message if improper. 
-  // const handleFileValidation = () => {
-  //   if (fileContent != null) {
-
-  //     if (typeof (fileContent) == "string" && fileContent.length > 0) {
-  //       console.log("4", fileContent)
-  //       const preValInput = fileContent.split(/\s+/)
-  //       console.log("preValInput", preValInput)
-
-  //       if (preValInput.length > 0 && Math.sqrt(preValInput.length) % 1 === 0) {
-
-  //         if (preValInput.find((num) => parseInt(num) < 4)) {
-  //           setValidatedFileInput(preValInput)
-
-  //         } else {
-  //           console.log("[ERROR] Contains invalid state. Only supports 1-bit and 2-bit cell configurations.")
-  //           return;
-  //         }
-  //       } else {
-  //         console.log("[ERROR] Array is not a perfect square. (length:" + preValInput.length + ").")
-  //         return;
-  //       }
-  //     } else {
-  //       console.log("[ERROR] File Contents are invalid string.")
-  //       return;
-  //     }
-  //   } else {
-  //     console.log("[ERROR] File Contents are null.")
-  //     return;
-  //   }
-  // }
 
   const handleFileRender = (configData: LookupTableType | undefined) => {
     if (configData) {
