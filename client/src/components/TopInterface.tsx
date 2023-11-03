@@ -2,7 +2,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { useCallback, useState, useEffect } from "react";
 import { io } from "socket.io-client";
-// import ConfigurationForm from "./ConfigurationForm";
 import TiledArrayForm from "./TiledArrayForm";
 import MultiArrayForm from "./MultiArrayForm";
 import LogOutput from "./LogOutput";
@@ -10,31 +9,34 @@ import getTS from "../utils/getTS";
 import { defaultActuatedCells } from "../utils/DAQ";
 
 // SOCKET EVENTS (see server.js)
-const submit = "submit"; // 'submit' signal (client to server)
-const stopButton = "stopButton"; // 'stop' signal (client to server)
-const serverLog = "serverLog"; // send logging information from (server to client)
-const programRunning = "programRunning"; // python script start (server to client)
-const cellActuation = "cellActuation"; // indicate specific cell is actuated (server to client)
+const submitEvent = "submitEvent"; // 'submit' signal (client to server)
+const stopButtonEvent = "stopButtonEvent"; // 'stop' signal (client to server)
+const serverLogEvent = "serverLogEvent"; // send logging information from (server to client)
+const programRunningEvent = "programRunningEvent"; // python script start (server to client)
+const cellActuationEvent = "cellActuationEvent"; // indicate specific cell is actuated (server to client)
 
 // INIT Sockets
 const socket = io("http://localhost:5001");
+
 
 function TopInterface() {
   const [logData, setLogData] = useState<string>(
     `[${getTS()}] [Client] Init App..`
   );
-  const [resetButton, setResetButton] = useState<boolean>(false);
-  const [downloadButton, setDownloadButton] = useState<number>(0);
+  const [resetButtonPressed, setResetButtonPressed] = useState<boolean>(false);
+  const [downloadButtonPressed, setDownloadButtonPressed] = useState<number>(0);
   const [submitData, _] = useState<object>([{}]);
   const [formDisabled, setFormDisabled] = useState<boolean>(false);
   const [actuatedCells, setActuatedCells] = useState<object>(
     JSON.parse(JSON.stringify(defaultActuatedCells))
   );
+  const [arrayPage, setArrayPage] = useState<number>(1); // for switching pages 
 
+  
   // Send data to backend
   const handleSubmitData = useCallback(
     (data: object) => {
-      socket.emit(submit, data);
+      socket.emit(submitEvent, data);
     },
     [submitData]
   );
@@ -46,6 +48,7 @@ function TopInterface() {
     }
   }, [formDisabled]);
 
+  // Trigger functions on inbound socket connections
   socket.on("connect_error", () => setTimeout(() => socket.connect(), 5000));
   socket.on("connect", () =>
     setLogData(`[${getTS()}] [Client] Connected to Server [ID: ${socket.id}]`)
@@ -54,16 +57,16 @@ function TopInterface() {
     setLogData(`[${getTS()}] [Client] Disconnected from Server.`)
   );
 
-  socket.on(serverLog, (data) => {
+  socket.on(serverLogEvent, (data) => {
     setLogData(data);
   });
-  socket.on(programRunning, (data) => {
+  socket.on(programRunningEvent, (data) => {
     setFormDisabled(data);
   });
 
   // Keep track of which individual cells have been actuated by the python script
   // Used for demo purposes to highlight the actuated cells in green on the frontend 
-  socket.on(cellActuation, (data) => {
+  socket.on(cellActuationEvent, (data) => {
     const cellVal = parseInt(data.split(" ").at(-1));
     setActuatedCells(actuatedCells => ({
       ...actuatedCells,
@@ -71,7 +74,7 @@ function TopInterface() {
     }));
   });
 
-  const [arrayPage, setArrayPage] = useState<number>(0);
+
 
   return (
     <div className="">
@@ -99,7 +102,7 @@ function TopInterface() {
               value="Download"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Download Button Pressed`);
-                setDownloadButton(downloadButton + 1)
+                setDownloadButtonPressed(downloadButtonPressed + 1)
               }}
               disabled={formDisabled}
             >
@@ -114,7 +117,7 @@ function TopInterface() {
               value="Stop"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Stop Button Pressed`);
-                socket.emit(stopButton, "SIGINT\n");
+                socket.emit(stopButtonEvent, "SIGINT\n");
               }}
               disabled={!formDisabled}
             >
@@ -145,7 +148,7 @@ function TopInterface() {
               value="Reset"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Reset Button Pressed`);
-                setResetButton(!resetButton);
+                setResetButtonPressed(!resetButtonPressed);
               }}
               disabled={formDisabled}
             >
@@ -157,20 +160,11 @@ function TopInterface() {
         </div>
       </nav>
 
-      {/* CONFIGURATION FORM COMPONENT */}
-      {/* <ConfigurationForm
-        resetButton={resetButton}
-        handleSubmitData={handleSubmitData}
-        formDisabled={formDisabled}
-        actuatedCells={actuatedCells}
-      /> */}
-
       {/* MULTI ARRAY FORM COMPONENT */}
-      <div style={arrayPage == 1 ? { contentVisibility: "hidden" } : {}}>
-
+      <div style={arrayPage == 1 ? { display: "none" } : {}}>
         <MultiArrayForm
-          resetButton={resetButton}
-          downloadButton={downloadButton}
+          resetButtonPressed={resetButtonPressed}
+          downloadButtonPressed={downloadButtonPressed}
           handleSubmitData={handleSubmitData}
           formDisabled={formDisabled}
           actuatedCells={actuatedCells}
@@ -178,10 +172,10 @@ function TopInterface() {
       </div>
 
       {/* TILED ARRAY FORM COMPONENT */}
-      <div style={arrayPage == 0 ? { contentVisibility: "hidden" } : {}}>
+      <div style={arrayPage == 0 ? { display: "none" } : {}}>
         <TiledArrayForm
-          resetButton={resetButton}
-          downloadButton={downloadButton}
+          resetButtonPressed={resetButtonPressed}
+          downloadButtonPressed={downloadButtonPressed}
           handleSubmitData={handleSubmitData}
           formDisabled={formDisabled}
           actuatedCells={actuatedCells}
@@ -216,10 +210,7 @@ function TopInterface() {
       <br />
       <br />
       <br />
-
-
-
-
+      
 
       {/* LOG OUTPUT COMPONENT */}
       <div className="container">
