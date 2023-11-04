@@ -6,7 +6,7 @@ import getTS from "../utils/getTS";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
 import lookupTable from "../utils/lookupTable.json"
 
-const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSubmitData, formDisabled, actuatedCells }: { resetButtonPressed: boolean, downloadButtonPressed: number, handleSubmitData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
+const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisabled, actuatedCells }: { resetButtonPressed: boolean, handleCurrentFormData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
 
   // Initialize form input using React-Hook-Form
   const {
@@ -21,10 +21,10 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
 
   // Collect form data as JSON string upon submit
   const onSubmit: SubmitHandler<LookupTableType> = (data) => {
-    let form_data = data;
-    form_data["timestamp"] = getTS();
-    handleSubmitData(form_data);
-    console.log("form_data", form_data);
+    let submitFormData = data;
+    submitFormData["timestamp"] = getTS();
+    handleCurrentFormData(submitFormData);
+    console.log("formData", submitFormData);
   };
 
   // Reset form values when reset button is pressed
@@ -34,24 +34,25 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
   }, [resetButtonPressed]);
 
 
-  // Input Validation for Parameters
-  const voltageError = {
-    required: "Cannot be blank.",
-    max: { value: 10, message: "Must be below 10V." },
-    min: { value: -10, message: "Must be above -10V." },
-  };
-  const dutyCycleError = {
-    required: "Cannot be blank.",
-    max: { value: 100, message: "Must be percentage." },
-    min: { value: 0, message: "Must be percentage." },
-    pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
-  };
-  const defaultError = {
-    required: "Cannot be blank.",
-    min: { value: 0, message: "Cannot be negative." },
-    pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
-  };
+  // // Input Validation for Parameters
+  // const voltageError = {
+  //   required: "Cannot be blank.",
+  //   max: { value: 10, message: "Must be below 10V." },
+  //   min: { value: -10, message: "Must be above -10V." },
+  // };
+  // const dutyCycleError = {
+  //   required: "Cannot be blank.",
+  //   max: { value: 100, message: "Must be percentage." },
+  //   min: { value: 0, message: "Must be percentage." },
+  //   pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
+  // };
+  // const defaultError = {
+  //   required: "Cannot be blank.",
+  //   min: { value: 0, message: "Cannot be negative." },
+  //   pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
+  // };
 
+  
   // Initialize parameters for adjusting bitness
   const [bitness, setBitness] = useState<number>(1);
 
@@ -171,25 +172,6 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
   }
 
 
-  // Handle download configuration
-  const handleDownloadConfiguration = (jsonData: object) => {
-    const fileData = JSON.stringify(jsonData);
-    const blob = new Blob([fileData], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.download = `configuration_file.json`;
-    link.href = url;
-    link.click();
-  }
-
-  // Download form when download button is pressed
-  useEffect(() => {
-    if (downloadButtonPressed != 0) {
-      handleDownloadConfiguration(getValues())
-    }
-  }, [downloadButtonPressed]);
-
-
   // Lookup Table Dropdown
   const [lookupTableAngle, setLookupTableAngle] = useState<number>(0) // Define angles
   const angleOptionsMaxLength = 45
@@ -233,7 +215,7 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
 
   return (
 
-    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation">
+    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation" onChange={()=>handleCurrentFormData(getValues())}>
 
       <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 
@@ -265,7 +247,7 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
                 value="Render"
                 onClick={() => {
                   // handleFileRender(getDataFromAngle(lookupTableAngle))
-                  // console.log("check", getValues())
+                  console.log("check", getValues())
                   // console.log("here\n", lookupTableAngle)
                   // console.log(lookupTableJSON[0])
                 }}>
@@ -557,7 +539,7 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
                       <div className="input-group has-validation mb-3">
                         <span className="input-group-text py-0"><b>Vpp</b></span>
                         <input
-                          className={`form-control form-control-sm`}
+                          className={`form-control form-control-sm has-validation`}
                           id="negVoltageForm"
                           type="number"
                           step="any"
@@ -572,7 +554,7 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
                           disabled={formDisabled} />
                         <span className="input-group-text py-0">to</span>
                         <input
-                          className={`form-control form-control-sm `}
+                          className={`form-control form-control-sm has-validation`}
                           id="posVoltageForm"
                           type="number"
                           step="any"
@@ -592,7 +574,7 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
                       <div className="input-group has-validation mb-3">
                         <span className="input-group-text py-0"><b>Duty Cycle</b></span>
                         <input
-                          className={`form-control form-control-sm`}
+                          className={`form-control form-control-sm has-validation`}
                           id="dutyCycleForm"
                           type="number"
                           step="any"
@@ -710,7 +692,7 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
                           <div className="input-group has-validation mb-3">
                             <span className="input-group-text py-0"><b>Vpp</b></span>
                             <input
-                              className={`form-control form-control-sm`}
+                              className={`form-control form-control-sm has-validation`}
                               id="negVoltageForm"
                               type="number"
                               step="any"
@@ -718,11 +700,11 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
                               min={-10}
                               max={10}
                               defaultValue={-10}
-                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".negVoltage") as any)}
+                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".negVoltage") as any, voltageError)}
                               disabled={formDisabled} />
                             <span className="input-group-text py-0">to</span>
                             <input
-                              className={`form-control form-control-sm`}
+                              className={`form-control form-control-sm has-validation`}
                               id="posVoltageForm"
                               type="number"
                               step="any"
@@ -730,7 +712,7 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
                               min={-10}
                               max={10}
                               defaultValue={10}
-                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".posVoltage") as any)}
+                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".posVoltage") as any, voltageError)}
                               disabled={formDisabled} />
                             <span className="input-group-text py-0">V</span>
                           </div>
@@ -749,7 +731,7 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
                               required
                               min={0}
                               max={100}
-                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".dutyCycle") as any)}
+                              {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".dutyCycle") as any, dutyCycleError)}
                               disabled={formDisabled} />
                             <span className="input-group-text py-0">%</span>
                           </div>

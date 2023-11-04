@@ -1,12 +1,12 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState, useEffect } from "react";
-import { DAQInputs, alphabet } from "../utils/DAQ";
+import { alphabet } from "../utils/DAQ";
 import { LookupTableType } from "../utils/LookupTableUtil";
 import getTS from "../utils/getTS";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
 import lookupTable from "../utils/lookupTable.json"
 
-const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSubmitData, formDisabled, actuatedCells }: { resetButtonPressed: boolean, downloadButtonPressed: number, handleSubmitData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
+const ConfigurationForm = ({ resetButtonPressed, handleMultiArrayFormData, currentFormData, formDisabled, actuatedCells }: { resetButtonPressed: boolean, handleMultiArrayFormData: (data: object) => void, currentFormData: object, formDisabled: boolean, actuatedCells: object }) => {
 
   // Initialize form input using React-Hook-Form
   const {
@@ -20,35 +20,17 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
 
   // Collect form data as JSON string upon submit
   const onSubmit: SubmitHandler<LookupTableType> = (data) => {
-    let form_data = data;
-    form_data["timestamp"] = getTS();
-    handleSubmitData(form_data);
-    console.log("form_data", form_data);
+    let submitFormData = data;
+    submitFormData["timestamp"] = getTS();
+    handleMultiArrayFormData(submitFormData);
+    console.log("formData", submitFormData);
   };
-
-  // Handle download configuration
-  const handleDownloadConfiguration = (jsonData: object) => {
-    const fileData = JSON.stringify(jsonData);
-    const blob = new Blob([fileData], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.download = `configuration_file.json`;
-    link.href = url;
-    link.click();
-  }
 
   // Reset form values when reset button is pressed
   useEffect(() => {
     reset();
-    setArrSize(4);
+    setMultiArrSize(4);
   }, [resetButtonPressed]);
-
-  // Download form when download button is pressed
-  useEffect(() => {
-    if (downloadButtonPressed != 0) {
-      handleDownloadConfiguration(getValues())
-    }
-  }, [downloadButtonPressed]);
 
   // Input Validation for Parameters
   const voltageError = {
@@ -200,7 +182,7 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
 
   return (
 
-    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)}>
+    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} onChange={()=>handleMultiArrayFormData(getValues())}>
 
       <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 
@@ -294,7 +276,7 @@ const ConfigurationForm = ({ resetButtonPressed, downloadButtonPressed, handleSu
             <select
               className="form-select"
               id="arrSizeForm"
-              {...register("arrayDimension")}
+              {...register("multiArrayDimension")}
               onChange={e => {
                 setMultiArrSize(Number(e.target.value));
               }}

@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRefresh } from "@fortawesome/free-solid-svg-icons";
-import { useCallback, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import TiledArrayForm from "./TiledArrayForm";
 import MultiArrayForm from "./MultiArrayForm";
@@ -24,22 +24,36 @@ function TopInterface() {
     `[${getTS()}] [Client] Init App..`
   );
   const [resetButtonPressed, setResetButtonPressed] = useState<boolean>(false);
-  const [downloadButtonPressed, setDownloadButtonPressed] = useState<number>(0);
-  const [submitData, _] = useState<object>([{}]);
+  const [currentFormData, setCurrentFormData] = useState<object>([{}]);
+  const [multiArrayFormData, setMultiArrayFormData] = useState<object>([{}]);
   const [formDisabled, setFormDisabled] = useState<boolean>(false);
   const [actuatedCells, setActuatedCells] = useState<object>(
     JSON.parse(JSON.stringify(defaultActuatedCells))
   );
   const [arrayPage, setArrayPage] = useState<number>(1); // for switching pages 
 
+  // Grab cell configuration form state 
+  const handleCurrentFormData = (data: object) => {
+    setCurrentFormData(data)
+  }
+
+  // Grab array configuration form state 
+  const handleMultiArrayFormData = (data: object) => {
+    setMultiArrayFormData(data)
+  }
+
   
-  // Send data to backend
-  const handleSubmitData = useCallback(
-    (data: object) => {
-      socket.emit(submitEvent, data);
-    },
-    [submitData]
-  );
+
+  // Handle download configuration
+  const handleDownloadConfiguration = (jsonData: object) => {
+    const fileData = JSON.stringify(jsonData);
+    const blob = new Blob([fileData], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `configuration_file.json`;
+    link.href = url;
+    link.click();
+  }
 
   // Reset Actuated Cells when Stop Button is pressed.
   useEffect(() => {
@@ -102,7 +116,7 @@ function TopInterface() {
               value="Download"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Download Button Pressed`);
-                setDownloadButtonPressed(downloadButtonPressed + 1)
+                handleDownloadConfiguration(currentFormData)
               }}
               disabled={formDisabled}
             >
@@ -133,7 +147,8 @@ function TopInterface() {
               value="Submit"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Submit Button Pressed.`);
-                // setFormDisabled(true);
+                console.log("submit button", Object.assign({}, multiArrayFormData, currentFormData))
+                socket.emit(submitEvent, Object.assign({}, multiArrayFormData, currentFormData));
               }}
               disabled={formDisabled}
             >
@@ -164,8 +179,8 @@ function TopInterface() {
       <div style={arrayPage == 1 ? { display: "none" } : {}}>
         <MultiArrayForm
           resetButtonPressed={resetButtonPressed}
-          downloadButtonPressed={downloadButtonPressed}
-          handleSubmitData={handleSubmitData}
+          handleMultiArrayFormData={handleMultiArrayFormData}
+          currentFormData={currentFormData}
           formDisabled={formDisabled}
           actuatedCells={actuatedCells}
         />
@@ -175,8 +190,7 @@ function TopInterface() {
       <div style={arrayPage == 0 ? { display: "none" } : {}}>
         <TiledArrayForm
           resetButtonPressed={resetButtonPressed}
-          downloadButtonPressed={downloadButtonPressed}
-          handleSubmitData={handleSubmitData}
+          handleCurrentFormData={handleCurrentFormData}
           formDisabled={formDisabled}
           actuatedCells={actuatedCells}
         />
@@ -210,7 +224,7 @@ function TopInterface() {
       <br />
       <br />
       <br />
-      
+
 
       {/* LOG OUTPUT COMPONENT */}
       <div className="container">

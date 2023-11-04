@@ -6,4 +6,5 @@ export type LookupTableType = {
     configuration: object;
     columns: object;
     frequency: number;
+    multiArrayDimension: number;
 }
