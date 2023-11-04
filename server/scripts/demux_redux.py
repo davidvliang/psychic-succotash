@@ -17,8 +17,10 @@ Description:
 import sys
 import time
 import numpy as np
+import json
 import nidaqmx
 from nidaqmx.constants import LineGrouping
+from threading import Thread, Event
 
 
 class ControlSystem:
@@ -35,9 +37,9 @@ class ControlSystem:
          self.arr_size,
          self.bitness,
          self.frequency,
-         self.configuration] = process_input(json_string_input)
+         self.configuration] = self.process_input(json_string_input)
 
-        set_rate_params(self.frequency, self.duration, self.samples)
+        self.set_rate_params(self.frequency, self.duration, self.samples)
 
     def process_input(_json_string):
         data = json.loads(_json_string)
@@ -66,19 +68,19 @@ class ControlSystem:
         # Analog channel for actuation (pin ao0)
         if self.ac_task.channel_names == []:
             print("assign analog channel")
-            ac_channel = ac_task.ao_channels.add_ao_voltage_chan("Dev1/ao0")
+            ac_channel = self.ac_task.ao_channels.add_ao_voltage_chan("Dev1/ao0")
 
         # Digital channels for enable (pinp0.0)
         if self.en_task.channel_names == []:
             print("assign enable channel")
-            en_channel = en_task.do_channels.add_do_chan(
+            en_channel = self.en_task.do_channels.add_do_chan(
                 "Dev1/port0/line0",
                 line_grouping=LineGrouping.CHAN_FOR_ALL_LINES)
 
         # Digital channel for a 1:16 demux select (pin p0.1:4)
         if self.sel_task.channel_names == []:
             print("assign selection channels")
-            sel_channel = sel_task.do_channels.add_do_chan(
+            sel_channel = self.sel_task.do_channels.add_do_chan(
                 "Dev1/port0/line1:4",
                 line_grouping=LineGrouping.CHAN_FOR_ALL_LINES)
 
@@ -112,7 +114,7 @@ class ControlSystem:
                     duty_cycle = int(en["dutyCycle"]) * 100
 
                     # Create and fill sample array
-                    sample_array = np.arange(p_samples)
+                    sample_array = np.arange(self.samples)
                     sample_array.fill(neg_voltage)
                     sample_array[0:duty_cycle] = pos_voltage
 
@@ -124,7 +126,7 @@ class ControlSystem:
                 # Check for stop button event
                 if p_stop_button_event.is_set():
                     print("THREAD STOPPING")
-                    off()
+                    self.off()
 
     def off(self):
         """Off function for the DAQ, resets everything to 0"""
@@ -149,7 +151,7 @@ if __name__ == "__main__":
     control_system.log_input_to_console()
 
     # Print Out of Bounds warning.
-    if arr_size > 4:
+    if control_system.arr_size > 4:
         print("WARNING: array size exceeds 4x4. Cell selection may be out of bounds.")
 
     # Init event to stop program
