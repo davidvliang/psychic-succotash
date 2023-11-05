@@ -35,7 +35,6 @@ io.on("connection", (socket) => {
     const python = spawn("python", [
       "-u",
       // "./scripts/testbench/dummy_script_2.py",
-      // "./scripts/actuation_v3.py",
       "./scripts/demux_redux.py",
       JSON.stringify(data),
     ]);
