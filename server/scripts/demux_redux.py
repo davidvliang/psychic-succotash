@@ -31,7 +31,7 @@ class ControlSystem:
 
         self.samples = 10000  # high number to compensate for fast DAQ signal switching
         self.duration = 500  # default duration set for debugging purposes
-        self.output_delay = 1  # delay between each cell actuation in seconds
+        self.output_delay = 0 # delay between each cell actuation in seconds
 
         [self.timestamp,
          self.arr_size,
@@ -39,9 +39,9 @@ class ControlSystem:
          self.frequency,
          self.configuration] = self.process_input(json_string_input)
 
-        self.set_rate_params(self.frequency, self.duration, self.samples)
+        self.set_rate_params()
 
-    def process_input(_json_string):
+    def process_input(self, _json_string):
         data = json.loads(_json_string)
         return (data['timestamp'],
                 int(data['arrayDimension']),
@@ -105,8 +105,6 @@ class ControlSystem:
             for num in range(self.arr_size*self.arr_size):
                 en = self.configuration[f"cell_{num}"] 
                 if en["state"] != "0": # cell is switched on
-                    # trigger cellActuationEvent to highlight cells
-                    print(f'actuated cell [{en["state"]}] {num}', end="")
 
                     # Get Signal Parameters for Cell "num"
                     neg_voltage = int(en["negVoltage"])
@@ -122,11 +120,17 @@ class ControlSystem:
                     self.sel_task.write(2*num)  # write cells 0 to 15
                     self.ac_task.write(data=sample_array, auto_start=True)
                     time.sleep(self.output_delay)
-
+                    
+                    # trigger cellActuationEvent to highlight cells
+                    print(f'actuated cell [{en["state"]}] {num}', end="")
+                    
+                # break
                 # Check for stop button event
                 if p_stop_button_event.is_set():
-                    print("THREAD STOPPING")
-                    self.off()
+                    return
+
+        print("THREAD STOPPING")
+        self.off()
 
     def off(self):
         """Off function for the DAQ, resets everything to 0"""
@@ -158,7 +162,7 @@ if __name__ == "__main__":
     stop_button_event = Event()
 
     # Use threaded function to listen for stop button input
-    thread = Thread(target=control_system.on, args=(stop_button_event))
+    thread = Thread(target=control_system.on, args=(stop_button_event,))
     thread.start()
     stop_request = input()
     if stop_request:
