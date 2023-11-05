@@ -29,14 +29,14 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
   };
 
 
-  useEffect(() => {
-    const subscription = watch((value, { name, type }) =>
-      console.log(value, name, type)
-    )
-    handleCurrentFormData(watch())
-    console.log("test")
-    return () => subscription.unsubscribe()
-  }, [watch])
+  // useEffect(() => {
+  //   const subscription = watch((value, { name, type }) =>
+  //     console.log(value, name, type)
+  //   )
+  //   handleCurrentFormData(watch())
+  //   console.log("test")
+  //   return () => subscription.unsubscribe()
+  // }, [watch])
 
   // Reset form values when reset button is pressed
   useEffect(() => {
@@ -229,7 +229,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
 
   return (
 
-    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation" onChange={()=>handleCurrentFormData(watch())}>
+    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation" onChange={()=>handleCurrentFormData(getValues())}>
 
       <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 
@@ -250,7 +250,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                 defaultValue={lookupTableAngle}
                 disabled={formDisabled}>
                 {angleOptions.map((val) => (
-                  <option value={val}>{val}&deg;</option>
+                  <option key={val} value={val}>{val}&deg;</option>
                 ))}
               </select>
               <button
@@ -349,7 +349,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
               defaultValue={arrSize}
               disabled={formDisabled}>
               {dimOptions.map((val) => (
-                <option value={val}>{val}x{val}</option>
+                <option key={val} value={val}>{val}x{val}</option>
               ))}
             </select>
           </div>
@@ -422,9 +422,9 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
         <table key={cellArrayKey} id="cellArrayDisplay" className="table table-borderless mx-auto" style={{ width: "min-content" }}>
           <thead>
             <tr>
-              <th scope="col"></th>
+              <th key={"blank"} scope="col"></th>
               {dmuxDimArr.map((val) => (
-                <th scope="col">
+                <th key={val} scope="col">
                   <button className="btn btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#columnConfig" style={{ width: "100%" }}>
                     <b>{val}</b>
                   </button>
@@ -608,10 +608,10 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
           </thead>
           <tbody>
             {dmuxDimArr.map((rowVal) => (
-              <tr>
-                <th scope="row">{alphabet[rowVal]}</th>
+              <tr key={"tr"+String(rowVal)} >
+                <th key={"th"+String(rowVal)} scope="row">{alphabet[rowVal]}</th>
                 {dmuxDimArr.map((colVal) => (
-                  <td>
+                  <td key={"td"+String(rowVal)+String(colVal)} >
                     <div className="col text-start">
                       <div className="card border-dark" style={{ minWidth: 250 + "px", maxWidth: 250 + "px" }}>
                         <div className="card-header" style={styleActuatedCellCard("card-header", rowVal, colVal)}>
