@@ -22,35 +22,41 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
   // Collect form data as JSON string upon submit
   const onSubmit: SubmitHandler<LookupTableType> = (data) => {
     let submitFormData = data;
-    submitFormData["timestamp"] = getTS();
-    handleCurrentFormData(submitFormData);
-    console.log("formData", submitFormData);
+    // submitFormData["timestamp"] = getTS();
+    // console.log("onSubmit", getValues())
+    handleCurrentFormData(getValues());
+    // console.log("formData", submitFormData);
   };
+
+  useEffect(() => {
+    handleCurrentFormData(getValues());
+  }, [])
 
   // Reset form values when reset button is pressed
   useEffect(() => {
     reset();
     setArrSize(4);
+    handleCurrentFormData(getValues())
   }, [resetButtonPressed]);
 
 
-  // // Input Validation for Parameters
-  // const voltageError = {
-  //   required: "Cannot be blank.",
-  //   max: { value: 10, message: "Must be below 10V." },
-  //   min: { value: -10, message: "Must be above -10V." },
-  // };
-  // const dutyCycleError = {
-  //   required: "Cannot be blank.",
-  //   max: { value: 100, message: "Must be percentage." },
-  //   min: { value: 0, message: "Must be percentage." },
-  //   pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
-  // };
-  // const defaultError = {
-  //   required: "Cannot be blank.",
-  //   min: { value: 0, message: "Cannot be negative." },
-  //   pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
-  // };
+  // Input Validation for Parameters
+  const voltageError = {
+    required: "Cannot be blank.",
+    max: { value: 10, message: "Must be below 10V." },
+    min: { value: -10, message: "Must be above -10V." },
+  };
+  const dutyCycleError = {
+    required: "Cannot be blank.",
+    max: { value: 100, message: "Must be percentage." },
+    min: { value: 0, message: "Must be percentage." },
+    pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
+  };
+  const defaultError = {
+    required: "Cannot be blank.",
+    min: { value: 0, message: "Cannot be negative." },
+    pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
+  };
 
   
   // Initialize parameters for adjusting bitness
@@ -105,7 +111,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
       setTimeout(() => reader.readAsText(file, 'UTF-8'), 100)
       reader.onload = () => {
         setFileName(file.name)
-        setFileContent(JSON.parse(reader.result as string))
+        setFileContent(JSON.parse(reader.result as string) as LookupTableType)
       };
 
       reader.onerror = () => {
@@ -169,6 +175,8 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
     // Delay is used to allow React-Hook-Form to properly register values and display values. I can't be bothered.
     // Maybe need to use another useEffect? 
     setTimeout(() => setValue("configuration", validatedFileInput), 100)
+    setTimeout(() => setValue("configuration", validatedFileInput), 100)
+    setTimeout(() => setValue("configuration", validatedFileInput), 100)
   }
 
 
@@ -211,6 +219,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
       setTimeout(() => setValue("columns", configData.columns), 100)
       setTimeout(() => setValue("configuration", configData.configuration), 100)
     }
+    // console.log("render", getValues())
   }
 
   return (
@@ -279,9 +288,11 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                 form="fileImportForm"
                 value="Render"
                 onClick={() => {
-                  console.log("here\n", fileContent)
+                  // console.log("here\n", fileContent)
                   // handleFileValidation()
                   handleFileRender(fileContent)
+                  handleCurrentFormData(getValues())
+                  // console.log("file upload", getValues())
                 }}>
                 Render
               </button>
@@ -429,14 +440,14 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                               disabled={formDisabled}
                               defaultChecked
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                console.log("hello", e.target.checked)
+                                // console.log("hello", e.target.checked)
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
                                 }
                               }} />
                             <label
                               className={"form-check-label btn cell" + styleCyclestateCell("s0_col_" + String(val), 0, val)}
-                              htmlFor={"s0_col_" + String(val)}>s0
+                              htmlFor={"s0_col_" + String(val)}><b>s0</b>
                             </label>
                             <input
                               id={"s1_col_" + String(val)}
@@ -446,14 +457,14 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                               value="1"
                               disabled={formDisabled}
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                console.log("hello", e.target.checked)
+                                // console.log("hello", e.target.checked)
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
                                 }
                               }} />
                             <label
                               className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s1_col_" + String(val), 0, val)}
-                              htmlFor={"s1_col_" + String(val)}>s1
+                              htmlFor={"s1_col_" + String(val)}><b>s1</b>
                             </label>
                           </fieldset>
                         }
@@ -468,14 +479,14 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                               disabled={formDisabled}
                               defaultChecked
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                console.log("hello", e.target.checked)
+                                // console.log("hello", e.target.checked)
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
                                 }
                               }} />
                             <label
                               className={"form-check-label btn cell" + styleCyclestateCell("s0_col_" + String(val), 0, val)}
-                              htmlFor={"s0_col_" + String(val)}>s00
+                              htmlFor={"s0_col_" + String(val)}><b>s00</b>
                             </label>
                             <input
                               id={"s1_col_" + String(val)}
@@ -485,14 +496,14 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                               value="1"
                               disabled={formDisabled}
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                console.log("hello", e.target.checked)
+                                // console.log("hello", e.target.checked)
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
                                 }
                               }} />
                             <label
                               className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s1_col_" + String(val), 0, val)}
-                              htmlFor={"s1_col_" + String(val)}>s01
+                              htmlFor={"s1_col_" + String(val)}><b>s01</b>
                             </label>
                             <input
                               id={"s2_col_" + String(val)}
@@ -502,14 +513,14 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                               value="2"
                               disabled={formDisabled}
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                console.log("hello", e.target.checked)
+                                // console.log("hello", e.target.checked)
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
                                 }
                               }} />
                             <label
                               className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s2_col_" + String(val), 0, val)}
-                              htmlFor={"s2_col_" + String(val)}>s10
+                              htmlFor={"s2_col_" + String(val)}><b>s10</b>
                             </label>
                             <input
                               id={"s3_col_" + String(val)}
@@ -519,14 +530,14 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                               value="3"
                               disabled={formDisabled}
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                console.log("hello", e.target.checked)
+                                // console.log("hello", e.target.checked)
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
                                 }
                               }} />
                             <label
                               className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s3_col_" + String(val), 0, val)}
-                              htmlFor={"s3_col_" + String(val)}>s11
+                              htmlFor={"s3_col_" + String(val)}><b>s11</b>
                             </label>
                           </fieldset>
                         }
@@ -540,7 +551,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                         <span className="input-group-text py-0"><b>Vpp</b></span>
                         <input
                           className={`form-control form-control-sm has-validation`}
-                          id="negVoltageForm"
+                          id={"col_" + String(val) + "_negVoltage"}
                           type="number"
                           step="any"
                           min={-10}
@@ -555,7 +566,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                         <span className="input-group-text py-0">to</span>
                         <input
                           className={`form-control form-control-sm has-validation`}
-                          id="posVoltageForm"
+                          id={"col_" + String(val) + "_posVoltage"}
                           type="number"
                           step="any"
                           min={-10}
@@ -575,7 +586,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                         <span className="input-group-text py-0"><b>Duty Cycle</b></span>
                         <input
                           className={`form-control form-control-sm has-validation`}
-                          id="dutyCycleForm"
+                          id={"col_" + String(val) + "_dutyCycle"}
                           type="number"
                           step="any"
                           min={0}
@@ -620,7 +631,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                                   defaultChecked />
                                 <label
                                   className={"form-check-label btn cell" + styleCyclestateCell("s0_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
-                                  htmlFor={"s0_cell_" + String(rowVal * arrSize + colVal)}>s0
+                                  htmlFor={"s0_cell_" + String(rowVal * arrSize + colVal)}><b>s0</b>
                                 </label>
                                 <input
                                   id={"s1_cell_" + String(rowVal * arrSize + colVal)}
@@ -631,7 +642,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                                   disabled={formDisabled} />
                                 <label
                                   className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s1_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
-                                  htmlFor={"s1_cell_" + String(rowVal * arrSize + colVal)}>s1
+                                  htmlFor={"s1_cell_" + String(rowVal * arrSize + colVal)}><b>s1</b>
                                 </label>
                               </fieldset>
                             }
@@ -647,7 +658,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                                   defaultChecked />
                                 <label
                                   className={"form-check-label btn cell" + styleCyclestateCell("s0_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
-                                  htmlFor={"s0_cell_" + String(rowVal * arrSize + colVal)}>s00
+                                  htmlFor={"s0_cell_" + String(rowVal * arrSize + colVal)}><b>s00</b>
                                 </label>
                                 <input
                                   id={"s1_cell_" + String(rowVal * arrSize + colVal)}
@@ -658,7 +669,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                                   disabled={formDisabled} />
                                 <label
                                   className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s1_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
-                                  htmlFor={"s1_cell_" + String(rowVal * arrSize + colVal)}>s01
+                                  htmlFor={"s1_cell_" + String(rowVal * arrSize + colVal)}><b>s01</b>
                                 </label>
                                 <input
                                   id={"s2_cell_" + String(rowVal * arrSize + colVal)}
@@ -669,7 +680,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                                   disabled={formDisabled} />
                                 <label
                                   className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s2_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
-                                  htmlFor={"s2_cell_" + String(rowVal * arrSize + colVal)}>s10
+                                  htmlFor={"s2_cell_" + String(rowVal * arrSize + colVal)}><b>s10</b>
                                 </label>
                                 <input
                                   id={"s3_cell_" + String(rowVal * arrSize + colVal)}
@@ -680,7 +691,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                                   disabled={formDisabled} />
                                 <label
                                   className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s3_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
-                                  htmlFor={"s3_cell_" + String(rowVal * arrSize + colVal)}>s11
+                                  htmlFor={"s3_cell_" + String(rowVal * arrSize + colVal)}><b>s11</b>
                                 </label>
                               </fieldset>
                             }
@@ -693,7 +704,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                             <span className="input-group-text py-0"><b>Vpp</b></span>
                             <input
                               className={`form-control form-control-sm has-validation`}
-                              id="negVoltageForm"
+                              id={"cell_" + String(rowVal * arrSize + colVal) + "_negVoltage"}
                               type="number"
                               step="any"
                               required
@@ -705,7 +716,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                             <span className="input-group-text py-0">to</span>
                             <input
                               className={`form-control form-control-sm has-validation`}
-                              id="posVoltageForm"
+                              id={"cell_" + String(rowVal * arrSize + colVal) + "_posVoltage"}
                               type="number"
                               step="any"
                               required
@@ -724,7 +735,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                               // className={`form-control form-control-sm  ${errors.configuration.cell_String(rowVal * arrSize + colVal).dutyCycle ? "is-invalid" : ""}`}
                               // className={`form-control form-control-sm has-validation ${getFieldState("configuration.cell_" + String(rowVal * arrSize + colVal) + ".dutyCycle" as any).error ? "is-invalid" : ""}`}
                               className={`form-control form-control-sm has-validation`}
-                              id="dutyCycleForm"
+                              id={"cell_" + String(rowVal * arrSize + colVal) + "_dutyCycle"}
                               type="number"
                               step="any"
                               defaultValue={50}
