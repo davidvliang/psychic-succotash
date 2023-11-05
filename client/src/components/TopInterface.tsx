@@ -7,6 +7,7 @@ import MultiArrayForm from "./MultiArrayForm";
 import LogOutput from "./LogOutput";
 import getTS from "../utils/getTS";
 import { defaultActuatedCells } from "../utils/DAQ";
+import { LookupTableType } from "../utils/LookupTableUtil";
 
 // SOCKET EVENTS (see server.js)
 const submitEvent = "submitEvent"; // 'submit' signal (client to server)
@@ -32,18 +33,6 @@ function TopInterface() {
   );
   const [arrayPage, setArrayPage] = useState<number>(1); // for switching pages 
 
-  // Grab cell configuration form state 
-  const handleCurrentFormData = (data: object) => {
-    setCurrentFormData(data)
-  }
-
-  // Grab array configuration form state 
-  const handleMultiArrayFormData = (data: object) => {
-    setMultiArrayFormData(data)
-  }
-
-  
-
   // Handle download configuration
   const handleDownloadConfiguration = (jsonData: object) => {
     const fileData = JSON.stringify(jsonData);
@@ -54,6 +43,19 @@ function TopInterface() {
     link.href = url;
     link.click();
   }
+
+  // Handle submit configuration
+  const handleSubmitConfiguration = () => {
+    // console.log("submit button", Object.assign({}, multiArrayFormData, currentFormData))
+    console.log("submit button", Object.assign({}, {"timestamp": getTS()}, currentFormData))
+    socket.emit(submitEvent, Object.assign({}, {"timestamp": getTS()}, currentFormData))
+    // socket.emit(submitEvent, Object.assign({}, multiArrayFormData, currentFormData));
+  }
+
+
+  useEffect(() => {
+    console.log("currentFormDataChanged", currentFormData)
+  }, [currentFormData])
 
   // Reset Actuated Cells when Stop Button is pressed.
   useEffect(() => {
@@ -162,12 +164,7 @@ function TopInterface() {
               value="Submit"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Submit Button Pressed.`);
-                // let submitFormData = currentFormData;
-                // submitFormData["timestamp"] = getTS();
-                // console.log("submit button", Object.assign({}, multiArrayFormData, currentFormData))
-                // console.log("submit button", Object.assign({}, {"timestamp": getTS()}, currentFormData))
-                // socket.emit(submitEvent, Object.assign({}, multiArrayFormData, currentFormData));
-                socket.emit(submitEvent, Object.assign({}, {"timestamp": getTS()}, currentFormData));
+                handleSubmitConfiguration();
               }}
               disabled={formDisabled}
             >
@@ -198,7 +195,7 @@ function TopInterface() {
       {/* <div style={arrayPage == 1 ? { display: "none" } : {}}>
         <MultiArrayForm
           resetButtonPressed={resetButtonPressed}
-          handleMultiArrayFormData={handleMultiArrayFormData}
+          handleMultiArrayFormData={setMultiArrayFormData}
           currentFormData={currentFormData}
           formDisabled={formDisabled}
           actuatedCells={actuatedCells}

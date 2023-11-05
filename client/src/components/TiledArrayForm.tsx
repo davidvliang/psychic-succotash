@@ -1,4 +1,4 @@
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, useWatch } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { alphabet } from "../utils/DAQ";
 import { LookupTableType } from "../utils/LookupTableUtil";
@@ -14,23 +14,29 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
     handleSubmit,
     reset,
     setValue,
-    getFieldState,
     getValues,
+    watch,
     formState: { errors },
   } = useForm<LookupTableType>();
 
   // Collect form data as JSON string upon submit
   const onSubmit: SubmitHandler<LookupTableType> = (data) => {
-    let submitFormData = data;
+    // let submitFormData = data;
     // submitFormData["timestamp"] = getTS();
+    // handleCurrentFormData(submitFormData);
     // console.log("onSubmit", getValues())
-    handleCurrentFormData(getValues());
     // console.log("formData", submitFormData);
   };
 
+
   useEffect(() => {
-    handleCurrentFormData(getValues());
-  }, [])
+    const subscription = watch((value, { name, type }) =>
+      console.log(value, name, type)
+    )
+    handleCurrentFormData(watch())
+    console.log("test")
+    return () => subscription.unsubscribe()
+  }, [watch])
 
   // Reset form values when reset button is pressed
   useEffect(() => {
@@ -95,33 +101,10 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
   }
 
 
-
   // Read File
   const [fileName, setFileName] = useState<string>("") // The name of the file
   const [fileContent, setFileContent] = useState<LookupTableType>() // The contents of the file
   const [validatedFileInput, setValidatedFileInput] = useState<string[]>([]) // the file contents as array
-
-  // Process the file into the fileName and fileContent states
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0].type == "application/json") {
-
-      const file = e.target.files[0];
-      const reader = new FileReader();
-
-      setTimeout(() => reader.readAsText(file, 'UTF-8'), 100)
-      reader.onload = () => {
-        setFileName(file.name)
-        setFileContent(JSON.parse(reader.result as string) as LookupTableType)
-      };
-
-      reader.onerror = () => {
-        console.log('[ERROR]', reader.error)
-      }
-    } else {
-      console.log("[ERROR] Invalid File Type (not .json).")
-      return;
-    }
-  }
 
   // Validate the file and show a form error message if improper. 
   // const handleFileValidation = () => {
@@ -156,6 +139,8 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
   // }
 
 
+  // Process the file into the fileName and fileContent states
+
 
   // Trigger update Form when file is valided.
   // This is required since, with useState, we can't update everything in the same function
@@ -174,8 +159,6 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
 
     // Delay is used to allow React-Hook-Form to properly register values and display values. I can't be bothered.
     // Maybe need to use another useEffect? 
-    setTimeout(() => setValue("configuration", validatedFileInput), 100)
-    setTimeout(() => setValue("configuration", validatedFileInput), 100)
     setTimeout(() => setValue("configuration", validatedFileInput), 100)
   }
 
@@ -208,8 +191,31 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
     return lookupTableJSON[0]
   }
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0].type == "application/json") {
+
+      const file = e.target.files[0];
+      const reader = new FileReader();
+
+      setTimeout(() => reader.readAsText(file, 'UTF-8'), 100)
+      reader.onload = () => {
+        setFileName(file.name)
+        setFileContent(JSON.parse(reader.result as string) as LookupTableType)
+      };
+
+      reader.onerror = () => {
+        console.log('[ERROR]', reader.error)
+      }
+    } else {
+      console.log("[ERROR] Invalid File Type (not .json).")
+      return;
+    }
+  }
+
   const handleFileRender = (configData: LookupTableType | undefined) => {
     if (configData) {
+      handleCurrentFormData(configData)
+
       setArrSize(Number(configData.arrayDimension))
       setValue("arrayDimension", configData.arrayDimension)
 
@@ -219,12 +225,11 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
       setTimeout(() => setValue("columns", configData.columns), 100)
       setTimeout(() => setValue("configuration", configData.configuration), 100)
     }
-    // console.log("render", getValues())
   }
 
   return (
 
-    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation" onChange={()=>handleCurrentFormData(getValues())}>
+    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation" onChange={()=>handleCurrentFormData(watch())}>
 
       <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 
@@ -291,8 +296,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                   // console.log("here\n", fileContent)
                   // handleFileValidation()
                   handleFileRender(fileContent)
-                  handleCurrentFormData(getValues())
-                  // console.log("file upload", getValues())
+                  console.log("file upload", watch())
                 }}>
                 Render
               </button>
@@ -340,6 +344,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
               {...register("arrayDimension")}
               onChange={e => {
                 setArrSize(Number(e.target.value));
+                setValue("arrayDimension", Number(e.target.value))
               }}
               defaultValue={arrSize}
               disabled={formDisabled}>
@@ -368,6 +373,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
               {...register("bitness")}
               onChange={e => {
                 setBitness(Number(e.target.value));
+                setValue("bitness", Number(e.target.value))
               }}
               defaultValue={bitness}
               disabled={formDisabled}>
@@ -440,7 +446,6 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                               disabled={formDisabled}
                               defaultChecked
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                // console.log("hello", e.target.checked)
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
                                 }
@@ -457,7 +462,6 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                               value="1"
                               disabled={formDisabled}
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                // console.log("hello", e.target.checked)
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
                                 }
@@ -479,7 +483,6 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                               disabled={formDisabled}
                               defaultChecked
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                // console.log("hello", e.target.checked)
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
                                 }
@@ -496,7 +499,6 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                               value="1"
                               disabled={formDisabled}
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                // console.log("hello", e.target.checked)
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
                                 }
@@ -513,7 +515,6 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                               value="2"
                               disabled={formDisabled}
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                // console.log("hello", e.target.checked)
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
                                 }
@@ -530,7 +531,6 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                               value="3"
                               disabled={formDisabled}
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                // console.log("hello", e.target.checked)
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
                                 }
