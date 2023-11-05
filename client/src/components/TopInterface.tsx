@@ -108,6 +108,21 @@ function TopInterface() {
 
           <div className="btn-toolbar float-end mx-md-5" role="toolbar">
 
+            {/* DEBUG BUTTON */}
+            {/* <button
+              className="btn btn-secondary ms-2 my-2"
+              id="debugButton"
+              // type="debug"
+              value="debug"
+              onClick={() => {
+                setLogData(`[${getTS()}] [Client] debug Button Pressed`);
+                console.log("debug", currentFormData)
+              }}
+              disabled={formDisabled}
+            >
+              <FontAwesomeIcon icon={faRefresh} />
+            </button> */}
+
             {/* DOWNLOAD BUTTON */}
             <button
               className="btn btn-secondary ms-2 my-2"
@@ -147,8 +162,12 @@ function TopInterface() {
               value="Submit"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Submit Button Pressed.`);
-                console.log("submit button", Object.assign({}, multiArrayFormData, currentFormData))
-                socket.emit(submitEvent, Object.assign({}, multiArrayFormData, currentFormData));
+                // let submitFormData = currentFormData;
+                // submitFormData["timestamp"] = getTS();
+                // console.log("submit button", Object.assign({}, multiArrayFormData, currentFormData))
+                // console.log("submit button", Object.assign({}, {"timestamp": getTS()}, currentFormData))
+                // socket.emit(submitEvent, Object.assign({}, multiArrayFormData, currentFormData));
+                socket.emit(submitEvent, Object.assign({}, {"timestamp": getTS()}, currentFormData));
               }}
               disabled={formDisabled}
             >
@@ -176,7 +195,7 @@ function TopInterface() {
       </nav>
 
       {/* MULTI ARRAY FORM COMPONENT */}
-      <div style={arrayPage == 1 ? { display: "none" } : {}}>
+      {/* <div style={arrayPage == 1 ? { display: "none" } : {}}>
         <MultiArrayForm
           resetButtonPressed={resetButtonPressed}
           handleMultiArrayFormData={handleMultiArrayFormData}
@@ -184,13 +203,13 @@ function TopInterface() {
           formDisabled={formDisabled}
           actuatedCells={actuatedCells}
         />
-      </div>
+      </div> */}
 
       {/* TILED ARRAY FORM COMPONENT */}
       <div style={arrayPage == 0 ? { display: "none" } : {}}>
         <TiledArrayForm
           resetButtonPressed={resetButtonPressed}
-          handleCurrentFormData={handleCurrentFormData}
+          handleCurrentFormData={setCurrentFormData}
           formDisabled={formDisabled}
           actuatedCells={actuatedCells}
         />
