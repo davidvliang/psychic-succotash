@@ -44,17 +44,8 @@ function TopInterface() {
     link.click();
   }
 
-  // Handle submit configuration
-  const handleSubmitConfiguration = () => {
-    // console.log("submit button", Object.assign({}, multiArrayFormData, currentFormData))
-    console.log("submit button", Object.assign({}, {"timestamp": getTS()}, currentFormData))
-    socket.emit(submitEvent, Object.assign({}, {"timestamp": getTS()}, currentFormData))
-    // socket.emit(submitEvent, Object.assign({}, multiArrayFormData, currentFormData));
-  }
-
-
   useEffect(() => {
-    console.log("currentFormDataChanged", currentFormData)
+    // console.log("currentFormDataChanged", currentFormData)
   }, [currentFormData])
 
   // Reset Actuated Cells when Stop Button is pressed.
@@ -164,7 +155,8 @@ function TopInterface() {
               value="Submit"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Submit Button Pressed.`);
-                handleSubmitConfiguration();
+                console.log("submit button", Object.assign({}, {"timestamp": getTS()}, currentFormData))
+                socket.emit(submitEvent, Object.assign({}, {"timestamp": getTS()}, currentFormData))
               }}
               disabled={formDisabled}
             >
