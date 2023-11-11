@@ -29,12 +29,12 @@ class ControlSystem:
         self.sel_task = nidaqmx.Task()
         self.en_task = nidaqmx.Task()
 
-        self.samples = 10000  # high number to compensate for fast DAQ signal switching
+        self.samples = 10000  # multipled to compensate for fast DAQ signal switching
         self.duration = 500  # default duration set for debugging purposes
         self.output_delay = 0 # delay between each cell actuation in seconds
 
         [self.timestamp,
-         self.arr_size,
+         self.array_dimension,
          self.bitness,
          self.frequency,
          self.configuration] = self.process_input(json_string_input)
@@ -51,7 +51,7 @@ class ControlSystem:
 
     def log_input_to_console(self):
         print(f"Reading JSON from '{self.timestamp}'\n",
-              f"   Array Size:        {self.arr_size}x{self.arr_size}\n",
+              f"   Array Size:        {self.array_dimension}x{self.array_dimension}\n",
               f"   Bitness:           {self.bitness}\n",
               f"   Frequency:         {self.frequency}\n",
               f"   Output Delay (s):  {self.output_delay}\n",
@@ -102,14 +102,14 @@ class ControlSystem:
 
         while (time.time() - start_time) < self.duration:
             # Iterate through each cell in the array
-            for num in range(self.arr_size*self.arr_size):
+            for num in range(self.array_dimension * self.array_dimension):
                 en = self.configuration[f"cell_{num}"] 
                 if en["state"] != "0": # cell is switched on
 
                     # Get Signal Parameters for Cell "num"
                     neg_voltage = int(en["negVoltage"])
                     pos_voltage = int(en["posVoltage"])
-                    duty_cycle = int(en["dutyCycle"]) * 100
+                    duty_cycle = int(en["dutyCycle"]) * 100 # multipled to compensate for fast DAQ signal switching
 
                     # Create and fill sample array
                     sample_array = np.arange(self.samples)
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     control_system.log_input_to_console()
 
     # Print Out of Bounds warning.
-    if control_system.arr_size > 4:
+    if control_system.array_dimension > 4:
         print("WARNING: array size exceeds 4x4. Cell selection may be out of bounds.")
 
     # Init event to stop program
