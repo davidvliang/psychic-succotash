@@ -1,6 +1,6 @@
 """
 Title: demux_redux.py
-By: david947
+By: david
 Date Created: 2023-11-02
 Description:
     Modify '2023_05_01_User_Input_Toggle_Demux.py' to take input from JSON instead of keyboard. 
