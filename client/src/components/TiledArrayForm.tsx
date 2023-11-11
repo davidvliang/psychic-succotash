@@ -1,9 +1,9 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState, useEffect } from "react";
-import { alphabet } from "../utils/DAQ";
-import { LookupTableType } from "../utils/LookupTableUtil";
+import { arrayRange, alphabet } from "../utils/general";
+import { ConfigurationType } from "../utils/actuation";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
-import lookupTable from "../utils/lookupTable.json"
+import LookupTable from "../utils/LookupTable.json"
 
 const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisabled, actuatedCells }: { resetButtonPressed: boolean, handleCurrentFormData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
 
@@ -16,10 +16,10 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
     getValues,
     watch,
     formState: { errors },
-  } = useForm<LookupTableType>();
+  } = useForm<ConfigurationType>();
 
   // Collect form data as JSON string upon submit
-  const onSubmit: SubmitHandler<LookupTableType> = () => {
+  const onSubmit: SubmitHandler<ConfigurationType> = () => {
     // console.log("onSubmit", getValues())
   };
 
@@ -85,7 +85,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
 
   // ** FILE UPLOAD FEATURE **
   const [fileName, setFileName] = useState<string>("") // The name of the file
-  const [fileContent, setFileContent] = useState<LookupTableType>() // The contents of the file
+  const [fileContent, setFileContent] = useState<ConfigurationType>() // The contents of the file
 
   // Runs when the file is selected for upload
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,7 +97,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
       setTimeout(() => reader.readAsText(file, 'UTF-8'), 100)
       reader.onload = () => {
         setFileName(file.name)
-        setFileContent(JSON.parse(reader.result as string) as LookupTableType)
+        setFileContent(JSON.parse(reader.result as string) as ConfigurationType)
       };
 
       reader.onerror = () => {
@@ -110,7 +110,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
   }
 
   // Runs when the "File Upload" Render button is pressed 
-  const handleFileRender = (configData: LookupTableType | undefined) => {
+  const handleFileRender = (configData: ConfigurationType | undefined) => {
     if (configData) {
       handleCurrentFormData(configData) // update form data state (to be submitted)
 
@@ -130,17 +130,12 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
   const [lookupTableAngle, setLookupTableAngle] = useState<number>(0) // Define angles
   const angleOptionsMaxLength = 45
   const angleOptionsIncrement = 5
-  const arrayRange = (start: number, stop: number, step: number) =>
-    Array.from(
-      { length: (stop - start) / step + 1 },
-      (_, index) => start + index * step
-    );
   const angleOptions = arrayRange(-angleOptionsMaxLength, angleOptionsMaxLength, angleOptionsIncrement)
-  const lookupTableJSON = lookupTable
+  const lookupTableJSON = LookupTable
 
   // Returns the configuration of the specified angle, but at the moment the lookup table is empty
   const getDataFromAngle = (lookupTableAngle: number) => {
-    return lookupTableJSON[0]
+    return lookupTableJSON[lookupTableAngle]
   }
 
 
@@ -210,7 +205,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
                   value="Render"
                   onClick={() => {
                     handleFileRender(fileContent)
-                    console.log("file upload", watch())
+                    console.log("file upload", fileName, watch())
                   }}>
                   Render
                 </button>

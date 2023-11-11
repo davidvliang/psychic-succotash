@@ -2,12 +2,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
+import { getTS, handleFileDownload } from "../utils/general";
+import { defaultActuatedCells } from "../utils/actuation";
 import TiledArrayForm from "./TiledArrayForm";
-import MultiArrayForm from "./MultiArrayForm";
+// import MultiArrayForm from "./MultiArrayForm";
 import LogOutput from "./LogOutput";
-import getTS from "../utils/getTS";
-import { defaultActuatedCells } from "../utils/DAQ";
-import { LookupTableType } from "../utils/LookupTableUtil";
 
 // SOCKET EVENTS (see server.js)
 const submitEvent = "submitEvent"; // 'submit' signal (client to server)
@@ -21,32 +20,19 @@ const socket = io("http://localhost:5001");
 
 
 function TopInterface() {
+
   const [logData, setLogData] = useState<string>(
     `[${getTS()}] [Client] Init App..`
   );
   const [resetButtonPressed, setResetButtonPressed] = useState<boolean>(false);
   const [currentFormData, setCurrentFormData] = useState<object>([{}]);
-  const [multiArrayFormData, setMultiArrayFormData] = useState<object>([{}]);
+  // const [multiArrayFormData, setMultiArrayFormData] = useState<object>([{}]);
   const [formDisabled, setFormDisabled] = useState<boolean>(false);
   const [actuatedCells, setActuatedCells] = useState<object>(
     JSON.parse(JSON.stringify(defaultActuatedCells))
   );
   const [arrayPage, setArrayPage] = useState<number>(1); // for switching pages 
 
-  // Handle download configuration
-  const handleDownloadConfiguration = (jsonData: object) => {
-    const fileData = JSON.stringify(jsonData);
-    const blob = new Blob([fileData], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.download = `configuration_file.json`;
-    link.href = url;
-    link.click();
-  }
-
-  useEffect(() => {
-    // console.log("currentFormDataChanged", currentFormData)
-  }, [currentFormData])
 
   // Reset Actuated Cells when Stop Button is pressed.
   useEffect(() => {
@@ -124,7 +110,7 @@ function TopInterface() {
               value="Download"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Download Button Pressed`);
-                handleDownloadConfiguration(currentFormData)
+                handleFileDownload("configuration_file.json", currentFormData)
               }}
               disabled={formDisabled}
             >
@@ -204,35 +190,7 @@ function TopInterface() {
         />
       </div>
 
-
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-      <br />
-
+      <br style={{lineHeight: 50}} />
 
       {/* LOG OUTPUT COMPONENT */}
       <div className="container">

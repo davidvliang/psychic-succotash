@@ -1,10 +1,9 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState, useEffect } from "react";
-import { alphabet } from "../utils/DAQ";
-import { LookupTableType } from "../utils/LookupTableUtil";
-import getTS from "../utils/getTS";
+import { ConfigurationType } from "../utils/actuation";
+import { getTS, alphabet } from "../utils/general";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
-import lookupTable from "../utils/lookupTable.json"
+import lookupTable from "../utils/LookupTable.json"
 
 const ConfigurationForm = ({ resetButtonPressed, handleMultiArrayFormData, currentFormData, formDisabled, actuatedCells }: { resetButtonPressed: boolean, handleMultiArrayFormData: (data: object) => void, currentFormData: object, formDisabled: boolean, actuatedCells: object }) => {
 
@@ -16,10 +15,10 @@ const ConfigurationForm = ({ resetButtonPressed, handleMultiArrayFormData, curre
     setValue,
     getValues,
     formState: { errors },
-  } = useForm<LookupTableType>();
+  } = useForm<ConfigurationType>();
 
   // Collect form data as JSON string upon submit
-  const onSubmit: SubmitHandler<LookupTableType> = (data) => {
+  const onSubmit: SubmitHandler<ConfigurationType> = (data) => {
     let submitFormData = data;
     submitFormData["timestamp"] = getTS();
     handleMultiArrayFormData(submitFormData);
@@ -96,7 +95,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleMultiArrayFormData, curre
 
   // Read File
   const [fileName, setFileName] = useState<string>("") // The name of the file
-  const [fileContent, setFileContent] = useState<LookupTableType>() // The contents of the file
+  const [fileContent, setFileContent] = useState<ConfigurationType>() // The contents of the file
   const [validatedFileInput, setValidatedFileInput] = useState<string[]>([]) // the file contents as array
 
   // Process the file into the fileName and fileContent states
@@ -121,7 +120,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleMultiArrayFormData, curre
     }
   }
 
-  const handleFileRender = (configData: LookupTableType | undefined) => {
+  const handleFileRender = (configData: ConfigurationType | undefined) => {
     if (configData) {
       setArrSize(Number(configData.arrayDimension))
       setValue("arrayDimension", configData.arrayDimension)

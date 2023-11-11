@@ -32,7 +32,7 @@ io.on("connection", (socket) => {
     io.emit(programRunningEvent, true);
 
     // Spawn new child process to call python script
-    const python = spawn("python", [
+    const actuationPython = spawn("python", [
       "-u",
       // "./scripts/testbench/dummy_script_2.py",
       "./scripts/demux_redux.py",
@@ -41,12 +41,12 @@ io.on("connection", (socket) => {
 
     // If stop button is pressed, send 'stop' to python script
     socket.on(stopButtonEvent, (data) => {
-      python.stdin.write(data);
+      actuationPython.stdin.write(data);
       logPrint("[Server]", "Sending 'STOP' to Python process");
     });
 
     // Send STDOUT data from python script to client
-    python.stdout.on("data", function (data) {
+    actuationPython.stdout.on("data", function (data) {
       dataToSend = data.toString();
       logPrint("[Python STDOUT] ", dataToSend);
       if (dataToSend.startsWith("actuated cell ")) {
@@ -55,13 +55,13 @@ io.on("connection", (socket) => {
     });
 
     // Send STDERR from python script to client log output
-    python.stderr.on("data", function (data) {
+    actuationPython.stderr.on("data", function (data) {
       dataToSend = data.toString();
       logPrint("[Python STDERR] ", dataToSend);
     });
 
     // in close event we are sure that the stream from child process is closed
-    python.on("close", (code, signal) => {
+    actuationPython.on("close", (code, signal) => {
       logPrint(`[Server] Python process terminated with return code ${code}`);
       logPrint(`[Server] Python process terminated due to signal ${signal}`);
       io.emit(programRunningEvent, false);
@@ -81,7 +81,7 @@ server.listen(PORT, (err) => {
 
 
 // Timestamp string for labeling log output
-function getTS() {
+const getTS = () => {
   const timestamp = Date.now(); // This would be the timestamp you want to format
 
   return new Intl.DateTimeFormat("en-US", {
@@ -95,7 +95,7 @@ function getTS() {
 }
 
 // Wrapper function for displaying log output
-function logPrint(domain, ...args) {
+const logPrint = (domain, ...args) => {
   io.emit(serverLogEvent, `[${getTS()}] ${domain} ${args.toString()}`);
   console.log(`[${getTS()}] ${domain} ${args.toString()}`);
 }
