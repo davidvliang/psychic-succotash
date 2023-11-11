@@ -143,172 +143,197 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
 
     <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation" onChange={() => handleCurrentFormData(getValues())}>
 
-        <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <div className="container">
+        <div className="row gap-5 gap-md-0">
 
-          {/* INPUT DIRECTION LOOKUP TABLE FORM */}
-          <div className="form-group mb-1">
-            <div id="lookupTableForm" className="form-group">
-              <div className="input-group">
-                <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#lookupTableInfo">
-                  <InfoIcon />
-                </button>
-                <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Table Lookup</b></span>
-                <select
-                  className="form-select"
-                  id="lookupTableForm"
-                  onChange={e => {
-                    setLookupTableAngle(Number(e.target.value));
-                  }}
-                  defaultValue={lookupTableAngle}
-                  disabled={formDisabled}>
-                  {angleOptions.map((val) => (
-                    <option key={val} value={val}>{val}&deg;</option>
-                  ))}
-                </select>
-                <button
-                  className="btn btn-primary align-self-center"
-                  id="lookupTableButton"
-                  type="submit"
-                  form="lookupTableForm"
-                  value="Render"
-                  onClick={() => {
-                    // console.log("table lookup\n", lookupTableAngle)
-                    getDataFromAngle(lookupTableAngle)
-                    console.log("check", getValues())
-                  }}>
-                  Render
-                </button>
-              </div>
-              <div id="lookupTableInfo" className="collapse">
-                <div className="card card-body py-2 mb-2 mx-2">
-                  <p className="form-text mb-1">Input angle direction.</p>
-                  <p className="form-text mb-1">Click 'Render' to display cell configuration for the angle.</p>
-                </div>
-              </div>
+          {/* ARRAY PATTERN PLOT */}
+          <div className="col-12 col-md-6">
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", borderStyle: "solid", borderRadius: "25px", margin: "5px", minHeight: "15rem"}}>
+              <p>array pattern</p>
+
             </div>
           </div>
 
-          {/* IMPORT CONFIG FILE FORM */}
-          <div className="form-group mb-1">
-            <div id="fileImportForm" className="form-group">
-              <div className="input-group">
-                <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#fileUploadInfo">
-                  <InfoIcon />
-                </button>
-                <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>File Upload</b></span>
-                <input className="form-control" type="file" id="formFile" accept="application/json" onChange={handleFileUpload} />
-                <button
-                  className="btn btn-primary align-self-center"
-                  id="importButton"
-                  type="submit"
-                  form="fileImportForm"
-                  value="Render"
-                  onClick={() => {
-                    handleFileRender(fileContent)
-                    console.log("file upload", fileName, watch())
-                  }}>
-                  Render
-                </button>
-              </div>
-              <div id="fileUploadInfo" className="collapse">
-                <div className="card card-body py-2 mb-2 mx-2">
-                  <p className="form-text mb-1">Upload cell configuration file (.json)</p>
+          {/* RENDER OPTIONS AND PARAMETERS */}
+          <div className="col-12 col-md-6">
+
+            <div className="">
+
+              {/* IMPORT CONFIG FILE FORM */}
+              <div className="form-group mb-3">
+                <div id="fileImportForm" className="form-group">
+                  <div className="input-group">
+                    <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#fileUploadInfo">
+                      <InfoIcon />
+                    </button>
+                    <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>File Upload</b></span>
+                    <input className="form-control" type="file" id="formFile" accept="application/json" onChange={handleFileUpload} />
+                    <button
+                      className="btn btn-primary align-self-center"
+                      id="importButton"
+                      type="submit"
+                      form="fileImportForm"
+                      value="Render"
+                      onClick={() => {
+                        handleFileRender(fileContent)
+                        console.log("file upload", fileName, watch())
+                      }}>
+                      Render
+                    </button>
+                  </div>
+                  <div id="fileUploadInfo" className="collapse mt-2">
+                    <div className="card card-body py-2 mb-2 mx-2">
+                      <p className="form-text mb-1">Upload cell configuration file (.json)</p>
+                    </div>
+                  </div>
                 </div>
               </div>
+
+              {/* INPUT DIRECTION LOOKUP TABLE FORM */}
+              <div className="form-group mb-3">
+                <div id="lookupTableForm" className="form-group">
+                  <div className="input-group">
+                    <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#lookupTableInfo">
+                      <InfoIcon />
+                    </button>
+                    <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Table Lookup</b></span>
+                    <select
+                      className="form-select"
+                      id="lookupTableForm"
+                      onChange={e => {
+                        setLookupTableAngle(Number(e.target.value));
+                      }}
+                      defaultValue={lookupTableAngle}
+                      disabled={formDisabled}>
+                      {angleOptions.map((val) => (
+                        <option key={val} value={val}>{val}&deg;</option>
+                      ))}
+                    </select>
+                    <button
+                      className="btn btn-primary align-self-center"
+                      id="lookupTableButton"
+                      type="submit"
+                      form="lookupTableForm"
+                      value="Render"
+                      onClick={() => {
+                        // console.log("table lookup\n", lookupTableAngle)
+                        getDataFromAngle(lookupTableAngle)
+                        console.log("check", getValues())
+                      }}>
+                      Render
+                    </button>
+                  </div>
+                  <div id="lookupTableInfo" className="collapse mt-2">
+                    <div className="card card-body py-2 mb-2 mx-2">
+                      <p className="form-text mb-1">Input angle direction.</p>
+                      <p className="form-text mb-1">Click 'Render' to display cell configuration for the angle.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+
+            </div>
+
+            <hr className="my-12" style={{ margin: "2rem 5rem" }} />
+
+            <div className="col-10">
+              {/* <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}> */}
+
+              {/* SELECT ARRAY SIZE */}
+              <div id="arrSizeForm" className="form-group mb-3">
+                <div className="input-group">
+                  <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#arraySizeInfo" aria-expanded="false" aria-controls="lookupTableInfo">
+                    <InfoIcon />
+                  </button>
+                  <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Array Size</b></span>
+                  <select
+                    className="form-select"
+                    id="arrSizeForm"
+                    {...register("arrayDimension")}
+                    onChange={e => {
+                      setArrSize(Number(e.target.value));
+                      setValue("arrayDimension", Number(e.target.value))
+                    }}
+                    defaultValue={arrSize}
+                    disabled={formDisabled}>
+                    {dimOptions.map((val) => (
+                      <option key={val} value={val}>{val}x{val}</option>
+                    ))}
+                  </select>
+                </div>
+                <div id="arraySizeInfo" className="collapse mt-2">
+                  <div className="card card-body py-2 mb-2 mx-2">
+                    <p className="form-text mb-1">Select dimension of cell array.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SELECT BITNESS */}
+              <div id="bitnessForm" className="form-group mb-3">
+                <div className="input-group">
+                  <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#bitnessInfo">
+                    <InfoIcon />
+                  </button>
+                  <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Bitness</b></span>
+                  <select
+                    className="form-select"
+                    id="bitnessForm"
+                    {...register("bitness")}
+                    onChange={e => {
+                      setBitness(Number(e.target.value));
+                      setValue("bitness", Number(e.target.value))
+                    }}
+                    defaultValue={bitness}
+                    disabled={formDisabled}>
+                    <option value={1}>1-bit</option>
+                    <option value={2}>2-bit</option>
+                  </select>
+                </div>
+                <div id="bitnessInfo" className="collapse mt-2">
+                  <div className="card card-body py-2 mb-2 mx-2">
+                    <p className="form-text mb-1">Select 1-bit or 2-bit cell states.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SELECT FREQUENCY */}
+              <div id="frequencyForm" className="form-group mb-3">
+                <div className="input-group">
+                  <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#frequencyInfo">
+                    <InfoIcon />
+                  </button>
+                  <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Frequency</b></span>
+                  <input
+                    className={`form-control ${errors.frequency ? "is-invalid" : ""}`}
+                    id="frequencyForm"
+                    type="number"
+                    step="any"
+                    min={0}
+                    required
+                    {...register("frequency")}
+                    defaultValue={50}
+                    onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setValue(("frequency") as any, e.target.value)
+                    }}
+                    disabled={formDisabled} />
+                  <span className="input-group-text py-0">Hz</span>
+                </div>
+                <div id="frequencyInfo" className="collapse mt-2">
+                  <div className="card card-body py-2 mb-2 mx-2">
+                    <p className="form-text mb-1">Select 1-bit or 2-bit cell states.</p>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
         </div>
+      </div>
 
-        <hr className="my-12" style={{ marginBottom: "2rem", marginTop: "2rem", marginLeft: "8rem", marginRight: "8rem" }} />
-
-        <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-
-          {/* SELECT ARRAY SIZE */}
-          <div id="arrSizeForm" className="col-4 form-group">
-            <div className="input-group mb-3">
-              <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#arraySizeInfo" aria-expanded="false" aria-controls="lookupTableInfo">
-                <InfoIcon />
-              </button>
-              <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Array Size</b></span>
-              <select
-                className="form-select"
-                id="arrSizeForm"
-                {...register("arrayDimension")}
-                onChange={e => {
-                  setArrSize(Number(e.target.value));
-                  setValue("arrayDimension", Number(e.target.value))
-                }}
-                defaultValue={arrSize}
-                disabled={formDisabled}>
-                {dimOptions.map((val) => (
-                  <option key={val} value={val}>{val}x{val}</option>
-                ))}
-              </select>
-            </div>
-            <div id="arraySizeInfo" className="collapse">
-              <div className="card card-body py-2 mb-2 mx-2">
-                <p className="form-text mb-1">Select dimension of cell array.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* SELECT BITNESS */}
-          <div id="bitnessForm" className="col-4 form-group">
-            <div className="input-group mb-3">
-              <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#bitnessInfo">
-                <InfoIcon />
-              </button>
-              <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Bitness</b></span>
-              <select
-                className="form-select"
-                id="bitnessForm"
-                {...register("bitness")}
-                onChange={e => {
-                  setBitness(Number(e.target.value));
-                  setValue("bitness", Number(e.target.value))
-                }}
-                defaultValue={bitness}
-                disabled={formDisabled}>
-                <option value={1}>1-bit</option>
-                <option value={2}>2-bit</option>
-              </select>
-            </div>
-            <div id="bitnessInfo" className="collapse">
-              <div className="card card-body py-2 mb-2 mx-2">
-                <p className="form-text mb-1">Select 1-bit or 2-bit cell states.</p>
-              </div>
-            </div>
-          </div>
-          {/* SELECT FREQUENCY */}
-          <div id="frequencyForm" className="col-4 form-group">
-            <div className="input-group mb-3">
-              <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#frequencyInfo">
-                <InfoIcon />
-              </button>
-              <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Frequency</b></span>
-              <input
-                className={`form-control ${errors.frequency ? "is-invalid" : ""}`}
-                id="frequencyForm"
-                type="number"
-                step="any"
-                min={0}
-                required
-                {...register("frequency")}
-                defaultValue={50}
-                onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setValue(("frequency") as any, e.target.value)
-                }}
-                disabled={formDisabled} />
-              <span className="input-group-text py-0">Hz</span>
-            </div>
-            <div id="frequencyInfo" className="collapse">
-              <div className="card card-body py-2 mb-2 mx-2">
-                <p className="form-text mb-1">Select 1-bit or 2-bit cell states.</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <br style={{ lineHeight: 1 }} />
 
       {/* TILED ARRAY */}
       <div style={{ display: "flex", alignItems: "center", overflowX: "auto", whiteSpace: "nowrap" }}>
