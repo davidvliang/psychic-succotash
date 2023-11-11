@@ -6,7 +6,7 @@ import { getTS, handleFileDownload } from "../utils/general";
 import { defaultActuatedCells } from "../utils/actuation";
 import TiledArrayForm from "./TiledArrayForm";
 // import MultiArrayForm from "./MultiArrayForm";
-import LogOutput from "./LogOutput";
+// import LogOutput from "./LogOutput";
 
 // SOCKET EVENTS (see server.js)
 const submitEvent = "submitEvent"; // 'submit' signal (client to server)
@@ -190,12 +190,12 @@ function TopInterface() {
         />
       </div>
 
-      <br style={{lineHeight: 50}} />
+      {/* <br style={{lineHeight: 50}} /> */}
 
       {/* LOG OUTPUT COMPONENT */}
-      <div className="container">
+      {/* <div className="container">
         <LogOutput logData={logData} />
-      </div>
+      </div> */}
     </div>
   );
 }
