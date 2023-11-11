@@ -1,8 +1,7 @@
-import { useForm, SubmitHandler, useWatch } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { alphabet } from "../utils/DAQ";
 import { LookupTableType } from "../utils/LookupTableUtil";
-import getTS from "../utils/getTS";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
 import lookupTable from "../utils/lookupTable.json"
 
@@ -20,24 +19,11 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
   } = useForm<LookupTableType>();
 
   // Collect form data as JSON string upon submit
-  const onSubmit: SubmitHandler<LookupTableType> = (data) => {
-    // let submitFormData = data;
-    // submitFormData["timestamp"] = getTS();
-    // handleCurrentFormData(submitFormData);
+  const onSubmit: SubmitHandler<LookupTableType> = () => {
     // console.log("onSubmit", getValues())
-    // console.log("formData", submitFormData);
   };
 
-
-  // useEffect(() => {
-  //   const subscription = watch((value, { name, type }) =>
-  //     console.log(value, name, type)
-  //   )
-  //   handleCurrentFormData(watch())
-  //   console.log("test")
-  //   return () => subscription.unsubscribe()
-  // }, [watch])
-
+  // ** RESET BUTTON **
   // Reset form values when reset button is pressed
   useEffect(() => {
     reset();
@@ -58,30 +44,9 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
     min: { value: 0, message: "Must be percentage." },
     pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
   };
-  const defaultError = {
-    required: "Cannot be blank.",
-    min: { value: 0, message: "Cannot be negative." },
-    pattern: { value: /^(0|[1-9]\d*)?$/, message: "Must be integer." },
-  };
-
-  
-  // Initialize parameters for adjusting bitness
-  const [bitness, setBitness] = useState<number>(1);
-
-  // Initialize parameters for adjusting array size
-  const [arrSize, setArrSize] = useState<number>(4); // set dimension for array based on user input, default is 4x4
-  const [cellArrayKey, setCellArrayKey] = useState<number>(69420); // set arbitrary key for the array's HTML element. Changing the key will cause re-render
-  const [dmuxDimArr, setDmuxDimArr] = useState([...Array(arrSize).keys()]);
-  const dimOptions = Array.from({ length: 16 }, (_, i) => i + 1) // used with map() to draw the list of array dimension options for the user to select
-
-  // When user changes the array size
-  useEffect(() => {
-    setDmuxDimArr([...Array(arrSize).keys()]); // update dmuxDimArr, which is used to draw the cell array 
-    setCellArrayKey(Math.random()) // cycle to a new key for #cellArrayDisplay, which re-renders the element
-  }, [arrSize]);
 
 
-
+  // ** CELL STYLINGS **
   // Set styling for cells based on actuation (highlight green) and FormDisabled (submit button pressed)
   const styleCyclestateCell = (elementID: string, _rowVal: number, _colVal: number) => {
     let cellElement = document.getElementById(elementID) as HTMLInputElement // grab input element by ID
@@ -100,97 +65,29 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
     return {}
   }
 
+  // ** BITNESS FEATURE **
+  // Initialize parameters for adjusting bitness
+  const [bitness, setBitness] = useState<number>(1);
 
-  // Read File
+  // ** ARRAY DIMENSIONS FEATURE **
+  // Initialize parameters for adjusting array size
+  const [arrSize, setArrSize] = useState<number>(4); // set dimension for array based on user input, default is 4x4
+  const [cellArrayKey, setCellArrayKey] = useState<number>(69420); // set arbitrary key for the array's HTML element. Changing the key will cause re-render
+  const [dmuxDimArr, setDmuxDimArr] = useState([...Array(arrSize).keys()]);
+  const dimOptions = Array.from({ length: 16 }, (_, i) => i + 1) // used with map() to draw the list of array dimension options for the user to select
+
+  // When user changes the array size
+  useEffect(() => {
+    setDmuxDimArr([...Array(arrSize).keys()]); // update dmuxDimArr, which is used to draw the cell array 
+    setCellArrayKey(Math.random()) // cycle to a new key for #cellArrayDisplay, which re-renders the element
+  }, [arrSize]);
+
+
+  // ** FILE UPLOAD FEATURE **
   const [fileName, setFileName] = useState<string>("") // The name of the file
   const [fileContent, setFileContent] = useState<LookupTableType>() // The contents of the file
-  const [validatedFileInput, setValidatedFileInput] = useState<string[]>([]) // the file contents as array
 
-  // Validate the file and show a form error message if improper. 
-  // const handleFileValidation = () => {
-  //   if (fileContent != null) {
-
-  //     if (typeof (fileContent) == "string" && fileContent.length > 0) {
-  //       console.log("4", fileContent)
-  //       const preValInput = fileContent.split(/\s+/)
-  //       console.log("preValInput", preValInput)
-
-  //       if (preValInput.length > 0 && Math.sqrt(preValInput.length) % 1 === 0) {
-
-  //         if (preValInput.find((num) => parseInt(num) < 4)) {
-  //           setValidatedFileInput(preValInput)
-
-  //         } else {
-  //           console.log("[ERROR] Contains invalid state. Only supports 1-bit and 2-bit cell configurations.")
-  //           return;
-  //         }
-  //       } else {
-  //         console.log("[ERROR] Array is not a perfect square. (length:" + preValInput.length + ").")
-  //         return;
-  //       }
-  //     } else {
-  //       console.log("[ERROR] File Contents are invalid string.")
-  //       return;
-  //     }
-  //   } else {
-  //     console.log("[ERROR] File Contents are null.")
-  //     return;
-  //   }
-  // }
-
-
-  // Process the file into the fileName and fileContent states
-
-
-  // Trigger update Form when file is valided.
-  // This is required since, with useState, we can't update everything in the same function
-  useEffect(() => {
-    if (validatedFileInput.length != 0) {
-      updateFormWithFile()
-    }
-  }, [validatedFileInput])
-
-  // Update form with file..
-  const updateFormWithFile = () => {
-    console.log(fileName, "\n", fileContent, validatedFileInput)
-
-    setArrSize(Math.sqrt(validatedFileInput.length));
-    setValue("arrayDimension", Math.sqrt(validatedFileInput.length));
-
-    // Delay is used to allow React-Hook-Form to properly register values and display values. I can't be bothered.
-    // Maybe need to use another useEffect? 
-    setTimeout(() => setValue("configuration", validatedFileInput), 100)
-  }
-
-
-  // Lookup Table Dropdown
-  const [lookupTableAngle, setLookupTableAngle] = useState<number>(0) // Define angles
-  const angleOptionsMaxLength = 45
-  const angleOptionsIncrement = 5
-  const arrayRange = (start: number, stop: number, step: number) =>
-    Array.from(
-      { length: (stop - start) / step + 1 },
-      (_, index) => start + index * step
-    );
-
-  const angleOptions = arrayRange(-angleOptionsMaxLength, angleOptionsMaxLength, angleOptionsIncrement)
-
-  // const angleOptions = Array.from({ length: 45 }, (_, i) => i + 5) // used with map() to draw the list of array dimension options for the user to select
-  const lookupTableJSON = lookupTable
-
-  // Trigger update Form when lookupTable button is pressed.
-  // This is required since, with useState, we can't update everything in the same function
-  useEffect(() => {
-    if (validatedFileInput.length != 0) {
-      updateFormWithFile()
-    }
-  }, [lookupTableAngle])
-
-
-  const getDataFromAngle = (lookupTableAngle: number) => {
-    return lookupTableJSON[0]
-  }
-
+  // Runs when the file is selected for upload
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0].type == "application/json") {
 
@@ -212,213 +109,214 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
     }
   }
 
+  // Runs when the "File Upload" Render button is pressed 
   const handleFileRender = (configData: LookupTableType | undefined) => {
     if (configData) {
-      handleCurrentFormData(configData)
+      handleCurrentFormData(configData) // update form data state (to be submitted)
 
-      setArrSize(Number(configData.arrayDimension))
-      setValue("arrayDimension", configData.arrayDimension)
+      setArrSize(Number(configData.arrayDimension)) // update state to render frontend
+      setValue("arrayDimension", configData.arrayDimension) // update react-hook-form values
 
-      setBitness(Number(configData.bitness))
-      setValue("bitness", configData.bitness)
+      setBitness(Number(configData.bitness)) // update state to render frontend
+      setValue("bitness", configData.bitness) // update react-hook-form values
 
-      setTimeout(() => setValue("columns", configData.columns), 100)
-      setTimeout(() => setValue("configuration", configData.configuration), 100)
+      setTimeout(() => setValue("columns", configData.columns), 100) // update react-hook-form values
+      setTimeout(() => setValue("configuration", configData.configuration), 100) // update react-hook-form values
     }
   }
 
+  // ** LOOKUP TABLE FEATURE **
+  // Lookup Table Dropdown
+  const [lookupTableAngle, setLookupTableAngle] = useState<number>(0) // Define angles
+  const angleOptionsMaxLength = 45
+  const angleOptionsIncrement = 5
+  const arrayRange = (start: number, stop: number, step: number) =>
+    Array.from(
+      { length: (stop - start) / step + 1 },
+      (_, index) => start + index * step
+    );
+  const angleOptions = arrayRange(-angleOptionsMaxLength, angleOptionsMaxLength, angleOptionsIncrement)
+  const lookupTableJSON = lookupTable
+
+  // Returns the configuration of the specified angle, but at the moment the lookup table is empty
+  const getDataFromAngle = (lookupTableAngle: number) => {
+    return lookupTableJSON[0]
+  }
+
+
   return (
 
-    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation" onChange={()=>handleCurrentFormData(getValues())}>
+    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation" onChange={() => handleCurrentFormData(getValues())}>
 
-      <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 
-        {/* INPUT DIRECTION LOOKUP TABLE FORM */}
-        <div className="col-6 form-group">
-          <div id="lookupTableForm" className="form-group">
-            <div className="input-group">
-              <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#lookupTableInfo">
+          {/* INPUT DIRECTION LOOKUP TABLE FORM */}
+          <div className="form-group mb-1">
+            <div id="lookupTableForm" className="form-group">
+              <div className="input-group">
+                <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#lookupTableInfo">
+                  <InfoIcon />
+                </button>
+                <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Table Lookup</b></span>
+                <select
+                  className="form-select"
+                  id="lookupTableForm"
+                  onChange={e => {
+                    setLookupTableAngle(Number(e.target.value));
+                  }}
+                  defaultValue={lookupTableAngle}
+                  disabled={formDisabled}>
+                  {angleOptions.map((val) => (
+                    <option key={val} value={val}>{val}&deg;</option>
+                  ))}
+                </select>
+                <button
+                  className="btn btn-primary align-self-center"
+                  id="lookupTableButton"
+                  type="submit"
+                  form="lookupTableForm"
+                  value="Render"
+                  onClick={() => {
+                    // console.log("table lookup\n", lookupTableAngle)
+                    getDataFromAngle(lookupTableAngle)
+                    console.log("check", getValues())
+                  }}>
+                  Render
+                </button>
+              </div>
+              <div id="lookupTableInfo" className="collapse">
+                <div className="card card-body py-2 mb-2 mx-2">
+                  <p className="form-text mb-1">Input angle direction.</p>
+                  <p className="form-text mb-1">Click 'Render' to display cell configuration for the angle.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* IMPORT CONFIG FILE FORM */}
+          <div className="form-group mb-1">
+            <div id="fileImportForm" className="form-group">
+              <div className="input-group">
+                <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#fileUploadInfo">
+                  <InfoIcon />
+                </button>
+                <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>File Upload</b></span>
+                <input className="form-control" type="file" id="formFile" accept="application/json" onChange={handleFileUpload} />
+                <button
+                  className="btn btn-primary align-self-center"
+                  id="importButton"
+                  type="submit"
+                  form="fileImportForm"
+                  value="Render"
+                  onClick={() => {
+                    handleFileRender(fileContent)
+                    console.log("file upload", watch())
+                  }}>
+                  Render
+                </button>
+              </div>
+              <div id="fileUploadInfo" className="collapse">
+                <div className="card card-body py-2 mb-2 mx-2">
+                  <p className="form-text mb-1">Upload cell configuration file (.json)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <hr className="my-12" style={{ marginBottom: "2rem", marginTop: "2rem", marginLeft: "8rem", marginRight: "8rem" }} />
+
+        <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+
+          {/* SELECT ARRAY SIZE */}
+          <div id="arrSizeForm" className="col-4 form-group">
+            <div className="input-group mb-3">
+              <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#arraySizeInfo" aria-expanded="false" aria-controls="lookupTableInfo">
                 <InfoIcon />
               </button>
-              <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Table Lookup</b></span>
+              <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Array Size</b></span>
               <select
                 className="form-select"
-                id="lookupTableForm"
+                id="arrSizeForm"
+                {...register("arrayDimension")}
                 onChange={e => {
-                  setLookupTableAngle(Number(e.target.value));
+                  setArrSize(Number(e.target.value));
+                  setValue("arrayDimension", Number(e.target.value))
                 }}
-                defaultValue={lookupTableAngle}
+                defaultValue={arrSize}
                 disabled={formDisabled}>
-                {angleOptions.map((val) => (
-                  <option key={val} value={val}>{val}&deg;</option>
+                {dimOptions.map((val) => (
+                  <option key={val} value={val}>{val}x{val}</option>
                 ))}
               </select>
-              <button
-                className="btn btn-primary align-self-center"
-                id="lookupTableButton"
-                type="submit"
-                form="lookupTableForm"
-                value="Render"
-                onClick={() => {
-                  // handleFileRender(getDataFromAngle(lookupTableAngle))
-                  console.log("check", getValues())
-                  // console.log("here\n", lookupTableAngle)
-                  // console.log(lookupTableJSON[0])
-                }}>
-                Render
-              </button>
             </div>
-            <div id="lookupTableInfo" className="collapse">
+            <div id="arraySizeInfo" className="collapse">
               <div className="card card-body py-2 mb-2 mx-2">
-                <p className="form-text mb-1">Input angle direction.</p>
-                <p className="form-text mb-1">Click 'Render' to display cell configuration for the angle.</p>
+                <p className="form-text mb-1">Select dimension of cell array.</p>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* IMPORT CONFIG FILE FORM */}
-        <div className="col-6 form-group">
-          <div id="fileImportForm" className="form-group">
-            <div className="input-group">
-              <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#fileUploadInfo">
+          {/* SELECT BITNESS */}
+          <div id="bitnessForm" className="col-4 form-group">
+            <div className="input-group mb-3">
+              <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#bitnessInfo">
                 <InfoIcon />
               </button>
-              <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>File Upload</b></span>
-              <input className="form-control" type="file" id="formFile" accept="application/json" onChange={handleFileUpload} />
-              <button
-                className="btn btn-primary align-self-center"
-                id="importButton"
-                type="submit"
-                form="fileImportForm"
-                value="Render"
-                onClick={() => {
-                  // console.log("here\n", fileContent)
-                  // handleFileValidation()
-                  handleFileRender(fileContent)
-                  console.log("file upload", watch())
-                }}>
-                Render
-              </button>
+              <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Bitness</b></span>
+              <select
+                className="form-select"
+                id="bitnessForm"
+                {...register("bitness")}
+                onChange={e => {
+                  setBitness(Number(e.target.value));
+                  setValue("bitness", Number(e.target.value))
+                }}
+                defaultValue={bitness}
+                disabled={formDisabled}>
+                <option value={1}>1-bit</option>
+                <option value={2}>2-bit</option>
+              </select>
             </div>
-            <div id="fileUploadInfo" className="collapse">
+            <div id="bitnessInfo" className="collapse">
               <div className="card card-body py-2 mb-2 mx-2">
-                <p className="form-text mb-1">Upload cell configuration file (.json)</p>
+                <p className="form-text mb-1">Select 1-bit or 2-bit cell states.</p>
+              </div>
+            </div>
+          </div>
+          {/* SELECT FREQUENCY */}
+          <div id="frequencyForm" className="col-4 form-group">
+            <div className="input-group mb-3">
+              <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#frequencyInfo">
+                <InfoIcon />
+              </button>
+              <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Frequency</b></span>
+              <input
+                className={`form-control ${errors.frequency ? "is-invalid" : ""}`}
+                id="frequencyForm"
+                type="number"
+                step="any"
+                min={0}
+                required
+                {...register("frequency")}
+                defaultValue={50}
+                onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setValue(("frequency") as any, e.target.value)
+                }}
+                disabled={formDisabled} />
+              <span className="input-group-text py-0">Hz</span>
+            </div>
+            <div id="frequencyInfo" className="collapse">
+              <div className="card card-body py-2 mb-2 mx-2">
+                <p className="form-text mb-1">Select 1-bit or 2-bit cell states.</p>
               </div>
             </div>
           </div>
         </div>
 
-      </div>
-
-      <hr className="my-12" style={{ marginBottom: "2rem", marginTop: "2rem", marginLeft: "8rem", marginRight: "8rem" }} />
-
-      {/* ERROR MESSAGES */}
-      {/* <div className="container">
-        <div className="invalid-feedback">
-          {errors.negVoltage?.message}
-        </div>
-        <div className="invalid-feedback">
-          {errors.posVoltage?.message}
-        </div>
-        <div className="invalid-feedback">
-          {errors.frequency?.message}
-        </div>
-        <div className="invalid-feedback">
-          {errors.dutyCycle?.message}
-        </div>
-      </div> */}
-
-      <div className="container gap-5" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-
-        {/* SELECT ARRAY SIZE */}
-        <div id="arrSizeForm" className="col-4 form-group">
-          <div className="input-group mb-3">
-            <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#arraySizeInfo" aria-expanded="false" aria-controls="lookupTableInfo">
-              <InfoIcon />
-            </button>
-            <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Array Size</b></span>
-            <select
-              className="form-select"
-              id="arrSizeForm"
-              {...register("arrayDimension")}
-              onChange={e => {
-                setArrSize(Number(e.target.value));
-                setValue("arrayDimension", Number(e.target.value))
-              }}
-              defaultValue={arrSize}
-              disabled={formDisabled}>
-              {dimOptions.map((val) => (
-                <option key={val} value={val}>{val}x{val}</option>
-              ))}
-            </select>
-          </div>
-          <div id="arraySizeInfo" className="collapse">
-            <div className="card card-body py-2 mb-2 mx-2">
-              <p className="form-text mb-1">Select dimension of cell array.</p>
-            </div>
-          </div>
-        </div>
-
-        {/* SELECT BITNESS */}
-        <div id="bitnessForm" className="col-4 form-group">
-          <div className="input-group mb-3">
-            <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#bitnessInfo">
-              <InfoIcon />
-            </button>
-            <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Bitness</b></span>
-            <select
-              className="form-select"
-              id="bitnessForm"
-              {...register("bitness")}
-              onChange={e => {
-                setBitness(Number(e.target.value));
-                setValue("bitness", Number(e.target.value))
-              }}
-              defaultValue={bitness}
-              disabled={formDisabled}>
-              <option value={1}>1-bit</option>
-              <option value={2}>2-bit</option>
-            </select>
-          </div>
-          <div id="bitnessInfo" className="collapse">
-            <div className="card card-body py-2 mb-2 mx-2">
-              <p className="form-text mb-1">Select 1-bit or 2-bit cell states.</p>
-            </div>
-          </div>
-        </div>
-        {/* SELECT FREQUENCY */}
-        <div id="frequencyForm" className="col-4 form-group">
-          <div className="input-group mb-3">
-            <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#frequencyInfo">
-              <InfoIcon />
-            </button>
-            <span className="input-group-text py-0" style={{ fontSize: "medium" }}><b>Frequency</b></span>
-            <input
-              className={`form-control ${errors.frequency ? "is-invalid" : ""}`}
-              id="frequencyForm"
-              type="number"
-              step="any"
-              min={0}
-              required
-              {...register("frequency")}
-              defaultValue={50}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setValue(("frequency") as any, e.target.value)
-              }}
-              disabled={formDisabled} />
-            <span className="input-group-text py-0">Hz</span>
-          </div>
-          <div id="frequencyInfo" className="collapse">
-            <div className="card card-body py-2 mb-2 mx-2">
-              <p className="form-text mb-1">Select 1-bit or 2-bit cell states.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* TILED ARRAY */}
-      <div style={{ display: "flex", alignItems: "center", overflowX: "auto", whiteSpace:"nowrap"}}>
+      <div style={{ display: "flex", alignItems: "center", overflowX: "auto", whiteSpace: "nowrap" }}>
         <table key={cellArrayKey} id="cellArrayDisplay" className="table table-borderless mx-auto" style={{ width: "min-content" }}>
           <thead>
             <tr>
@@ -608,10 +506,10 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
           </thead>
           <tbody>
             {dmuxDimArr.map((rowVal) => (
-              <tr key={"tr"+String(rowVal)} >
-                <th key={"th"+String(rowVal)} scope="row">{alphabet[rowVal]}</th>
+              <tr key={"tr" + String(rowVal)} >
+                <th key={"th" + String(rowVal)} scope="row">{alphabet[rowVal]}</th>
                 {dmuxDimArr.map((colVal) => (
-                  <td key={"td"+String(rowVal)+String(colVal)} >
+                  <td key={"td" + String(rowVal) + String(colVal)} >
                     <div className="col text-start">
                       <div className="card border-dark" style={{ minWidth: 250 + "px", maxWidth: 250 + "px" }}>
                         <div className="card-header" style={styleActuatedCellCard("card-header", rowVal, colVal)}>
