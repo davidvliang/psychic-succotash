@@ -5,7 +5,18 @@ import { ConfigurationType } from "../utils/actuation";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
 import LookupTable from "../utils/LookupTable.json"
 
-const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisabled, actuatedCells }: { resetButtonPressed: boolean, handleCurrentFormData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
+const ConfigurationForm = (
+  {
+    resetButtonPressed,
+    handleCurrentFormData,
+    formDisabled,
+    actuatedCells
+  }: {
+    resetButtonPressed: boolean,
+    handleCurrentFormData: (data: object) => void,
+    formDisabled: boolean,
+    actuatedCells: object
+  }) => {
 
   // Initialize form input using React-Hook-Form
   const {
@@ -148,9 +159,8 @@ const ConfigurationForm = ({ resetButtonPressed, handleCurrentFormData, formDisa
 
           {/* ARRAY PATTERN PLOT */}
           <div className="col-12 col-md-6">
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", borderStyle: "solid", borderRadius: "25px", margin: "5px", minHeight: "15rem"}}>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", borderStyle: "solid", borderRadius: "25px", margin: "5px", minHeight: "15rem" }}>
               <p>array pattern</p>
-
             </div>
           </div>
 
