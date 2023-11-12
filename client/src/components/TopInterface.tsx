@@ -3,7 +3,7 @@ import { faRefresh } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import { getTS, handleFileDownload } from "../utils/general";
-import { defaultActuatedCells } from "../utils/actuation";
+import { AntennaPatternType, defaultActuatedCells } from "../utils/actuation";
 import TiledArrayForm from "./TiledArrayForm";
 // import MultiArrayForm from "./MultiArrayForm";
 // import LogOutput from "./LogOutput";
@@ -34,7 +34,7 @@ function TopInterface() {
     JSON.parse(JSON.stringify(defaultActuatedCells))
   );
   const [isAntennaPatternRequested, setIsAntennaPatternRequested] = useState<boolean>(false)
-  const [antennaPatternResponse, setAntennaPatternResponse] = useState<object>([{}])
+  const [antennaPatternResponse, setAntennaPatternResponse] = useState<Array<number>>([0])
   const [arrayPage, setArrayPage] = useState<number>(1); // for switching pages 
 
 
@@ -74,7 +74,9 @@ function TopInterface() {
   // ANTENNA PATTERN
   // receive antenna pattern data from backend
   socket.on(respondAntennaPatternEvent, (data) => {
-    setAntennaPatternResponse(data)
+    console.log("raw", data)
+    setAntennaPatternResponse(JSON.parse(data))
+    
   });
 
   // Initiate antenna pattern request when button is pressed
@@ -111,7 +113,7 @@ function TopInterface() {
               value="debug"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] debug Button Pressed`);
-                console.log("debug", currentFormData)
+                console.log("debug", antennaPatternResponse)
               }}
               disabled={isFormDisabled}
             >

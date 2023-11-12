@@ -9,6 +9,10 @@ export type ConfigurationType = {
     multiArrayDimension: number;
 }
 
+export type AntennaPatternType = {
+    pF: Array<number>;
+}
+
 export const defaultActuatedCells = {
     "0": false,
     "1": false,

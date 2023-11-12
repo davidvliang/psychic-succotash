@@ -1,8 +1,10 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { arrayRange, alphabet } from "../utils/general";
-import { ConfigurationType } from "../utils/actuation";
+import { ConfigurationType, AntennaPatternType } from "../utils/actuation";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
 import LookupTable from "../utils/LookupTable.json"
 
 const ConfigurationForm = (
@@ -19,7 +21,7 @@ const ConfigurationForm = (
     handleCurrentFormData: (data: object) => void,
     actuatedCells: object,
     setIsAntennaPatternRequested: (data: boolean) => void,
-    antennaPatternResponse: object
+    antennaPatternResponse: Array<number>
   }) => {
 
   // Initialize form input using React-Hook-Form
@@ -43,6 +45,7 @@ const ConfigurationForm = (
   useEffect(() => {
     reset();
     setArrSize(4);
+    setFormattedAntennaPatternData([])
     handleCurrentFormData(getValues())
   }, [isResetButtonPressed]);
 
@@ -137,6 +140,9 @@ const ConfigurationForm = (
 
       setTimeout(() => setValue("columns", configData.columns), 100) // update react-hook-form values
       setTimeout(() => setValue("configuration", configData.configuration), 100) // update react-hook-form values
+
+      setIsAntennaPatternRequested(true)
+
     }
   }
 
@@ -155,18 +161,32 @@ const ConfigurationForm = (
 
 
   // ** ANTENNA PATTERN FEATURE **
-  const generateAntennaPattern = (antennaPattern: object) => {
-    return antennaPattern
+  const [formattedAntennaPatternData, setFormattedAntennaPatternData] = useState<Array<object>>([{ name: 1, pF: 0 }])
+  const thetaX = arrayRange(-90, 90, 1)
+  const generateAntennaPattern = () => {
+    thetaX
+    formattedAntennaPatternData
+
+    var a = []
+    for (var i = 0; i < thetaX.length; i++) {
+      a.push(
+        {
+          "name": thetaX[i],
+          "pF": antennaPatternResponse[i]
+        }
+      )
+    }
+    console.log("a", a)
+    setFormattedAntennaPatternData(a)
   }
   useEffect(() => {
     console.log("antennapatternresponse", antennaPatternResponse)
-    generateAntennaPattern(antennaPatternResponse)
+    generateAntennaPattern()
   }, [antennaPatternResponse])
-
 
   return (
 
-    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation" onChange={() => handleCurrentFormData(getValues())}>
+    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation" onChange={() => {handleCurrentFormData(getValues());}}>
 
       <div className="container">
         <div className="row gap-5 gap-md-0">
@@ -189,15 +209,36 @@ const ConfigurationForm = (
                   value="Render"
                   onClick={() => {
                     setIsAntennaPatternRequested(true)
-                    console.log("check", getValues())
+                    // console.log("check", getValues())
+                    console.log("here it is", antennaPatternResponse)
                   }}>
                   Render
                 </button>
               </div>
-              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", borderStyle: "solid", borderRadius: "25px", margin: "5px", minHeight: "15rem" }}>
-                <p>array pattern</p>
-                <p>{String(JSON.stringify(antennaPatternResponse))}</p>
-                {/* <p>{generateAntennaPattern()}</p> */}
+              <div className="py-2" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "250px", borderStyle: "solid", borderRadius: "10px", borderWidth: "thin" }}>
+                <ResponsiveContainer width="100%" height={240}>
+                  <LineChart
+                    width={500}
+                    height={300}
+                    data={formattedAntennaPatternData}
+                    margin={{
+                      top: 15,
+                      right: 20,
+                      left: 0,
+                      bottom: 5,
+                    }}
+                  >
+                    {/* <CartesianGrid strokeDasharray="3 3" /> */}
+                    {/* <XAxis dataKey="name" label="&Theta;" ticks={[-75,-50,-25,0,25,50,75]}/> */}
+                    <XAxis dataKey="name" ticks={[-75,-50,-25,0,25,50,75]}/>
+                    {/* <YAxis dataKey="pF" label={{ value: "Power Factor", angle: -90, position: "insideleft", offset: "50"}} /> */}
+                    <YAxis dataKey="pF" />
+                    <Tooltip />
+                    {/* <Legend /> */}
+                    <Line type="monotone" dataKey="pF" dot={false} stroke="#8884d8" strokeWidth={2} activeDot={{ r: 8 }} />
+                    {/* <Line type="monotone" dataKey="uv" stroke="#82ca9d" /> */}
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </div>
             <div id="antennaPatternInfo" className="collapse mt-2">

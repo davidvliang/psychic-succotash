@@ -48,6 +48,19 @@ io.on("connection", (socket) => {
       logPrint("[Python STDOUT] ", dataToSend);
     });
 
+    // Send STDERR from python script to client log output
+    antennaPatternPython.stderr.on("data", function (data) {
+      dataToSend = data.toString();
+      logPrint("[Python STDERR] ", dataToSend);
+    });
+
+    // in close event we are sure that the stream from child process is closed
+    antennaPatternPython.on("close", (code, signal) => {
+      logPrint(`[Server] Python process terminated with return code ${code}`);
+      logPrint(`[Server] Python process terminated due to signal ${signal}`);
+      io.emit(programRunningEvent, false);
+    });
+
   });
 
   // Listen for Client to Press Submit
