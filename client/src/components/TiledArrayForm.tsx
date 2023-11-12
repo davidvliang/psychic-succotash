@@ -7,16 +7,16 @@ import LookupTable from "../utils/LookupTable.json"
 
 const ConfigurationForm = (
   {
-    resetButtonPressed,
+    isResetButtonPressed,
+    isFormDisabled,
     handleCurrentFormData,
-    formDisabled,
     actuatedCells,
     setIsAntennaPatternRequested,
     antennaPatternResponse
   }: {
-    resetButtonPressed: boolean,
+    isResetButtonPressed: boolean,
+    isFormDisabled: boolean,
     handleCurrentFormData: (data: object) => void,
-    formDisabled: boolean,
     actuatedCells: object,
     setIsAntennaPatternRequested: (data: boolean) => void,
     antennaPatternResponse: object
@@ -44,7 +44,7 @@ const ConfigurationForm = (
     reset();
     setArrSize(4);
     handleCurrentFormData(getValues())
-  }, [resetButtonPressed]);
+  }, [isResetButtonPressed]);
 
 
   // Input Validation for Parameters
@@ -65,8 +65,8 @@ const ConfigurationForm = (
   // Set styling for cells based on actuation (highlight green) and FormDisabled (submit button pressed)
   const styleCyclestateCell = (elementID: string, _rowVal: number, _colVal: number) => {
     let cellElement = document.getElementById(elementID) as HTMLInputElement // grab input element by ID
-    let formDisabledClassName = formDisabled && !cellElement.checked ? "opacity-0" : "" // when form is disabled (when submit button pressed), hide the states that aren't checked
-    return " " + formDisabledClassName + " " // return these conditional classNames
+    let isFormDisabledClassName = isFormDisabled && !cellElement.checked ? "opacity-0" : "" // when form is disabled (when submit button pressed), hide the states that aren't checked
+    return " " + isFormDisabledClassName + " " // return these conditional classNames
   }
 
   // Set styling for cards when cell is actuated (highlight green)
@@ -259,7 +259,7 @@ const ConfigurationForm = (
                         setLookupTableAngle(Number(e.target.value));
                       }}
                       defaultValue={lookupTableAngle}
-                      disabled={formDisabled}>
+                      disabled={isFormDisabled}>
                       {angleOptions.map((val) => (
                         <option key={val} value={val}>{val}&deg;</option>
                       ))}
@@ -312,7 +312,7 @@ const ConfigurationForm = (
                       setValue("arrayDimension", Number(e.target.value))
                     }}
                     defaultValue={arrSize}
-                    disabled={formDisabled}>
+                    disabled={isFormDisabled}>
                     {dimOptions.map((val) => (
                       <option key={val} value={val}>{val}x{val}</option>
                     ))}
@@ -341,7 +341,7 @@ const ConfigurationForm = (
                       setValue("bitness", Number(e.target.value))
                     }}
                     defaultValue={bitness}
-                    disabled={formDisabled}>
+                    disabled={isFormDisabled}>
                     <option value={1}>1-bit</option>
                     <option value={2}>2-bit</option>
                   </select>
@@ -372,7 +372,7 @@ const ConfigurationForm = (
                     onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                       setValue(("frequency") as any, e.target.value)
                     }}
-                    disabled={formDisabled} />
+                    disabled={isFormDisabled} />
                   <span className="input-group-text py-0">Hz</span>
                 </div>
                 <div id="frequencyInfo" className="collapse mt-2">
@@ -416,7 +416,7 @@ const ConfigurationForm = (
                               type="radio"
                               {...register(("columns.col_" + String(val) + ".state") as any)}
                               value="0"
-                              disabled={formDisabled}
+                              disabled={isFormDisabled}
                               defaultChecked
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                                 for (let i = 0; i < arrSize; i++) {
@@ -433,7 +433,7 @@ const ConfigurationForm = (
                               type="radio"
                               {...register(("columns.col_" + String(val) + ".state") as any)}
                               value="1"
-                              disabled={formDisabled}
+                              disabled={isFormDisabled}
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
@@ -453,7 +453,7 @@ const ConfigurationForm = (
                               type="radio"
                               {...register(("columns.col_" + String(val) + ".state") as any)}
                               value="0"
-                              disabled={formDisabled}
+                              disabled={isFormDisabled}
                               defaultChecked
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                                 for (let i = 0; i < arrSize; i++) {
@@ -470,7 +470,7 @@ const ConfigurationForm = (
                               type="radio"
                               {...register(("columns.col_" + String(val) + ".state") as any)}
                               value="1"
-                              disabled={formDisabled}
+                              disabled={isFormDisabled}
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
@@ -486,7 +486,7 @@ const ConfigurationForm = (
                               type="radio"
                               {...register(("columns.col_" + String(val) + ".state") as any)}
                               value="2"
-                              disabled={formDisabled}
+                              disabled={isFormDisabled}
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
@@ -502,7 +502,7 @@ const ConfigurationForm = (
                               type="radio"
                               {...register(("columns.col_" + String(val) + ".state") as any)}
                               value="3"
-                              disabled={formDisabled}
+                              disabled={isFormDisabled}
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                                 for (let i = 0; i < arrSize; i++) {
                                   setValue(("configuration.cell_" + String(i * arrSize + val) + ".state") as any, e.target.value)
@@ -535,7 +535,7 @@ const ConfigurationForm = (
                               setValue(("configuration.cell_" + String(i * arrSize + val) + ".negVoltage") as any, e.target.value)
                             }
                           }}
-                          disabled={formDisabled} />
+                          disabled={isFormDisabled} />
                         <span className="input-group-text py-0">to</span>
                         <input
                           className={`form-control form-control-sm has-validation`}
@@ -550,7 +550,7 @@ const ConfigurationForm = (
                               setValue(("configuration.cell_" + String(i * arrSize + val) + ".posVoltage") as any, e.target.value)
                             }
                           }}
-                          disabled={formDisabled} />
+                          disabled={isFormDisabled} />
                         <span className="input-group-text py-0">V</span>
                       </div>
 
@@ -570,7 +570,7 @@ const ConfigurationForm = (
                               setValue(("configuration.cell_" + String(i * arrSize + val) + ".dutyCycle") as any, e.target.value)
                             }
                           }}
-                          disabled={formDisabled} />
+                          disabled={isFormDisabled} />
                         <span className="input-group-text py-0">%</span>
                       </div>
                     </div>
@@ -600,7 +600,7 @@ const ConfigurationForm = (
                                   type="radio"
                                   {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
                                   value="0"
-                                  disabled={formDisabled}
+                                  disabled={isFormDisabled}
                                   defaultChecked />
                                 <label
                                   className={"form-check-label btn cell" + styleCyclestateCell("s0_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
@@ -612,7 +612,7 @@ const ConfigurationForm = (
                                   type="radio"
                                   {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
                                   value="1"
-                                  disabled={formDisabled} />
+                                  disabled={isFormDisabled} />
                                 <label
                                   className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s1_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
                                   htmlFor={"s1_cell_" + String(rowVal * arrSize + colVal)}><b>s1</b>
@@ -627,7 +627,7 @@ const ConfigurationForm = (
                                   type="radio"
                                   {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
                                   value="0"
-                                  disabled={formDisabled}
+                                  disabled={isFormDisabled}
                                   defaultChecked />
                                 <label
                                   className={"form-check-label btn cell" + styleCyclestateCell("s0_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
@@ -639,7 +639,7 @@ const ConfigurationForm = (
                                   type="radio"
                                   {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
                                   value="1"
-                                  disabled={formDisabled} />
+                                  disabled={isFormDisabled} />
                                 <label
                                   className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s1_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
                                   htmlFor={"s1_cell_" + String(rowVal * arrSize + colVal)}><b>s01</b>
@@ -650,7 +650,7 @@ const ConfigurationForm = (
                                   type="radio"
                                   {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
                                   value="2"
-                                  disabled={formDisabled} />
+                                  disabled={isFormDisabled} />
                                 <label
                                   className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s2_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
                                   htmlFor={"s2_cell_" + String(rowVal * arrSize + colVal)}><b>s10</b>
@@ -661,7 +661,7 @@ const ConfigurationForm = (
                                   type="radio"
                                   {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".state") as any)}
                                   value="3"
-                                  disabled={formDisabled} />
+                                  disabled={isFormDisabled} />
                                 <label
                                   className={"form-check-label btn btn-primary cell" + styleCyclestateCell("s3_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)}
                                   htmlFor={"s3_cell_" + String(rowVal * arrSize + colVal)}><b>s11</b>
@@ -685,7 +685,7 @@ const ConfigurationForm = (
                               max={10}
                               defaultValue={-10}
                               {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".negVoltage") as any, voltageError)}
-                              disabled={formDisabled} />
+                              disabled={isFormDisabled} />
                             <span className="input-group-text py-0">to</span>
                             <input
                               className={`form-control form-control-sm has-validation`}
@@ -697,7 +697,7 @@ const ConfigurationForm = (
                               max={10}
                               defaultValue={10}
                               {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".posVoltage") as any, voltageError)}
-                              disabled={formDisabled} />
+                              disabled={isFormDisabled} />
                             <span className="input-group-text py-0">V</span>
                           </div>
 
@@ -716,7 +716,7 @@ const ConfigurationForm = (
                               min={0}
                               max={100}
                               {...register(("configuration.cell_" + String(rowVal * arrSize + colVal) + ".dutyCycle") as any, dutyCycleError)}
-                              disabled={formDisabled} />
+                              disabled={isFormDisabled} />
                             <span className="input-group-text py-0">%</span>
                           </div>
 

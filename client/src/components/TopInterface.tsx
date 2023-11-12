@@ -26,10 +26,10 @@ function TopInterface() {
   const [logData, setLogData] = useState<string>(
     `[${getTS()}] [Client] Init App..`
   );
-  const [resetButtonPressed, setResetButtonPressed] = useState<boolean>(false);
+  const [isResetButtonPressed, setIsResetButtonPressed] = useState<boolean>(false);
   const [currentFormData, setCurrentFormData] = useState<object>([{}]);
   // const [multiArrayFormData, setMultiArrayFormData] = useState<object>([{}]);
-  const [formDisabled, setFormDisabled] = useState<boolean>(false);
+  const [isFormDisabled, setIsFormDisabled] = useState<boolean>(false);
   const [actuatedCells, setActuatedCells] = useState<object>(
     JSON.parse(JSON.stringify(defaultActuatedCells))
   );
@@ -40,10 +40,10 @@ function TopInterface() {
 
   // Reset Actuated Cells when Stop Button is pressed.
   useEffect(() => {
-    if (!formDisabled) {
+    if (!isFormDisabled) {
       setActuatedCells(JSON.parse(JSON.stringify(defaultActuatedCells)))
     }
-  }, [formDisabled]);
+  }, [isFormDisabled]);
 
   // Trigger functions on inbound socket connections
   socket.on("connect_error", () => setTimeout(() => socket.connect(), 5000));
@@ -58,7 +58,7 @@ function TopInterface() {
     setLogData(data);
   });
   socket.on(programRunningEvent, (data) => {
-    setFormDisabled(data);
+    setIsFormDisabled(data);
   });
   
   // Keep track of which individual cells have been actuated by the python script
@@ -113,7 +113,7 @@ function TopInterface() {
                 setLogData(`[${getTS()}] [Client] debug Button Pressed`);
                 console.log("debug", currentFormData)
               }}
-              disabled={formDisabled}
+              disabled={isFormDisabled}
             >
               <FontAwesomeIcon icon={faRefresh} />
             </button> */}
@@ -128,7 +128,7 @@ function TopInterface() {
                 setLogData(`[${getTS()}] [Client] Download Button Pressed`);
                 handleFileDownload("configuration_file.json", currentFormData)
               }}
-              disabled={formDisabled}
+              disabled={isFormDisabled}
             >
               Download Configuration
             </button>
@@ -143,7 +143,7 @@ function TopInterface() {
                 setLogData(`[${getTS()}] [Client] Stop Button Pressed`);
                 socket.emit(stopButtonEvent, "SIGINT\n");
               }}
-              disabled={!formDisabled}
+              disabled={!isFormDisabled}
             >
               Stop Program
             </button>
@@ -160,7 +160,7 @@ function TopInterface() {
                 console.log("submit button", Object.assign({}, {"timestamp": getTS()}, currentFormData))
                 socket.emit(submitEvent, Object.assign({}, {"timestamp": getTS()}, currentFormData))
               }}
-              disabled={formDisabled}
+              disabled={isFormDisabled}
             >
               Submit
             </button>
@@ -173,9 +173,9 @@ function TopInterface() {
               value="Reset"
               onClick={() => {
                 setLogData(`[${getTS()}] [Client] Reset Button Pressed`);
-                setResetButtonPressed(!resetButtonPressed);
+                setIsResetButtonPressed(!isResetButtonPressed);
               }}
-              disabled={formDisabled}
+              disabled={isFormDisabled}
             >
               <FontAwesomeIcon icon={faRefresh} />
             </button>
@@ -188,10 +188,10 @@ function TopInterface() {
       {/* MULTI ARRAY FORM COMPONENT */}
       {/* <div style={arrayPage == 1 ? { display: "none" } : {}}>
         <MultiArrayForm
-          resetButtonPressed={resetButtonPressed}
+          isResetButtonPressed={isResetButtonPressed}
           handleMultiArrayFormData={setMultiArrayFormData}
           currentFormData={currentFormData}
-          formDisabled={formDisabled}
+          isFormDisabled={isFormDisabled}
           actuatedCells={actuatedCells}
         />
       </div> */}
@@ -199,9 +199,9 @@ function TopInterface() {
       {/* TILED ARRAY FORM COMPONENT */}
       <div style={arrayPage == 0 ? { display: "none" } : {}}>
         <TiledArrayForm
-          resetButtonPressed={resetButtonPressed}
+          isResetButtonPressed={isResetButtonPressed}
+          isFormDisabled={isFormDisabled}
           handleCurrentFormData={setCurrentFormData}
-          formDisabled={formDisabled}
           actuatedCells={actuatedCells}
           setIsAntennaPatternRequested={setIsAntennaPatternRequested}
           antennaPatternResponse={antennaPatternResponse}

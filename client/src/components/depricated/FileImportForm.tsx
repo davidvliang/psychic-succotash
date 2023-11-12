@@ -8,12 +8,12 @@ import { text } from "@fortawesome/fontawesome-svg-core";
 const ConfigurationForm = ({
   resetButton,
   handleSubmitData,
-  formDisabled,
+  isFormDisabled,
   actuatedCells,
 }: {
   resetButton: boolean;
   handleSubmitData: (data: object) => void;
-  formDisabled: boolean;
+  isFormDisabled: boolean;
   actuatedCells: object;
 }) => {
 
@@ -108,7 +108,7 @@ const ConfigurationForm = ({
                     step="any"
                     defaultValue={-10}
                     {...register("negVoltage", voltageError)}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     V
@@ -135,7 +135,7 @@ const ConfigurationForm = ({
                     step="any"
                     defaultValue={10}
                     {...register("posVoltage", voltageError)}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <span className="input-group-text" id="basic-addon2">
                     V
@@ -166,7 +166,7 @@ const ConfigurationForm = ({
                     // placeholder="50"
                     defaultValue={50}
                     {...register("frequency", defaultError)}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <span className="input-group-text" id="basic-addon2">
                     Hz
@@ -191,7 +191,7 @@ const ConfigurationForm = ({
                     step="any"
                     defaultValue={50}
                     {...register("dutyCycle", dutyCycleError)}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     %
@@ -221,7 +221,7 @@ const ConfigurationForm = ({
                   step="any"
                   defaultValue={10}
                   {...register("defaultDuration", defaultError)}
-                  disabled={formDisabled}
+                  disabled={isFormDisabled}
                 />
                 <span className="input-group-text" id="basic-addon1">
                   seconds

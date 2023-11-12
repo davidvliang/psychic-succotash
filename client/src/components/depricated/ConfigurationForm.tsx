@@ -5,7 +5,7 @@ import getTS from "../../utils/getTS";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
 import lookupTable from "../../utils/lookupTable.json"
 
-const ConfigurationForm = ({ resetButton, handleSubmitData, formDisabled, actuatedCells }: { resetButton: boolean, handleSubmitData: (data: object) => void, formDisabled: boolean, actuatedCells: object }) => {
+const ConfigurationForm = ({ resetButton, handleSubmitData, isFormDisabled, actuatedCells }: { resetButton: boolean, handleSubmitData: (data: object) => void, isFormDisabled: boolean, actuatedCells: object }) => {
 
   // Initialize form input using React-Hook-Form
   const {
@@ -64,8 +64,8 @@ const ConfigurationForm = ({ resetButton, handleSubmitData, formDisabled, actuat
   const styleCell = (elementID: string, _rowVal: number, _colVal: number) => {
     let cellElement = document.getElementById(elementID) as HTMLInputElement // grab input element by ID
     let actuateClassName = actuatedCells[String(_rowVal * arrSize + _colVal) as keyof typeof actuatedCells] ? "btn-success" : "" // highlight green when cell is actuated by python script
-    let formDisabledClassName = formDisabled && !cellElement.checked ? "opacity-0" : "" // when form is disabled (when submit button pressed), hide the states that aren't checked
-    return " " + formDisabledClassName + " " + actuateClassName + " " // return these conditional classNames
+    let isFormDisabledClassName = isFormDisabled && !cellElement.checked ? "opacity-0" : "" // when form is disabled (when submit button pressed), hide the states that aren't checked
+    return " " + isFormDisabledClassName + " " + actuateClassName + " " // return these conditional classNames
   }
 
   // Set styling for sections based on array size 
@@ -236,7 +236,7 @@ const ConfigurationForm = ({ resetButton, handleSubmitData, formDisabled, actuat
                       setLookupTableAngle(Number(e.target.value));
                     }}
                     defaultValue={lookupTableAngle}
-                    disabled={formDisabled}>
+                    disabled={isFormDisabled}>
                     {angleOptions.map((val) => (
                       <option value={val}>{val}&deg;</option>
                     ))}
@@ -329,7 +329,7 @@ const ConfigurationForm = ({ resetButton, handleSubmitData, formDisabled, actuat
                   setArrSize(Number(e.target.value));
                 }}
                 defaultValue={arrSize}
-                disabled={formDisabled}>
+                disabled={isFormDisabled}>
                 {dimOptions.map((val) => (
                   <option value={val}>{val}x{val}</option>
                 ))}
@@ -355,13 +355,13 @@ const ConfigurationForm = ({ resetButton, handleSubmitData, formDisabled, actuat
                     <td>
                       {/* CYCLESTATE (https://stackoverflow.com/questions/33455204/quad-state-checkbox) */}
                       <fieldset className="cyclestate" id={"cell_" + String(rowVal * arrSize + colVal)}>
-                        <input id={"s0_cell_" + String(rowVal * arrSize + colVal)} className="form-check-input btn-check" type="radio" {...register(("dmuxOutputNum." + String(rowVal * arrSize + colVal)) as any)} value="0" disabled={formDisabled} defaultChecked />
+                        <input id={"s0_cell_" + String(rowVal * arrSize + colVal)} className="form-check-input btn-check" type="radio" {...register(("dmuxOutputNum." + String(rowVal * arrSize + colVal)) as any)} value="0" disabled={isFormDisabled} defaultChecked />
                         <label className={"form-check-label btn cell" + styleCell("s0_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)} htmlFor={"s0_cell_" + String(rowVal * arrSize + colVal)}>0&deg;</label>
-                        <input id={"s1_cell_" + String(rowVal * arrSize + colVal)} className="form-check-input btn-check" type="radio" {...register(("dmuxOutputNum." + String(rowVal * arrSize + colVal)) as any)} value="1" disabled={formDisabled} />
+                        <input id={"s1_cell_" + String(rowVal * arrSize + colVal)} className="form-check-input btn-check" type="radio" {...register(("dmuxOutputNum." + String(rowVal * arrSize + colVal)) as any)} value="1" disabled={isFormDisabled} />
                         <label className={"form-check-label btn btn-primary cell" + styleCell("s1_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)} htmlFor={"s1_cell_" + String(rowVal * arrSize + colVal)}>180&deg;</label>
-                        {/* <input id={"s2_cell_" + String(rowVal * arrSize + colVal)} className="form-check-input btn-check" type="radio" {...register(("dmuxOutputNum." + String(rowVal * arrSize + colVal)) as any)} value="2" disabled={formDisabled} />
+                        {/* <input id={"s2_cell_" + String(rowVal * arrSize + colVal)} className="form-check-input btn-check" type="radio" {...register(("dmuxOutputNum." + String(rowVal * arrSize + colVal)) as any)} value="2" disabled={isFormDisabled} />
                         <label className={"form-check-label btn btn-primary cell" + styleCell("s2_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)} htmlFor={"s2_cell_" + String(rowVal * arrSize + colVal)}>s2</label>
-                        <input id={"s3_cell_" + String(rowVal * arrSize + colVal)} className="form-check-input btn-check" type="radio" {...register(("dmuxOutputNum." + String(rowVal * arrSize + colVal)) as any)} value="3" disabled={formDisabled} />
+                        <input id={"s3_cell_" + String(rowVal * arrSize + colVal)} className="form-check-input btn-check" type="radio" {...register(("dmuxOutputNum." + String(rowVal * arrSize + colVal)) as any)} value="3" disabled={isFormDisabled} />
                         <label className={"form-check-label btn btn-primary cell" + styleCell("s3_cell_" + String(rowVal * arrSize + colVal), rowVal, colVal)} htmlFor={"s3_cell_" + String(rowVal * arrSize + colVal)}>s3</label> */}
                       </fieldset>
                     </td>
@@ -406,7 +406,7 @@ const ConfigurationForm = ({ resetButton, handleSubmitData, formDisabled, actuat
                     step="any"
                     defaultValue={-10}
                     {...register("negVoltage", voltageError)}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     V
@@ -433,7 +433,7 @@ const ConfigurationForm = ({ resetButton, handleSubmitData, formDisabled, actuat
                     step="any"
                     defaultValue={10}
                     {...register("posVoltage", voltageError)}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <span className="input-group-text" id="basic-addon2">
                     V
@@ -465,7 +465,7 @@ const ConfigurationForm = ({ resetButton, handleSubmitData, formDisabled, actuat
                     // placeholder="50"
                     defaultValue={50}
                     {...register("frequency", defaultError)}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <span className="input-group-text" id="basic-addon2">
                     Hz
@@ -492,7 +492,7 @@ const ConfigurationForm = ({ resetButton, handleSubmitData, formDisabled, actuat
                     step="any"
                     defaultValue={50}
                     {...register("dutyCycle", dutyCycleError)}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     %
@@ -523,7 +523,7 @@ const ConfigurationForm = ({ resetButton, handleSubmitData, formDisabled, actuat
                   step="any"
                   defaultValue={10}
                   {...register("defaultDuration", defaultError)}
-                  disabled={formDisabled}
+                  disabled={isFormDisabled}
                 />
                 <span className="input-group-text" id="basic-addon1">
                   seconds

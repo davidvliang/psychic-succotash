@@ -5,7 +5,7 @@ import { getTS, alphabet } from "../utils/general";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
 import lookupTable from "../utils/LookupTable.json"
 
-const ConfigurationForm = ({ resetButtonPressed, handleMultiArrayFormData, currentFormData, formDisabled, actuatedCells }: { resetButtonPressed: boolean, handleMultiArrayFormData: (data: object) => void, currentFormData: object, formDisabled: boolean, actuatedCells: object }) => {
+const ConfigurationForm = ({ isResetButtonPressed, handleMultiArrayFormData, currentFormData, isFormDisabled, actuatedCells }: { isResetButtonPressed: boolean, handleMultiArrayFormData: (data: object) => void, currentFormData: object, isFormDisabled: boolean, actuatedCells: object }) => {
 
   // Initialize form input using React-Hook-Form
   const {
@@ -29,7 +29,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleMultiArrayFormData, curre
   useEffect(() => {
     reset();
     setMultiArrSize(4);
-  }, [resetButtonPressed]);
+  }, [isResetButtonPressed]);
 
   // Input Validation for Parameters
   const voltageError = {
@@ -77,9 +77,9 @@ const ConfigurationForm = ({ resetButtonPressed, handleMultiArrayFormData, curre
   const styleCyclestateCell = (elementID: string, _rowVal: number, _colVal: number) => {
     let cellElement = document.getElementById(elementID) as HTMLInputElement // grab input element by ID
     // let actuateClassName = actuatedCells[String(_rowVal * arrSize + _colVal) as keyof typeof actuatedCells] ? "btn-success" : "" // highlight green when cell is actuated by python script
-    let formDisabledClassName = formDisabled && !cellElement.checked ? "opacity-0" : "" // when form is disabled (when submit button pressed), hide the states that aren't checked
-    // return " " + formDisabledClassName + " " + actuateClassName + " " // return these conditional classNames
-    return " " + formDisabledClassName + " " // return these conditional classNames
+    let isFormDisabledClassName = isFormDisabled && !cellElement.checked ? "opacity-0" : "" // when form is disabled (when submit button pressed), hide the states that aren't checked
+    // return " " + isFormDisabledClassName + " " + actuateClassName + " " // return these conditional classNames
+    return " " + isFormDisabledClassName + " " // return these conditional classNames
   }
 
   // Set styling for cards when cell is actuated (highlight green)
@@ -200,7 +200,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleMultiArrayFormData, curre
                   setLookupTableAngle(Number(e.target.value));
                 }}
                 defaultValue={lookupTableAngle}
-                disabled={formDisabled}>
+                disabled={isFormDisabled}>
                 {angleOptions.map((val) => (
                   <option value={val}>{val}&deg;</option>
                 ))}
@@ -280,7 +280,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleMultiArrayFormData, curre
                 setMultiArrSize(Number(e.target.value));
               }}
               defaultValue={multiArrSize}
-              disabled={formDisabled}>
+              disabled={isFormDisabled}>
               {dimOptions.map((val) => (
                 <option value={val}>{val}x{val}</option>
               ))}
@@ -323,7 +323,7 @@ const ConfigurationForm = ({ resetButtonPressed, handleMultiArrayFormData, curre
                               className="form-check-input"
                               type="checkbox"
                               role="switch"
-                              disabled={formDisabled}
+                              disabled={isFormDisabled}
                               onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
                                 console.log("hello", e.target.checked)
                                 for (let i = 0; i < arrSize; i++) {

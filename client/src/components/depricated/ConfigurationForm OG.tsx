@@ -6,12 +6,12 @@ import getTS from "../utils/getTS";
 const ConfigurationForm = ({
   resetButton,
   handleSubmitData,
-  formDisabled,
+  isFormDisabled,
   actuatedCells,
 }: {
   resetButton: boolean;
   handleSubmitData: (data: object) => void;
-  formDisabled: boolean;
+  isFormDisabled: boolean;
   actuatedCells: object;
 }) => {
   const {
@@ -72,7 +72,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="0"
                     {...register("dmuxOutputNum.0")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -91,7 +91,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="1"
                     {...register("dmuxOutputNum.1")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -110,7 +110,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="2"
                     {...register("dmuxOutputNum.2")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -129,7 +129,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="3"
                     {...register("dmuxOutputNum.3")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -151,7 +151,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="4"
                     {...register("dmuxOutputNum.4")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -170,7 +170,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="5"
                     {...register("dmuxOutputNum.5")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -189,7 +189,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="6"
                     {...register("dmuxOutputNum.6")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -208,7 +208,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="7"
                     {...register("dmuxOutputNum.7")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -230,7 +230,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="8"
                     {...register("dmuxOutputNum.8")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -249,7 +249,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="9"
                     {...register("dmuxOutputNum.9")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -268,7 +268,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="10"
                     {...register("dmuxOutputNum.10")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -287,7 +287,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="11"
                     {...register("dmuxOutputNum.11")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -309,7 +309,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="12"
                     {...register("dmuxOutputNum.12")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -329,7 +329,7 @@ const ConfigurationForm = ({
                     // defaultValue={false}
                     id="13"
                     {...register("dmuxOutputNum.13")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -348,7 +348,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="14"
                     {...register("dmuxOutputNum.14")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -367,7 +367,7 @@ const ConfigurationForm = ({
                     className="btn btn-check"
                     id="15"
                     {...register("dmuxOutputNum.15")}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <label
                     className={
@@ -404,7 +404,7 @@ const ConfigurationForm = ({
                     // placeholder="-10"
                     defaultValue={-10}
                     {...register("negVoltage", voltageError)}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     V
@@ -433,7 +433,7 @@ const ConfigurationForm = ({
                     // placeholder="10"
                     defaultValue={10}
                     {...register("posVoltage", voltageError)}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <span className="input-group-text" id="basic-addon2">
                     V
@@ -465,7 +465,7 @@ const ConfigurationForm = ({
                     // placeholder="50"
                     defaultValue={50}
                     {...register("frequency", defaultError)}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <span className="input-group-text" id="basic-addon2">
                     Hz
@@ -492,7 +492,7 @@ const ConfigurationForm = ({
                     // placeholder="50"
                     defaultValue={50}
                     {...register("dutyCycle", dutyCycleError)}
-                    disabled={formDisabled}
+                    disabled={isFormDisabled}
                   />
                   <span className="input-group-text" id="basic-addon1">
                     %
@@ -524,7 +524,7 @@ const ConfigurationForm = ({
                   // placeholder="60"
                   defaultValue={10}
                   {...register("defaultDuration", defaultError)}
-                  disabled={formDisabled}
+                  disabled={isFormDisabled}
                 />
                 <span className="input-group-text" id="basic-addon1">
                   seconds
