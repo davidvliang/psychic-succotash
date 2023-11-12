@@ -16,6 +16,8 @@ const stopButtonEvent = "stopButtonEvent"; // 'stop' signal (client to server)
 const serverLogEvent = "serverLogEvent"; // send logging information from (server to client)
 const programRunningEvent = "programRunningEvent"; // python script start (server to client)
 const cellActuationEvent = "cellActuationEvent"; // indicate specific cell is actuated (server to client)
+const requestAntennaPatternEvent = "requestAntennaPatternEvent"
+const respondAntennaPatternEvent = "respondAntennaPatternEvent"
 
 // Init socketIO
 const io = socketIo(server, {
@@ -26,6 +28,27 @@ const io = socketIo(server, {
 
 io.on("connection", (socket) => {
   console.log("client connected:", socket.id);
+
+  // Generate Antenna Pattern
+  socket.on(requestAntennaPatternEvent, (data) => {
+    logPrint("[Python STDOUT] ", "data requested for antenna pattern!");
+
+    const antennaPatternPython = spawn("python", [
+      "-u",
+      "./scripts/antenna_pattern_plot.py",
+      JSON.stringify(data)
+    ]);
+
+    // Send STDOUT data from python script to client
+    antennaPatternPython.stdout.on("data", function (data) {
+      const dataToSend = data.toString();
+      if (dataToSend.startsWith("")) {
+        io.emit(respondAntennaPatternEvent, dataToSend);
+      }
+      logPrint("[Python STDOUT] ", dataToSend);
+    });
+
+  });
 
   // Listen for Client to Press Submit
   socket.on(submitEvent, (data) => {
@@ -47,7 +70,7 @@ io.on("connection", (socket) => {
 
     // Send STDOUT data from python script to client
     actuationPython.stdout.on("data", function (data) {
-      dataToSend = data.toString();
+      const dataToSend = data.toString();
       logPrint("[Python STDOUT] ", dataToSend);
       if (dataToSend.startsWith("actuated cell ")) {
         io.emit(cellActuationEvent, dataToSend);

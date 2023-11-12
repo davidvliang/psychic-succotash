@@ -10,12 +10,16 @@ const ConfigurationForm = (
     resetButtonPressed,
     handleCurrentFormData,
     formDisabled,
-    actuatedCells
+    actuatedCells,
+    setIsAntennaPatternRequested,
+    antennaPatternResponse
   }: {
     resetButtonPressed: boolean,
     handleCurrentFormData: (data: object) => void,
     formDisabled: boolean,
-    actuatedCells: object
+    actuatedCells: object,
+    setIsAntennaPatternRequested: (data: boolean) => void,
+    antennaPatternResponse: object
   }) => {
 
   // Initialize form input using React-Hook-Form
@@ -150,6 +154,16 @@ const ConfigurationForm = (
   }
 
 
+  // ** ANTENNA PATTERN FEATURE **
+  const generateAntennaPattern = (antennaPattern: object) => {
+    return antennaPattern
+  }
+  useEffect(() => {
+    console.log("antennapatternresponse", antennaPatternResponse)
+    generateAntennaPattern(antennaPatternResponse)
+  }, [antennaPatternResponse])
+
+
   return (
 
     <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation" onChange={() => handleCurrentFormData(getValues())}>
@@ -159,9 +173,40 @@ const ConfigurationForm = (
 
           {/* ARRAY PATTERN PLOT */}
           <div className="col-12 col-md-6">
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", borderStyle: "solid", borderRadius: "25px", margin: "5px", minHeight: "15rem" }}>
-              <p>array pattern</p>
+            <div id="antennaPatternForm" className="form-group">
+              <div className="input-group mb-3">
+                <button className="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#antennaPatternInfo">
+                  <InfoIcon />
+                </button>
+                <span className="input-group-text py-0" style={{ fontSize: "medium", position: "relative", flex: "1 1 auto", width: "1%", minWidth: 0 }}>
+                  <b>Antenna Pattern</b>
+                </span>
+                <button
+                  className="btn btn-primary align-self-center"
+                  id="antennaPatternButton"
+                  type="submit"
+                  form="antennaPatternForm"
+                  value="Render"
+                  onClick={() => {
+                    setIsAntennaPatternRequested(true)
+                    console.log("check", getValues())
+                  }}>
+                  Render
+                </button>
+              </div>
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", borderStyle: "solid", borderRadius: "25px", margin: "5px", minHeight: "15rem" }}>
+                <p>array pattern</p>
+                <p>{String(JSON.stringify(antennaPatternResponse))}</p>
+                {/* <p>{generateAntennaPattern()}</p> */}
+              </div>
             </div>
+            <div id="antennaPatternInfo" className="collapse mt-2">
+              <div className="card card-body py-2 mb-2 mx-2">
+                <p className="form-text mb-1">Click 'Render' to generate the antenna pattern for the current configuration.</p>
+              </div>
+            </div>
+
+
           </div>
 
           {/* RENDER OPTIONS AND PARAMETERS */}

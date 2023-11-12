@@ -14,6 +14,8 @@ const stopButtonEvent = "stopButtonEvent"; // 'stop' signal (client to server)
 const serverLogEvent = "serverLogEvent"; // send logging information from (server to client)
 const programRunningEvent = "programRunningEvent"; // python script start (server to client)
 const cellActuationEvent = "cellActuationEvent"; // indicate specific cell is actuated (server to client)
+const requestAntennaPatternEvent = "requestAntennaPatternEvent"
+const respondAntennaPatternEvent = "respondAntennaPatternEvent"
 
 // INIT Sockets
 const socket = io("http://localhost:5001");
@@ -31,6 +33,8 @@ function TopInterface() {
   const [actuatedCells, setActuatedCells] = useState<object>(
     JSON.parse(JSON.stringify(defaultActuatedCells))
   );
+  const [isAntennaPatternRequested, setIsAntennaPatternRequested] = useState<boolean>(false)
+  const [antennaPatternResponse, setAntennaPatternResponse] = useState<object>([{}])
   const [arrayPage, setArrayPage] = useState<number>(1); // for switching pages 
 
 
@@ -56,7 +60,7 @@ function TopInterface() {
   socket.on(programRunningEvent, (data) => {
     setFormDisabled(data);
   });
-
+  
   // Keep track of which individual cells have been actuated by the python script
   // Used for demo purposes to highlight the actuated cells in green on the frontend 
   socket.on(cellActuationEvent, (data) => {
@@ -66,8 +70,20 @@ function TopInterface() {
       ...{ [cellVal as keyof typeof actuatedCells]: true }
     }));
   });
+  
+  // ANTENNA PATTERN
+  // receive antenna pattern data from backend
+  socket.on(respondAntennaPatternEvent, (data) => {
+    setAntennaPatternResponse(data)
+  });
 
-
+  // Initiate antenna pattern request when button is pressed
+  useEffect(() => {
+    if (isAntennaPatternRequested) {
+      socket.emit(requestAntennaPatternEvent, currentFormData)
+      setIsAntennaPatternRequested(false)
+    }
+  }, [isAntennaPatternRequested])
 
   return (
     <div className="">
@@ -187,6 +203,8 @@ function TopInterface() {
           handleCurrentFormData={setCurrentFormData}
           formDisabled={formDisabled}
           actuatedCells={actuatedCells}
+          setIsAntennaPatternRequested={setIsAntennaPatternRequested}
+          antennaPatternResponse={antennaPatternResponse}
         />
       </div>
 
