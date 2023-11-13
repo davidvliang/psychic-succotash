@@ -1,7 +1,7 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useState, useEffect } from "react";
-import { arrayRange, alphabet } from "../utils/general";
-import { ConfigurationType, AntennaPatternType } from "../utils/actuation";
+import { arrayRange, indexOfMax, indexOfMin, truncateByDecimalPlace, alphabet } from "../utils/general";
+import { ConfigurationType, AntennaPatternType, AntennaPatternStatsType } from "../utils/actuation";
 import { ReactComponent as InfoIcon } from "../assets/info-lg.svg"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -161,11 +161,16 @@ const ConfigurationForm = (
 
 
   // ** ANTENNA PATTERN FEATURE **
-  const [formattedAntennaPatternData, setFormattedAntennaPatternData] = useState<Array<object>>([{ name: 1, pF: 0 }])
+  const [formattedAntennaPatternData, setFormattedAntennaPatternData] = useState<Array<object>>([{ name: 0, pF: 0 }])
+  const [antennaPatternStats, setAntennaPatternStats] = useState<AntennaPatternStatsType>()
   const thetaX = arrayRange(-90, 90, 1)
   const generateAntennaPattern = () => {
-    thetaX
-    formattedAntennaPatternData
+    setAntennaPatternStats({
+      "maxPF": Math.max(...antennaPatternResponse),
+      "indexMaxPF": thetaX[indexOfMax(antennaPatternResponse)],
+      "minPF": Math.min(...antennaPatternResponse),
+      "indexMinPF": thetaX[indexOfMin(antennaPatternResponse)]
+    })
 
     var a = []
     for (var i = 0; i < thetaX.length; i++) {
@@ -176,7 +181,7 @@ const ConfigurationForm = (
         }
       )
     }
-    console.log("a", a)
+    console.log("a", a, antennaPatternStats)
     setFormattedAntennaPatternData(a)
   }
   useEffect(() => {
@@ -186,7 +191,7 @@ const ConfigurationForm = (
 
   return (
 
-    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation" onChange={() => {handleCurrentFormData(getValues());}}>
+    <form id="configForm" name="configForm" onSubmit={handleSubmit(onSubmit)} className="needs-validation" onChange={() => { handleCurrentFormData(getValues()); }}>
 
       <div className="container">
         <div className="row gap-5 gap-md-0">
@@ -215,10 +220,10 @@ const ConfigurationForm = (
                   Render
                 </button>
               </div>
-              <div className="py-2" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "250px", borderStyle: "solid", borderRadius: "10px", borderWidth: "thin" }}>
+              <div className="py-2 gap-1" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "250px", borderStyle: "solid", borderRadius: "10px", borderWidth: "thin" }}>
                 <ResponsiveContainer width="100%" height={240}>
                   <LineChart
-                    width={500}
+                    width={350}
                     height={300}
                     data={formattedAntennaPatternData}
                     margin={{
@@ -230,7 +235,7 @@ const ConfigurationForm = (
                   >
                     {/* <CartesianGrid strokeDasharray="3 3" /> */}
                     {/* <XAxis dataKey="name" label="&Theta;" ticks={[-75,-50,-25,0,25,50,75]}/> */}
-                    <XAxis dataKey="name" ticks={[-75,-50,-25,0,25,50,75]}/>
+                    <XAxis dataKey="name" ticks={[-75, -50, -25, 0, 25, 50, 75]} />
                     {/* <YAxis dataKey="pF" label={{ value: "Power Factor", angle: -90, position: "insideleft", offset: "50"}} /> */}
                     <YAxis dataKey="pF" />
                     <Tooltip />
@@ -239,6 +244,20 @@ const ConfigurationForm = (
                     {/* <Line type="monotone" dataKey="uv" stroke="#82ca9d" /> */}
                   </LineChart>
                 </ResponsiveContainer>
+                {antennaPatternResponse.length > 1 &&
+                  <div className="col-3">
+                    <p className="" style={{ fontSize: "0.875rem" }}>
+                      <b>Max pF:</b> {antennaPatternStats ? truncateByDecimalPlace(Number(antennaPatternStats.maxPF), 2) + " dB" : "--"}
+                      <br />
+                      <b>at angle:</b> {antennaPatternStats ? antennaPatternStats.indexMaxPF + "\u00B0" : "--"}
+                    </p>
+                    <p className="" style={{ fontSize: "0.875rem" }}>
+                      <b>Min pF:</b> {antennaPatternStats ? truncateByDecimalPlace(Number(antennaPatternStats.minPF), 2) + " dB" : "--"}
+                      <br />
+                      <b>at angle:</b> {antennaPatternStats ? antennaPatternStats.indexMinPF + "\u00B0" : "--"}
+                    </p>
+                  </div>
+                }
               </div>
             </div>
             <div id="antennaPatternInfo" className="collapse mt-2">
@@ -315,6 +334,7 @@ const ConfigurationForm = (
                         // console.log("table lookup\n", lookupTableAngle)
                         getDataFromAngle(lookupTableAngle)
                         console.log("check", getValues())
+                        setIsAntennaPatternRequested(true)
                       }}>
                       Render
                     </button>

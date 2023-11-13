@@ -161,6 +161,7 @@ function TopInterface() {
                 setLogData(`[${getTS()}] [Client] Submit Button Pressed.`);
                 console.log("submit button", Object.assign({}, {"timestamp": getTS()}, currentFormData))
                 socket.emit(submitEvent, Object.assign({}, {"timestamp": getTS()}, currentFormData))
+                setIsAntennaPatternRequested(true)
               }}
               disabled={isFormDisabled}
             >

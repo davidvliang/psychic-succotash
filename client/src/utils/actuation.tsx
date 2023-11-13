@@ -13,6 +13,13 @@ export type AntennaPatternType = {
     pF: Array<number>;
 }
 
+export type AntennaPatternStatsType = {
+    maxPF: number;
+    indexMaxPF: number;
+    minPF: number;
+    indexMinPF: number;
+}
+
 export const defaultActuatedCells = {
     "0": false,
     "1": false,
