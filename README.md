@@ -40,3 +40,11 @@ For server,
 Run the client and server simultaneously in separate terminal windows. 
 
 Open browser and visit [localhost:3000](http://localhost:3000/)
+
+## Warning
+
+The control system loses connection to the server after a page refresh.
+
+If the client is closed or connection is lost, the DAQ must be switched off manually. 
+
+This is currently being addressed. 
