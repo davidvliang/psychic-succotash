@@ -17,13 +17,13 @@ For client,
 1. In a terminal window, go to the ```client/``` directory 
 2. Run ```npm install``` to install all dependencies
 3. Open file ```client/src/components/TopInterface.tsx```
-4. Edit line 18 with the IP address of the current machine. Don't change the port number.
+4. Edit line 21 with the IP address of the current machine. Don't change the port number.
 
 For server,
 1. In a terminal window, go to the ```server/``` directory 
 2. Run ```npm install``` to install all dependencies
 3. Open file ```server/server.js```
-4. Edit line 22 with the IP address of the current machine. Don't change the port number.
+4. Edit line 25 with the IP address of the current machine. Don't change the port number.
 
 
 
